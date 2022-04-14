@@ -1,33 +1,46 @@
 import sqlite3
 import json
-from tkinter import E
+import os
 
-# Create a sqlite3 connection
-conn = sqlite3.connect('database.db', check_same_thread=False)
-# Create a cursor
-c = conn.cursor()
+dbPath = os.path.join(os.path.dirname(__file__), 'database.db')
 
 class Database:
     # Function to get all data from groups table
     def getData(self):
+        # Create a sqlite3 connection
+        conn = sqlite3.connect(dbPath, check_same_thread=False)
+        # Create a cursor
+        c = conn.cursor()
         # Get data from "groups" table
         c.execute("SELECT * FROM groups")
         # Fetch all the data
         data = c.fetchall()
+        # Close the connection
+        conn.close()
         # Return the data
         return data
 
     # Function to members id from group id
     def getMembers(self, group_id):
-        # Get members from "groups" table
-        c.execute("SELECT members_id FROM groups WHERE group_id=?", (group_id))
+        # Create a sqlite3 connection
+        conn = sqlite3.connect(dbPath, check_same_thread=False)
+        # Create a cursor
+        c = conn.cursor()
+        # Get data from "groups" table
+        c.execute("SELECT members_id FROM groups WHERE group_id=?", (group_id,))
         # Fetch all the data
         data = c.fetchall()
+        # Close the connection
+        conn.close()
         # Return the data
         return data
     
     # Function to insert data into database
     def insertData(self, group_id, members_id):
+        # Create a sqlite3 connection
+        conn = sqlite3.connect(dbPath, check_same_thread=False)
+        # Create a cursor
+        c = conn.cursor()
         # Check if group id exists
         c.execute("SELECT group_id FROM groups WHERE group_id=?", (group_id,))
         # Fetch all the data
@@ -59,22 +72,31 @@ class Database:
             c.execute("INSERT INTO groups VALUES (?, ?)", (group_id, "[" + str(members_id) + "]"))
             # Commit the changes
             conn.commit()
+        # Close the connection
+        conn.close()
         
     # Function to delete data from database
     def deleteData(self, group_id):
+        # Create a sqlite3 connection
+        conn = sqlite3.connect(dbPath, check_same_thread=False)
+        # Create a cursor
+        c = conn.cursor()
         # Delete data from "groups" table
         c.execute("DELETE FROM groups WHERE group_id=?", (group_id,))
         # Commit the changes
         conn.commit()
+        # Close the connection
+        conn.close()
     
     # Function to update data in database
     def updateData(self, group_id, members_id):
+        # Create a sqlite3 connection
+        conn = sqlite3.connect(dbPath, check_same_thread=False)
+        # Create a cursor
+        c = conn.cursor()
         # Update data in "groups" table
         c.execute("UPDATE groups SET members_id=? WHERE group_id=?", (members_id, group_id))
         # Commit the changes
         conn.commit()
-
-    # Function to close the connection
-    def closeConnection(self):
         # Close the connection
         conn.close()
