@@ -76,17 +76,30 @@ class Database:
         conn.close()
         
     # Function to delete data from database
-    def deleteData(self, group_id):
+    def deleteData(self, group_id, member_id):
         # Create a sqlite3 connection
         conn = sqlite3.connect(dbPath, check_same_thread=False)
         # Create a cursor
         c = conn.cursor()
-        # Delete data from "groups" table
-        c.execute("DELETE FROM groups WHERE group_id=?", (group_id,))
-        # Commit the changes
-        conn.commit()
+        # Get data from "groups" table
+        c.execute("SELECT members_id FROM groups WHERE group_id=?", (group_id,))
+        # Fetch all the data
+        data = c.fetchall()
+        # Convert data to json
+        data = json.loads(data[0][0])
+        # Check if member id exists
+        if member_id in data:
+            # Delete member id
+            data.remove(member_id)
+            # Push data to database
+            c.execute("UPDATE groups SET members_id=? WHERE group_id=?", (json.dumps(data), group_id))
+            # Commit the changes
+            conn.commit()
+        else:
+            raise Exception("Member id doesn't exists")
         # Close the connection
         conn.close()
+
     
     # Function to update data in database
     def updateData(self, group_id, members_id):
