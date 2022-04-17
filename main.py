@@ -1,4 +1,3 @@
-from operator import contains
 from telegram.ext.updater import Updater
 from telegram.update import Update
 from telegram.ext.callbackcontext import CallbackContext
@@ -8,11 +7,12 @@ from telegram.ext.filters import Filters
 from database import Database
 import json
 import random
+# from keep_alive import keep_alive
 
 # Create an istance of database
 db = Database()
   
-updater = Updater("5289537493:AAGrVK2rcpJ4OhR2wFeWc8aXyPJDMIrLe0c", use_context=True)
+updater = Updater("INSERT_TOKEN_HERE", use_context=True)
   
 def start(update: Update, context: CallbackContext):
     # Check if bot is in a group
@@ -131,5 +131,6 @@ updater.dispatcher.add_handler(MessageHandler(Filters.text, everyone))
 
 updater.dispatcher.add_handler(MessageHandler(Filters.text, unknown))
 updater.dispatcher.add_handler(MessageHandler(Filters.command, unknown))  # Filters out unknown commands
-  
+
+# keep_alive() # Replit hosting
 updater.start_polling()
