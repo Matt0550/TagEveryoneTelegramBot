@@ -121,11 +121,20 @@ def everyone(update: Update, context: CallbackContext):
         else:
             update.message.reply_text("This command is can only be used in a group")
 
+def help(update: Update, context: CallbackContext):
+    update.message.reply_text("""
+    /in - Add yourself to the Everyone list
+    /out - Remove yourself from the Everyone list
+    /everyone - Send a message to all in the list\n\n
+    Developed by @Non_Sono_Matteo\n
+    https://matt05.ml
+    """)
 updater.dispatcher.add_handler(CommandHandler('start', start))
 updater.dispatcher.add_handler(CommandHandler('everyone', everyone))
 updater.dispatcher.add_handler(CommandHandler('all', everyone))
 updater.dispatcher.add_handler(CommandHandler('in', join_list))
 updater.dispatcher.add_handler(CommandHandler('out', leave_list))
+updater.dispatcher.add_handler(CommandHandler('help', leave_list))
 
 updater.dispatcher.add_handler(MessageHandler(Filters.text, everyone))
 
