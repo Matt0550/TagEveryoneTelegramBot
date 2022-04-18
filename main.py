@@ -13,7 +13,11 @@ import datetime
 
 # Create an istance of database
 db = Database()
-OWNER_ID = 313344916
+OWNER_ID = INSERT_OWNER_ID
+
+# os.environ['token']
+updater = Updater("INSERT_TOKEN_HERE", use_context=True)
+start_time = datetime.datetime.now() # For uptime
 
 # Create a decorator to apply cooldown to a function (in seconds) for user who used the command
 def cooldown(seconds):
@@ -40,10 +44,6 @@ def cooldown(seconds):
             func(update, context)
         return wrapper
     return decorator
-
-# os.environ['token']
-updater = Updater("5289537493:AAHb_jQOorFA3YZmN__cpqt9rchF7nkyu7M", use_context=True)
-start_time = datetime.datetime.now() # For uptime
 
 @cooldown(15)
 def start(update: Update, context: CallbackContext):
