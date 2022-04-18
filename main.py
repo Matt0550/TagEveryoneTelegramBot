@@ -74,13 +74,7 @@ def leave_list(update: Update, context: CallbackContext):
         # Print error with code markup
         update.message.reply_text("Error:\n`%s`" % e, parse_mode="Markdown")
 
-words = ["gg", "cc", "gaddean", "gaddean bro", "gg bro", "cc bro"]
 def everyone(update: Update, context: CallbackContext):
-    # Check if message contains a word from the list
-    if update.message.text.lower() in words:
-        # Random response from words list
-        update.message.reply_text(words[random.randint(0, len(words) - 1)])
-    
     if update.message.text == "@everyone" or update.message.text == "@all" or update.message.text == "/everyone" or update.message.text == "/all" or update.message.text == "@"+update.message.bot.username:
         if update.message.chat.type == "group" or update.message.chat.type == "supergroup":
             # Check if bot is admin in the group
