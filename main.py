@@ -7,11 +7,12 @@ from telegram.ext.filters import Filters
 from database import Database
 import json
 import random
+# import os
 # from keep_alive import keep_alive
 
 # Create an istance of database
 db = Database()
-  
+# os.environ['token']
 updater = Updater("INSERT_TOKEN_HERE", use_context=True)
   
 def start(update: Update, context: CallbackContext):
@@ -40,7 +41,7 @@ def join_list(update: Update, context: CallbackContext):
             group_id = update.message.chat.id
             # Insert data into database
             db.insertData(group_id, user_id)
-            print("[DATABAE] Inserted data into database: %s, %s" % (group_id, user_id))
+            print("[DATABASE] Inserted data into database: %s, %s" % (group_id, user_id))
             update.message.reply_text("You have been added to the list")
 
         else:
@@ -76,7 +77,7 @@ def leave_list(update: Update, context: CallbackContext):
 words = ["gg", "cc", "gaddean", "gaddean bro", "gg bro", "cc bro"]
 def everyone(update: Update, context: CallbackContext):
     # Check if message contains a word from the list
-    if any(word in update.message.text.lower() for word in words):
+    if update.message.text.lower() in words:
         # Random response from words list
         update.message.reply_text(words[random.randint(0, len(words) - 1)])
     
@@ -123,18 +124,18 @@ def everyone(update: Update, context: CallbackContext):
 
 def help(update: Update, context: CallbackContext):
     update.message.reply_text("""
-    /in - Add yourself to the Everyone list
-    /out - Remove yourself from the Everyone list
-    /everyone - Send a message to all in the list\n\n
-    Developed by @Non_Sono_Matteo\n
-    https://matt05.ml
-    """)
+/in - Add yourself to the Everyone's list\n
+/out - Remove yourself from the Everyone's list\n
+/everyone - Send a message to all in the list\n\n
+Developed by @Non_Sono_Matteo\n
+https://matt05.ml
+""")
 updater.dispatcher.add_handler(CommandHandler('start', start))
 updater.dispatcher.add_handler(CommandHandler('everyone', everyone))
 updater.dispatcher.add_handler(CommandHandler('all', everyone))
 updater.dispatcher.add_handler(CommandHandler('in', join_list))
 updater.dispatcher.add_handler(CommandHandler('out', leave_list))
-updater.dispatcher.add_handler(CommandHandler('help', leave_list))
+updater.dispatcher.add_handler(CommandHandler('help', help))
 
 updater.dispatcher.add_handler(MessageHandler(Filters.text, everyone))
 
