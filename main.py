@@ -22,7 +22,7 @@ import datetime
 db = Database()
 
 OWNER_ID = INSERT_OWNNER_ID_HERE
-TOKEN = "INSERT_TOKEN_HERE" # OR os.environ('token')
+TOKEN = "INSERT_TOKEN_HERE" # OR os.environ['token']
 
 updater = Updater(TOKEN, use_context=True)
 
