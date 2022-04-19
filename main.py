@@ -1,3 +1,10 @@
+#################################
+#   Tag Everyone Telegram Bot   #
+# Developed by @Non_Sono_Matteo #
+#       https://matt05.ml       #
+#       Github: @Matt0550       #
+#################################
+
 from telegram.ext.updater import Updater
 from telegram.update import Update
 from telegram.ext.callbackcontext import CallbackContext
@@ -7,40 +14,45 @@ from telegram.ext.filters import Filters
 from database import Database
 import json
 import datetime
+
 # import os
-# from keep_alive import keep_alive
+# from keep_alive import keep_alive # Replit hosting
 
 # Create an istance of database
 db = Database()
-OWNER_ID = INSERT_OWNER_ID
 
-# os.environ['token']
-updater = Updater("INSERT_TOKEN_HERE", use_context=True)
-start_time = datetime.datetime.now() # For uptime
+OWNER_ID = INSERT_OWNNER_ID_HERE
+TOKEN = "INSERT_TOKEN_HERE" # OR os.environ('token')
+
+updater = Updater(TOKEN, use_context=True)
+
+everyoneCommands = ["@everyone", "@all", "/everyone", "/all", "/everyone@"+updater.bot.username, "/all@"+updater.bot.username, "@"+updater.bot.username] # You can add more aliases for the command /everyone
+
+start_time = datetime.datetime.now() # For the uptime command
 
 # Create a decorator to apply cooldown to a function (in seconds) for user who used the command
 def cooldown(seconds):
     def decorator(func):
         # Create a dictionary to store the last time the user used the command
         last_time = {}
-
         def wrapper(update: Update, context: CallbackContext):
-            # Get the user id
-            user_id = update.message.from_user.id
-            # Get the current time
-            now = datetime.datetime.now()
-            # Check if the user has used the command before
-            if user_id in last_time:
-                # Check if the user has used the command in the last seconds
-                if now - last_time[user_id] < datetime.timedelta(seconds=seconds):
-                    # If the user has used the command in the last seconds, send a message to the user
-                    update.message.reply_text("You can use this command again in %s seconds" % str(seconds - (now - last_time[user_id]).seconds))
-                    # Return to avoid the function to be executed
-                    return
-            # Update the last time the user used the command
-            last_time[user_id] = now
-            # Execute the function
-            func(update, context)
+            if update.message.text in everyoneCommands or update.message.text.startswith("/"):
+                # Get the user id
+                user_id = update.message.from_user.id
+                # Get the current time
+                now = datetime.datetime.now()
+                # Check if the user has used the command before
+                if user_id in last_time:
+                    # Check if the user has used the command in the last seconds
+                    if now - last_time[user_id] < datetime.timedelta(seconds=seconds):
+                        # If the user has used the command in the last seconds, send a message to the user
+                        update.message.reply_text("You can use this command again in %s seconds" % str(seconds - (now - last_time[user_id]).seconds))
+                        # Return to avoid the function to be executed
+                        return
+                # Update the last time the user used the command
+                last_time[user_id] = now
+                # Execute the function
+                func(update, context)
         return wrapper
     return decorator
 
@@ -55,10 +67,6 @@ def start(update: Update, context: CallbackContext):
             update.message.reply_text("Bot is now ready to use.\nFor more information type /help")
         else:
             update.message.reply_text("The bot must be admin to use this command in a group")
-
-def unknown(update: Update, context: CallbackContext):
-    update.message.reply_text(
-        "Sorry '%s' is not a valid command" % update.message.text)
 
 @cooldown(15)
 # Function to add a member to the list
@@ -107,52 +115,54 @@ def leave_list(update: Update, context: CallbackContext):
         update.message.reply_text("Error:\n`%s`" % e, parse_mode="Markdown")
 
 @cooldown(15)
-def everyone(update: Update, context: CallbackContext):
-    everyoneCommands = ["@everyone", "@all", "/everyone", "/all", "/everyone@"+update.message.bot.username, "/all@"+update.message.bot.username, "@"+update.message.bot.username]
-    if update.message.text in everyoneCommands:
-        if update.message.chat.type == "group" or update.message.chat.type == "supergroup":
-            # Check if bot is admin in the group
-            if update.message.chat.get_member(updater.bot.id).status == "administrator":
-                try: 
-                    # Get the group id from the message
-                    group_id = update.message.chat.id
-                    # Get data from database
-                    data = db.getMembers(group_id)
-                    # Convert data to json
-                    data = json.loads(data[0][0])
-                    # Check if data is empty
-                    if not data:
+def everyoneMessage(update: Update, context: CallbackContext):
+    if update.message.chat.type == "group" or update.message.chat.type == "supergroup":
+        # Check if bot is admin in the group
+        if update.message.chat.get_member(updater.bot.id).status == "administrator":
+            try: 
+                # Get the group id from the message
+                group_id = update.message.chat.id
+                # Get data from database
+                data = db.getMembers(group_id)
+                # Convert data to json
+                data = json.loads(data[0][0])
+                # Check if data is empty
+                if not data:
+                    update.message.reply_text("No one is in the list")
+                else:
+                    # Convert data to string
+                    data = str(data)
+                    # Remove "[" and "]"
+                    data = data.replace("[", "")
+                    data = data.replace("]", "")
+                    
+                    members = []
+                    try:
+                        # Foreach data in list
+                        for i in data.split(","):
+                            try:
+                                members.append("@" + update.message.chat.get_member(int(i)).user.username)
+                            except Exception as e:
+                                print("[USER] " + str(e) + " - " + str(i))
+                                continue
+                        # Send message with list of members
+                        update.message.reply_text("\n".join(members))
+                    except Exception as e:
+                        print("[ERROR] " + str(e))
                         update.message.reply_text("No one is in the list")
-                    else:
-                        # Convert data to string
-                        data = str(data)
-                        # Remove "[" and "]"
-                        data = data.replace("[", "")
-                        data = data.replace("]", "")
-                        
-                        members = []
-                        try:
-                            # Foreach data in list
-                            for i in data.split(","):
-                                try:
-                                    members.append("@" + update.message.chat.get_member(int(i)).user.username)
-                                except Exception as e:
-                                    print("[USER] " + str(e) + " - " + str(i))
-                                    continue
-                            # Send message with list of members
-                            update.message.reply_text("\n".join(members))
-                        except Exception as e:
-                            print("[ERROR] " + str(e))
-                            update.message.reply_text("No one is in the list")
 
-                except Exception as e:
-                    print("[ERROR] " + str(e))
-                    # Print error with code markup
-                    update.message.reply_text("Error:\n`%s`" % e, parse_mode="Markdown")
-            else:
-                update.message.reply_text("The bot must be admin to use this command in a group")
+            except Exception as e:
+                print("[ERROR] " + str(e))
+                # Print error with code markup
+                update.message.reply_text("Error:\n`%s`" % e, parse_mode="Markdown")
         else:
-            update.message.reply_text("This command is can only be used in a group")
+            update.message.reply_text("The bot must be admin to use this command in a group")
+    else:
+        update.message.reply_text("This command is can only be used in a group")
+
+def everyone(update: Update, context: CallbackContext):
+    if update.message.text in everyoneCommands:
+        everyoneMessage(update, context) # Apply cooldown only if the message is in the list (command)
 
 @cooldown(15)
 def help(update: Update, context: CallbackContext):
@@ -235,9 +245,6 @@ updater.dispatcher.add_handler(CommandHandler('status', status))
 updater.dispatcher.add_handler(CommandHandler('list', getList))
 
 updater.dispatcher.add_handler(MessageHandler(Filters.text, everyone))
-
-updater.dispatcher.add_handler(MessageHandler(Filters.text, unknown))
-updater.dispatcher.add_handler(MessageHandler(Filters.command, unknown))  # Filters out unknown commands
 
 # keep_alive() # Replit hosting
 updater.start_polling()
