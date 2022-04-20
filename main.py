@@ -36,7 +36,7 @@ def cooldown(seconds):
         # Create a dictionary to store the last time the user used the command
         last_time = {}
         def wrapper(update: Update, context: CallbackContext):
-            if update.message.text in everyoneCommands or update.message.text.startswith("/"):
+            if any(comm in update.message.text.lower() for comm in everyoneCommands) or update.message.text.startswith("/"):
                 # Get the user id
                 user_id = update.message.from_user.id
                 # Get the current time
@@ -161,7 +161,8 @@ def everyoneMessage(update: Update, context: CallbackContext):
         update.message.reply_text("This command is can only be used in a group")
 
 def everyone(update: Update, context: CallbackContext):
-    if update.message.text in everyoneCommands:
+    # Check if message contains any of the commands in the list (case insensitive)
+    if any(comm in update.message.text.lower() for comm in everyoneCommands):
         everyoneMessage(update, context) # Apply cooldown only if the message is in the list (command)
 
 @cooldown(15)
