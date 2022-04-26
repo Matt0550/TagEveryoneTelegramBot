@@ -162,7 +162,7 @@ def everyoneMessage(update: Update, context: CallbackContext):
 
 def everyone(update: Update, context: CallbackContext):
     # Check if message contains any of the commands in the list (case insensitive)
-    if any(comm in update.message.text.lower() for comm in everyoneCommands):
+    if any(comm in update.message.text.lower() for comm in everyoneCommands) or any(comm in update.message.text for comm in everyoneCommands):
         everyoneMessage(update, context) # Apply cooldown only if the message is in the list (command)
 
 @cooldown(15)
