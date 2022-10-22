@@ -1,0 +1,11 @@
+version: '3'
+services:
+  tagall_bot:
+    container_name: tagall_bot
+    build: ./
+    # or build this image, push to dockerhub.com and set
+    # image: ......
+    restart: unless-stopped
+    environment:
+      - token=     # bot token
+      - owner_id=  # your id
