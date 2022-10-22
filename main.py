@@ -15,14 +15,16 @@ from database import Database
 import json
 import datetime
 
-# import os
+import os
 # from keep_alive import keep_alive # Replit hosting
 
 # Create an istance of database
 db = Database()
 
-OWNER_ID = INSERT_OWNNER_ID_HERE
-TOKEN = "INSERT_TOKEN_HERE" # OR os.environ['token']
+                                   # set your owner_id and token to docker-compose.yml and start it
+OWNER_ID = os.environ['owner_id']  # or insert owner id to OWNER_ID
+TOKEN = os.environ['token']        # and insert token to TOKEN
+                                   # and just run main.py
 
 updater = Updater(TOKEN, use_context=True)
 

@@ -55,6 +55,22 @@ Start the bot
   python main.py
 ```
 
+## Installation - Using Docker
+
+Install [Docker](https://www.docker.com)
+
+Clone the project
+```bash
+  git clone https://github.com/Matt0550/TagEveryoneTelegramBot
+```
+
+Set `bot token` and `owner id` in docker-compose.yml
+
+Now, open project folder in terminal and run
+```bash
+  docker-compose up -d
+```
+
 
 ## Installation - Using Replit
 
