@@ -30,8 +30,6 @@ updater = Updater(TOKEN, use_context=True)
 
 everyoneCommands = ["@everyone", "@all", "/everyone", "/all", "/everyone@"+updater.bot.username, "/all@"+updater.bot.username, "@"+updater.bot.username] # You can add more aliases for the command /everyone
 
-everyoneCommands = map(lambda x: x + " ", everyoneCommands)
-
 start_time = datetime.datetime.now() # For the uptime command
 
 # Create a decorator to apply cooldown to a function (in seconds) for user who used the command
