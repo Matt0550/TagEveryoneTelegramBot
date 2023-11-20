@@ -1,7 +1,7 @@
 #################################
 #   Tag Everyone Telegram Bot   #
 # Developed by @Non_Sono_Matteo #
-#       https://matt05.ml       #
+#       https://matt05.it       #
 #       Github: @Matt0550       #
 #################################
 
@@ -11,11 +11,15 @@ from telegram.ext.callbackcontext import CallbackContext
 from telegram.ext.commandhandler import CommandHandler
 from telegram.ext.messagehandler import MessageHandler
 from telegram.ext.filters import Filters
-from database import Database
+from databaseNew import Database
 import json
 import datetime
-
+import dotenv
 import os
+
+# Load .env file
+dotenv.load_dotenv()
+
 # from keep_alive import keep_alive # Replit hosting
 
 # Create an istance of database
@@ -58,7 +62,22 @@ def cooldown(seconds):
         return wrapper
     return decorator
 
-@cooldown(15)
+# Create a decorator to check if the bot is admin and if the bot is in a group
+def group(func):
+    def wrapper(update: Update, context: CallbackContext):
+        # Check if bot is in a group
+        if update.message.chat.type == "group" or update.message.chat.type == "supergroup":
+            # Check if bot is admin in the group
+            if update.message.chat.get_member(updater.bot.id).status == "administrator":
+                # Execute the function
+                func(update, context)
+            else:
+                update.message.reply_text("The bot must be admin to use this command in a group")
+        else:
+            update.message.reply_text("This command is can only be used in a group")
+    return wrapper
+
+@cooldown(1)
 def start(update: Update, context: CallbackContext):
     # Check if bot is in a group
     if not update.message.chat.type == "group" or not update.message.chat.type == "supergroup":
@@ -70,104 +89,106 @@ def start(update: Update, context: CallbackContext):
         else:
             update.message.reply_text("The bot must be admin to use this command in a group")
 
-@cooldown(15)
+@cooldown(1)
+@group
 # Function to add a member to the list
 def join_list(update: Update, context: CallbackContext):
     try:
         # Get the user id and group id from the message
         user_id = update.message.from_user.id
-        # Check if bot is in a group
-        if update.message.chat.type == "group" or update.message.chat.type == "supergroup":
-            # Remove from group id "-" and convert to int
-            group_id = update.message.chat.id
-            # Insert data into database
-            db.insertData(group_id, user_id)
-            print("[DATABASE] Inserted data into database: %s, %s" % (group_id, user_id))
-            update.message.reply_text("You have been added to the list")
+        user_first_name = update.message.from_user.first_name
+        user_last_name = update.message.from_user.last_name
+        user_username = update.message.from_user.username
 
-        else:
-            update.message.reply_text("This command is can only be used in a group")
-            
+        # Remove from group id "-" and convert to int
+        group_id = update.message.chat.id
+        group_name = update.message.chat.title
+        group_description = update.message.chat.description
+        group_username = update.message.chat.username
+        group_type = update.message.chat.type
+        group_members = update.message.chat.get_members_count()
+
+        # Insert data into database
+        db.insertData(group_id, group_name, group_description, group_username, group_type, group_members, user_id, user_first_name, user_last_name, user_username)
+        print("[DATABASE] Inserted data into database: %s, %s" % (group_id, user_id))
+        update.message.reply_text("You have been added to the list. To remove yourself from the list type /out\n\nThanks for using this bot.\nBuy me a coffee: https://buymeacoffee.com/Matt0550", disable_web_page_preview=True)
+
     except Exception as e:
         print("[ERROR] " + str(e))
         # Print error with code markup
         update.message.reply_text("Error:\n`%s`" % e, parse_mode="Markdown")
 
-@cooldown(15)
+@cooldown(1)
+@group
 # Function to remove a member from the list
 def leave_list(update: Update, context: CallbackContext):
     try:
         # Get the user id and group id from the message
         user_id = update.message.from_user.id
-        # Check if bot is in a group
-        if update.message.chat.type == "group" or update.message.chat.type == "supergroup":
-            # Remove from group id "-" and convert to int
-            group_id = update.message.chat.id
-            # Delete data from database
-            db.deleteData(group_id, user_id)
-            print("[DATABAE] Deleted data from database: %s, %s" % (group_id, user_id))
-            update.message.reply_text("You have been removed from the list")
 
-        else:
-            update.message.reply_text("This command is can only be used in a group")
-            
+        # Remove from group id "-" and convert to int
+        group_id = update.message.chat.id
+        # Delete data from database
+        db.deleteData(group_id, user_id)
+        print("[DATABAE] Deleted data from database: %s, %s" % (group_id, user_id))
+        update.message.reply_text("You have been removed from the list. To add yourself to the list type /in\n\nThanks for using this bot.\nBuy me a coffee: https://buymeacoffee.com/Matt0550", disable_web_page_preview=True)
+
+  
     except Exception as e:
         print("[ERROR] " + str(e))
         # Print error with code markup
         update.message.reply_text("Error:\n`%s`" % e, parse_mode="Markdown")
 
-@cooldown(15)
+@cooldown(1)
+@group
 def everyoneMessage(update: Update, context: CallbackContext):
-    if update.message.chat.type == "group" or update.message.chat.type == "supergroup":
-        # Check if bot is admin in the group
-        if update.message.chat.get_member(updater.bot.id).status == "administrator":
-            try: 
-                # Get the group id from the message
-                group_id = update.message.chat.id
-                # Get data from database
-                data = db.getMembers(group_id)
-                # Convert data to json
-                data = json.loads(data[0][0])
-                # Check if data is empty
-                if not data:
-                    update.message.reply_text("No one is in the list")
-                else:
-                    # Convert data to string
-                    data = str(data)
-                    # Remove "[" and "]"
-                    data = data.replace("[", "")
-                    data = data.replace("]", "")
-                    
-                    members = []
+    try: 
+        # Get the group id from the message
+        group_id = update.message.chat.id
+        # Get data from database
+        data = db.getMembers(group_id)
+        print("[DATABASE] Got data from database: %s" % group_id)
+        
+        if not data:
+            update.message.reply_text("No one is in the list")
+        else:
+            try:
+                members = []
+                # Iterate tuple
+                for i in data:
+                    # Append to members list the username of the member
                     try:
-                        # Foreach data in list
-                        for i in data.split(","):
-                            try:
-                                members.append("@" + update.message.chat.get_member(int(i)).user.username)
-                            except Exception as e:
-                                print("[USER] " + str(e) + " - " + str(i))
-                                continue
-                        # Send message with list of members
-                        update.message.reply_text("\n".join(members))
+                        members.append("@" + update.message.chat.get_member(int(i[0])).user.username)
                     except Exception as e:
-                        print("[ERROR] " + str(e))
-                        update.message.reply_text("No one is in the list")
+                        print("[USER] " + str(e) + " - " + str(i))
+                        continue
 
+                # If the members are more than 50 send the message in multiple messages
+                if len(members) > 50:
+                    # Create a list of lists with 50 members each
+                    members = [members[i:i + 50] for i in range(0, len(members), 50)]
+                    # Iterate the list of lists
+                    for i in members:
+                        # Send message with list of members
+                        update.message.reply_text("\n".join(i) + "\n\nThanks for using this bot.\nBuy me a coffee: https://buymeacoffee.com/Matt0550", disable_web_page_preview=True)
+                else:
+                    # Send message with list of members
+                    update.message.reply_text("\n".join(members) + "\n\nThanks for using this bot.\nBuy me a coffee: https://buymeacoffee.com/Matt0550", disable_web_page_preview=True)
             except Exception as e:
                 print("[ERROR] " + str(e))
-                # Print error with code markup
                 update.message.reply_text("Error:\n`%s`" % e, parse_mode="Markdown")
-        else:
-            update.message.reply_text("The bot must be admin to use this command in a group")
-    else:
-        update.message.reply_text("This command is can only be used in a group")
+
+    except Exception as e:
+        print("[ERROR] " + str(e))
+        # Print error with code markup
+        update.message.reply_text("Error:\n`%s`" % e, parse_mode="Markdown")
 
 def everyone(update: Update, context: CallbackContext):
     # Check if message contains any of the commands in the list (case insensitive)
     if any(comm in update.message.text.lower() for comm in everyoneCommands) or any(comm in update.message.text for comm in everyoneCommands):
         everyoneMessage(update, context) # Apply cooldown only if the message is in the list (command)
 
-@cooldown(15)
+@cooldown(1)
 def help(update: Update, context: CallbackContext):
     update.message.reply_text("""
 /in - Add yourself to the Everyone's list\n
@@ -176,67 +197,67 @@ def help(update: Update, context: CallbackContext):
 /help - Show this message\n
 /list - Show the list of everyone's list (without metion)\n
 /status - Show the status of the bot\n\n
+/stats - Show the stats of the bot\n\n
 Developed by @Non_Sono_Matteo
-https://matt05.ml
+https://matt05.it
+Github: @Matt0550
+Buy me a coffee: https://buymeacoffee.com/Matt0550
 """)
 
-@cooldown(15)
+@cooldown(1)
 def getList(update: Update, context: CallbackContext):
-    if update.message.chat.type == "group" or update.message.chat.type == "supergroup":
-        # Check if bot is admin in the group
-        if update.message.chat.get_member(updater.bot.id).status == "administrator":
-            try: 
-                # Get the group id from the message
-                group_id = update.message.chat.id
-                # Get data from database
-                data = db.getMembers(group_id)
-                # Convert data to json
-                data = json.loads(data[0][0])
-                # Check if data is empty
-                if not data:
-                    update.message.reply_text("No one is in the list")
-                else:
-                    # Convert data to string
-                    data = str(data)
-                    # Remove "[" and "]"
-                    data = data.replace("[", "")
-                    data = data.replace("]", "")
-                    
-                    members = []
-                    try:
-                        # Foreach data in list
-                        for i in data.split(","):
-                            try:
-                                members.append(update.message.chat.get_member(int(i)).user.username + " - " + str(i))
-                            except Exception as e:
-                                print("[USER] " + str(e) + " - " + str(i))
-                                continue
-                        # Send message with list of members
-                        update.message.reply_text("\n".join(members))
-                    except Exception as e:
-                        print("[ERROR] " + str(e))
-                        update.message.reply_text("No one is in the list")
+    try: 
+        # Get the group id from the message
+        group_id = update.message.chat.id
+        # Get data from database
+        data = db.getMembers(group_id)
+        print("[DATABASE] Got data from database: %s" % group_id)
 
+        if not data:
+            update.message.reply_text("No one is in the list")
+        else:
+            try:
+                members = []
+                # Iterate tuple
+                for i in data:
+                    # Append to members list the username of the member
+                    try:
+                        members.append(update.message.chat.get_member(int(i[0])).user.username)
+                    except Exception as e:
+                        print("[USER] " + str(e) + " - " + str(i))
+                        continue
+                # Send message with list of members
+                update.message.reply_text("\n".join(members) + "\n\nThanks for using this bot. Buy me a coffee: https://buymeacoffee.com/Matt0550", disable_web_page_preview=True)
             except Exception as e:
                 print("[ERROR] " + str(e))
-                # Print error with code markup
                 update.message.reply_text("Error:\n`%s`" % e, parse_mode="Markdown")
-        else:
-            update.message.reply_text("The bot must be admin to use this command in a group")
-    else:
-        update.message.reply_text("This command is can only be used in a group")
 
-@cooldown(15)
+    except Exception as e:
+        print("[ERROR] " + str(e))
+        # Print error with code markup
+        update.message.reply_text("Error:\n`%s`" % e, parse_mode="Markdown")
+
+@cooldown(1)
 def status(update: Update, context: CallbackContext):
     # Get the bot uptime widout microseconds
     uptime = datetime.datetime.now() - start_time
     uptime = str(uptime).split(".")[0]
 
-    update.message.reply_text("✅ If you see this message, the bot is working\n⏰ Uptime: %s" % str(uptime))
+    update.message.reply_text("✅ If you see this message, the bot is working\n⏰ Uptime: %s" % str(uptime) + "\n\nThanks for using this bot.\nBuy me a coffee: https://buymeacoffee.com/Matt0550", disable_web_page_preview=True)
+
+@cooldown(1)
+def stats(update: Update, context: CallbackContext):
+    total_groups = db.getTotalGroups()
+    total_members = db.getTotalUsers()
+
+    update.message.reply_text("Total active groups: %s\nTotal active members: %s" % (total_groups, total_members) + "\n\nThanks for using this bot.\nBuy me a coffee: https://buymeacoffee.com/Matt0550", disable_web_page_preview=True)
+
 
 def sendMessageOwner(message):
     # Send message to owner id
     updater.bot.send_message(OWNER_ID, message)
+
+
 
 updater.dispatcher.add_handler(CommandHandler('start', start))
 updater.dispatcher.add_handler(CommandHandler('everyone', everyone))
@@ -245,6 +266,7 @@ updater.dispatcher.add_handler(CommandHandler('in', join_list))
 updater.dispatcher.add_handler(CommandHandler('out', leave_list))
 updater.dispatcher.add_handler(CommandHandler('help', help))
 updater.dispatcher.add_handler(CommandHandler('status', status))
+updater.dispatcher.add_handler(CommandHandler('stats', stats))
 updater.dispatcher.add_handler(CommandHandler('list', getList))
 
 updater.dispatcher.add_handler(MessageHandler(Filters.text, everyone))
@@ -252,4 +274,4 @@ updater.dispatcher.add_handler(MessageHandler(Filters.text, everyone))
 # keep_alive() # Replit hosting
 updater.start_polling()
 # On bot start, send message to owner id
-sendMessageOwner("✅ Bot started and ready to use") # Comment this line if you don't want to send a message to the owner when the bot starts
+# sendMessageOwner("✅ Bot started and ready to use") # Comment this line if you don't want to send a message to the owner when the bot starts

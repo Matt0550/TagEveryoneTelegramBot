@@ -26,6 +26,7 @@ This bot allows you to mention all users in a group. Users who wish to receive t
 - `/all` - Send a message to all in the list
 - `/help` - Show help message
 - `/status` - Show the bot status and uptime
+- `/stats` - NEW, Show the bot stats
 - `/list` - Show the Everyone's list without mention
 
 Instead of the command `/everyone` or `/all`, you can use `@everyone` or `@all`
