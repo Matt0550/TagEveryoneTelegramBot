@@ -19,16 +19,19 @@ import os
 
 # Load .env file
 dotenv.load_dotenv()
-
-# from keep_alive import keep_alive # Replit hosting
-
-# Create an istance of database
-db = Database()
-
                                    # set your owner_id and token to docker-compose.yml and start it
 OWNER_ID = os.environ['owner_id']  # or insert owner id to OWNER_ID
 TOKEN = os.environ['token']        # and insert token to TOKEN
                                    # and just run main.py
+                                   
+WEB_SERVER_REPLIT = os.environ['web_server_replit'] # set WEB_SERVER_REPLIT to 1 if you want to host the bot on replit
+SEND_MESSAGE_OWNER = os.environ['send_message_owner'] # set SEND_MESSAGE_OWNER to 1 if you want to send a message to the owner when the bot starts
+
+if WEB_SERVER_REPLIT == True or WEB_SERVER_REPLIT == "true":
+    from keep_alive import keep_alive # Replit hosting
+
+# Create an istance of database
+db = Database()
 
 updater = Updater(TOKEN, use_context=True)
 
@@ -77,8 +80,26 @@ def group(func):
             update.message.reply_text("This command is can only be used in a group")
     return wrapper
 
-@cooldown(1)
+# Create a decorator to check if the user is owner and is private chat
+def isOwner(func):
+    def wrapper(update: Update, context: CallbackContext):
+        # Check if user is owner
+        if str(update.message.from_user.id) == str(OWNER_ID):
+            # Check if chat is private
+            if update.message.chat.type == "private":
+                # Execute the function
+                func(update, context)
+            else:
+                update.message.reply_text("This command can only be used in a private chat")
+        else:
+            update.message.reply_text("You are not the owner of the bot")
+    return wrapper
+
+
+@cooldown(15)
 def start(update: Update, context: CallbackContext):
+    # Log user
+    db.createUser(update.message.from_user.id, update.message.from_user.first_name, update.message.from_user.last_name, update.message.from_user.username)
     # Check if bot is in a group
     if not update.message.chat.type == "group" or not update.message.chat.type == "supergroup":
         update.message.reply_text("Please add me to a group with admin permissions")
@@ -89,7 +110,7 @@ def start(update: Update, context: CallbackContext):
         else:
             update.message.reply_text("The bot must be admin to use this command in a group")
 
-@cooldown(1)
+@cooldown(15)
 @group
 # Function to add a member to the list
 def join_list(update: Update, context: CallbackContext):
@@ -113,12 +134,13 @@ def join_list(update: Update, context: CallbackContext):
         print("[DATABASE] Inserted data into database: %s, %s" % (group_id, user_id))
         update.message.reply_text("You have been added to the list. To remove yourself from the list type /out\n\nThanks for using this bot.\nBuy me a coffee: https://buymeacoffee.com/Matt0550", disable_web_page_preview=True)
 
+        db.logEvent(user_id, group_id, "join_list", "User added to the list")
     except Exception as e:
         print("[ERROR] " + str(e))
         # Print error with code markup
         update.message.reply_text("Error:\n`%s`" % e, parse_mode="Markdown")
 
-@cooldown(1)
+@cooldown(15)
 @group
 # Function to remove a member from the list
 def leave_list(update: Update, context: CallbackContext):
@@ -133,13 +155,15 @@ def leave_list(update: Update, context: CallbackContext):
         print("[DATABAE] Deleted data from database: %s, %s" % (group_id, user_id))
         update.message.reply_text("You have been removed from the list. To add yourself to the list type /in\n\nThanks for using this bot.\nBuy me a coffee: https://buymeacoffee.com/Matt0550", disable_web_page_preview=True)
 
-  
+        db.logEvent(user_id, group_id, "leave_list", "User removed from the list")
     except Exception as e:
         print("[ERROR] " + str(e))
         # Print error with code markup
         update.message.reply_text("Error:\n`%s`" % e, parse_mode="Markdown")
 
-@cooldown(1)
+        db.logEvent(user_id, group_id, "error", str(e))
+
+@cooldown(15)
 @group
 def everyoneMessage(update: Update, context: CallbackContext):
     try: 
@@ -174,21 +198,28 @@ def everyoneMessage(update: Update, context: CallbackContext):
                 else:
                     # Send message with list of members
                     update.message.reply_text("\n".join(members) + "\n\nThanks for using this bot.\nBuy me a coffee: https://buymeacoffee.com/Matt0550", disable_web_page_preview=True)
+            
+                db.logEvent(update.message.from_user.id, group_id, "everyone", "Message sent to all in the list")
+            
             except Exception as e:
                 print("[ERROR] " + str(e))
                 update.message.reply_text("Error:\n`%s`" % e, parse_mode="Markdown")
+
+                db.logEvent(update.message.from_user.id, group_id, "error", str(e))
 
     except Exception as e:
         print("[ERROR] " + str(e))
         # Print error with code markup
         update.message.reply_text("Error:\n`%s`" % e, parse_mode="Markdown")
 
+        db.logEvent(update.message.from_user.id, group_id, "error", str(e))
+
 def everyone(update: Update, context: CallbackContext):
     # Check if message contains any of the commands in the list (case insensitive)
     if any(comm in update.message.text.lower() for comm in everyoneCommands) or any(comm in update.message.text for comm in everyoneCommands):
         everyoneMessage(update, context) # Apply cooldown only if the message is in the list (command)
 
-@cooldown(1)
+@cooldown(15)
 def help(update: Update, context: CallbackContext):
     update.message.reply_text("""
 /in - Add yourself to the Everyone's list\n
@@ -204,7 +235,7 @@ Github: @Matt0550
 Buy me a coffee: https://buymeacoffee.com/Matt0550
 """)
 
-@cooldown(1)
+@cooldown(15)
 def getList(update: Update, context: CallbackContext):
     try: 
         # Get the group id from the message
@@ -237,7 +268,7 @@ def getList(update: Update, context: CallbackContext):
         # Print error with code markup
         update.message.reply_text("Error:\n`%s`" % e, parse_mode="Markdown")
 
-@cooldown(1)
+@cooldown(15)
 def status(update: Update, context: CallbackContext):
     # Get the bot uptime widout microseconds
     uptime = datetime.datetime.now() - start_time
@@ -245,13 +276,30 @@ def status(update: Update, context: CallbackContext):
 
     update.message.reply_text("✅ If you see this message, the bot is working\n⏰ Uptime: %s" % str(uptime) + "\n\nThanks for using this bot.\nBuy me a coffee: https://buymeacoffee.com/Matt0550", disable_web_page_preview=True)
 
-@cooldown(1)
+@cooldown(60)
 def stats(update: Update, context: CallbackContext):
     total_groups = db.getTotalGroups()
     total_members = db.getTotalUsers()
 
     update.message.reply_text("Total active groups: %s\nTotal active members: %s" % (total_groups, total_members) + "\n\nThanks for using this bot.\nBuy me a coffee: https://buymeacoffee.com/Matt0550", disable_web_page_preview=True)
 
+    db.logEvent(update.message.from_user.id, update.message.chat.id, "stats", "Stats sent")
+
+@isOwner
+@cooldown(1)
+def announce(update: Update, context: CallbackContext):
+    # Get the message
+    message = update.message.text.replace("/announce ", "")
+    if not message or message == "" or message == "/announce":
+        update.message.reply_text("You must specify a message")
+        return
+    # Get all groups from database
+    groups = db.getAllGroups()
+    # Iterate all groups
+    for group in groups:
+        # Send message to group id
+        updater.bot.send_message(group[1], message)
+    update.message.reply_text("Message sent to all groups")
 
 def sendMessageOwner(message):
     # Send message to owner id
@@ -268,10 +316,13 @@ updater.dispatcher.add_handler(CommandHandler('help', help))
 updater.dispatcher.add_handler(CommandHandler('status', status))
 updater.dispatcher.add_handler(CommandHandler('stats', stats))
 updater.dispatcher.add_handler(CommandHandler('list', getList))
+updater.dispatcher.add_handler(CommandHandler('announce', announce))
 
 updater.dispatcher.add_handler(MessageHandler(Filters.text, everyone))
 
-# keep_alive() # Replit hosting
+if WEB_SERVER_REPLIT == True or WEB_SERVER_REPLIT == "true":
+    keep_alive() # Replit hosting
 updater.start_polling()
 # On bot start, send message to owner id
-# sendMessageOwner("✅ Bot started and ready to use") # Comment this line if you don't want to send a message to the owner when the bot starts
+if SEND_MESSAGE_OWNER == True or SEND_MESSAGE_OWNER == "true":
+    sendMessageOwner("✅ Bot started and ready to use") # Comment this line if you don't want to send a message to the owner when the bot starts

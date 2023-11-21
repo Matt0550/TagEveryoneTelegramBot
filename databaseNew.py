@@ -73,20 +73,7 @@ class Database:
             conn.commit()
 
         # Check if user exists. If not create new user else update user data
-        c.execute("SELECT user_id FROM users WHERE user_id=?", (member_id,))
-        # Fetch all the data
-        data = c.fetchall()
-        # If data already exists, append to members id new member id
-        if data:
-            # Update user data
-            c.execute("UPDATE users SET first_name=?, last_name=?, username=?, updated_at=? WHERE user_id=?", (first_name, last_name, username, datetime.now(), member_id))
-            # Commit the changes
-            conn.commit()
-        else:
-            # Insert user data
-            c.execute("INSERT INTO users (user_id, first_name, last_name, username, created_at) VALUES (?, ?, ?, ?, ?)", (member_id, first_name, last_name, username, datetime.now()))
-            # Commit the changes
-            conn.commit()
+        self.createUser(member_id, first_name, last_name, username)
 
         # Check if user id exists
         c.execute("SELECT user_id FROM groups_users WHERE user_id=? AND group_id=?", (member_id, group_id))
@@ -99,6 +86,28 @@ class Database:
         else:
             # Insert user id into "groups_users" table
             c.execute("INSERT INTO groups_users (group_id, user_id, datetime) VALUES (?, ?, ?)", (group_id, member_id, datetime.now()))
+            # Commit the changes
+            conn.commit()
+
+    def createUser(self, user_id, first_name, last_name, username):
+        # Create a sqlite3 connection
+        conn = sqlite3.connect(dbPath, check_same_thread=False)
+        # Create a cursor
+        c = conn.cursor()
+
+        # Check if user exists. If not create new user else update user data
+        c.execute("SELECT user_id FROM users WHERE user_id=?", (user_id,))
+        # Fetch all the data
+        data = c.fetchall()
+        # If data already exists, append to members id new member id
+        if data:
+            # Update user data
+            c.execute("UPDATE users SET first_name=?, last_name=?, username=?, updated_at=? WHERE user_id=?", (first_name, last_name, username, datetime.now(), user_id))
+            # Commit the changes
+            conn.commit()
+        else:
+            # Insert user data
+            c.execute("INSERT INTO users (user_id, first_name, last_name, username, created_at) VALUES (?, ?, ?, ?, ?)", (user_id, first_name, last_name, username, datetime.now()))
             # Commit the changes
             conn.commit()
 
@@ -144,3 +153,29 @@ class Database:
         conn.close()
         # Return the data
         return data[0][0]
+
+    def getAllGroups(self):
+        # Create a sqlite3 connection
+        conn = sqlite3.connect(dbPath, check_same_thread=False)
+        # Create a cursor
+        c = conn.cursor()
+        # Get all groups
+        c.execute("SELECT * FROM groups")
+        # Fetch all the data
+        data = c.fetchall()
+        # Close the connection
+        conn.close()
+        # Return the data
+        return data
+
+    def logEvent(self, user_id, group_id, action, description):
+        # Create a sqlite3 connection
+        conn = sqlite3.connect(dbPath, check_same_thread=False)
+        # Create a cursor
+        c = conn.cursor()
+        # Insert log
+        c.execute("INSERT INTO logs (user_id, group_id, action, description, datetime) VALUES (?, ?, ?, ?, ?)", (user_id, group_id, action, description, datetime.now()))
+        # Commit the changes
+        conn.commit()
+        # Close the connection
+        conn.close()

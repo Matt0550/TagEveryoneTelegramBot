@@ -49,7 +49,7 @@ def main():
     c = conn.cursor()
     # Create one group at a time. The old db cotains only the group id. So set to null the other fields
     for group in oldGroups:
-        c.execute("INSERT INTO groups (group_id, group_name, group_description, group_username, group_type, group_members) VALUES (?, ?, ?, ?, ?, ?)", (group[0], None, None, None, None, None))
+        c.execute("INSERT OR IGNORE INTO groups (group_id, group_name, group_description, group_username, group_type, group_members) VALUES (?, ?, ?, ?, ?, ?)", (group[0], None, None, None, None, None))
         conn.commit()
 
     # Iterate all groups
@@ -64,8 +64,8 @@ def main():
             conn = sqlite3.connect(dbPathNew, check_same_thread=False)
             # Create a cursor
             c = conn.cursor()
-            # Insert data into users
-            c.execute("INSERT INTO users (user_id, first_name, last_name, username, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)", (member, None, None, None, datetime.now(), None))
+            # Insert data into users if not exists
+            c.execute("INSERT OR IGNORE INTO users (user_id, first_name, last_name, username, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)", (member, None, None, None, datetime.now(), None))
             conn.commit()
 
             # Insert data into "groups_users" table
