@@ -1,11 +1,22 @@
-# Migrade from old db to new
+#################################
+#   Tag Everyone Telegram Bot   #
+# Developed by @Non_Sono_Matteo #
+#       https://matt05.it       #
+#       Github: @Matt0550       #
+#################################
+
+# MIGRATE DATABASE FROM VERSION 1.2 TO 1.3
+# Old database contains only one table "groups"
+# New database contains four tables and foreign keys
+
 import sqlite3
 import json
 import os
 from datetime import datetime
 
-dbPath = os.path.join(os.path.dirname(__file__), 'database.db')
-dbPathNew = os.path.join(os.path.dirname(__file__), 'database-new.db')
+# EDIT THIS
+dbPath = os.path.join(os.path.dirname(__file__), 'database.db') # OLD DB
+dbPathNew = os.path.join(os.path.dirname(__file__), 'database-new.db') # NEW DB
 
 # Iterete all groups of old db
 def iterateGroups():
@@ -37,7 +48,6 @@ def iterateMembers(group_id):
     conn.close()
     # Return the data
     return data
-
 
 # Main
 def main():

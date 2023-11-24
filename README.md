@@ -1,21 +1,25 @@
+<img src="logo.png" width="100" style="border-radius: 15px; display: block; margin-left: auto; margin-right: auto; margin-bottom: 20px">
+
+
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
 [![GitHub issues](https://img.shields.io/github/issues/Matt0550/TagEveryoneTelegramBot)](https://github.com/Matt0550/TagEveryoneTelegramBot/issues)
-[![GitHub repo size](https://img.shields.io/github/repo-size/Matt0550/TagEveryoneTelegramBot)](https://github.com/Matt0550/TagEveryoneTelegramBot/)
-[![GitHub release (latest by date)](https://img.shields.io/github/downloads/Matt0550/TagEveryoneTelegramBot/total)](https://github.com/Matt0550/TagEveryoneTelegramBot/releases)
 [![Discord](https://img.shields.io/discord/828990499507404820)](https://discord.gg/5WrVyQKWAr)
 
-[![GitHub followers](https://img.shields.io/github/followers/Matt0550?style=social)](https://github.com/Matt0550?tab=followers)
-[![GitHub watchers](https://img.shields.io/github/watchers/Matt0550/TagEveryoneTelegramBot?style=social)](https://github.com/Matt0550/TagEveryoneTelegramBot/watchers)
-[![GitHub Repo stars](https://img.shields.io/github/stars/Matt0550/TagEveryoneTelegramBot?style=social)](https://github.com/Matt0550/TagEveryoneTelegramBot/stargazers)
 # Tag Everyone Telegram Bot
 
-This bot allows you to mention all users in a group. Users who wish to receive these notifications will have to sign up using the `/in` command
+This bot allows you to **mention all users in a group**. Users who wish to receive these notifications will have to sign up using the `/in` command
+
+## Live demo
+You can try the bot on Telegram: https://t.me/Tag_Everyone_TheBot
+
+_This instance can be instable._
+
 ## Features
 
 - `@everyone` or `@all` trigger `/everyone` command. (like Discord)
 - The user decides whether to subscribe to the list with `/in`
 - The user decides whether to exit to the list with `/out`
-- All is saved to SQLite3 database.
+- All is saved to SQLite3 database
 - Hosted or self-hosted
 
 
@@ -27,9 +31,31 @@ This bot allows you to mention all users in a group. Users who wish to receive t
 - `/help` - Show help message
 - `/status` - Show the bot status and uptime
 - `/stats` - NEW, Show the bot stats
+- `/announce text` - NEW, Send a message to all groups
 - `/list` - Show the Everyone's list without mention
 
 Instead of the command `/everyone` or `/all`, you can use `@everyone` or `@all`
+
+## Changelog
+#### VERSION 1.3
+- Redesigned database
+- New commands
+- Optimizations
+
+## TO-DO
+- [ ] REST API
+- [ ] Ignore tag requests if time enlapsed is > 2min
+- [ ] Automatically add all members' group to Everyone's list
+
+## Help - feedback
+You can contact me on:
+
+Discord: https://discord.gg/5WrVyQKWAr
+
+Telegram: https://t.me/Non_Sono_matteo
+
+Mail: <a href="mailto:mail@matt05.it">mail@matt05.it</a>
+
 ## Installation - Self-Host
 
 Clone the project

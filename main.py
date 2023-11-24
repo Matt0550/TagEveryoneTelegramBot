@@ -227,11 +227,11 @@ def everyoneMessage(update: Update, context: CallbackContext):
                     for i in members:
                         # Send message with list of members
                         update.message.reply_text("\n".join(
-                            i) + "\n\nThanks for using this bot.\nBuy me a coffee: https://buymeacoffee.com/Matt0550", disable_web_page_preview=True)
+                            i))
                 else:
                     # Send message with list of members
                     update.message.reply_text("\n".join(
-                        members) + "\n\nThanks for using this bot.\nBuy me a coffee: https://buymeacoffee.com/Matt0550", disable_web_page_preview=True)
+                        members))
 
                 db.logEvent(update.message.from_user.id, group_id,
                             "everyone", "Message sent to all in the list")
