@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mx-auto px-4">
+    <div class="flex justify-center px-6 my-12">
+        <!-- Row -->
+        <!-- Col -->
+        <div class="w-full lg:w-1/2 bg-white p-5 rounded-lg lg:rounded-l-none">
+            <img src="{{ url_for('static', filename='./images/logo.png') }}" alt="logo" class="mx-auto mb-3 w-1/3 rounded-full">
+            <h3 class="pt-4 text-2xl text-center">Welcome Back!</h3>
+            <form class="px-8 pt-6 pb-8 mb-4 bg-white rounded" method="POST" action="{{ url_for('auth') }}">
+                <div class="mb-4">
+                    <label class="block mb-2 text-sm font-bold text-gray-700" for="username">
+                        Password
+                    </label>
+                    <input
+                        class="w-full px-3 py-2 text-sm leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
+                        id="password" type="password" placeholder="Password" name="password">
+                </div>
+                <div class="mb-6 text-center">
+                    <button
+                        class="w-full px-4 py-2 font-bold text-white bg-blue-500 rounded-full hover:bg-blue-700 focus:outline-none focus:shadow-outline"
+                        type="submit">
+                        Login
+                    </button>
+                </div>
+                {% if error %}
+                <p class="text-red-500 text-md italic mb-2">{{ error }}</p>
+                {% endif %}
+
+                <hr class="mb-6 border-t">
+                <div class="text-center">
+                    <a class="inline-block text-sm text-blue-500 align-baseline hover
+                            :text-blue-800" href="#">
+                        Github
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endblock %}

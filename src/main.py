@@ -11,7 +11,7 @@ from telegram.ext.callbackcontext import CallbackContext
 from telegram.ext.commandhandler import CommandHandler
 from telegram.ext.messagehandler import MessageHandler
 from telegram.ext.filters import Filters
-from databaseNew import Database
+from db.databaseNew import Database
 import json
 import datetime
 import dotenv
@@ -192,7 +192,6 @@ def leave_list(update: Update, context: CallbackContext):
 
         db.logEvent(user_id, group_id, "error", str(e))
 
-
 @cooldown(15)
 @group
 def everyoneMessage(update: Update, context: CallbackContext):
@@ -243,14 +242,12 @@ def everyoneMessage(update: Update, context: CallbackContext):
 
                 db.logEvent(update.message.from_user.id,
                             group_id, "error", str(e))
-
     except Exception as e:
         print("[ERROR] " + str(e))
         # Print error with code markup
         update.message.reply_text("Error:\n`%s`" % e, parse_mode="Markdown")
 
         db.logEvent(update.message.from_user.id, group_id, "error", str(e))
-
 
 def everyone(update: Update, context: CallbackContext):
     if update.message.text != None:
@@ -262,7 +259,6 @@ def everyone(update: Update, context: CallbackContext):
             return
     else:
         return
-
 
 @cooldown(15)
 def help(update: Update, context: CallbackContext):
@@ -280,6 +276,7 @@ Commands:
 Triggers:
 @everyone - Send a message to all in the list
 @all - Send a message to all in the list\n
+This project is open source and free to use.\n
 Developed by @Non_Sono_Matteo
 https://matt05.it
 Github: @Matt0550

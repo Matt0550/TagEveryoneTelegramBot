@@ -1,4 +1,4 @@
-<img src="logo.png" width="100" style="border-radius: 15px; display: block; margin-left: auto; margin-right: auto; margin-bottom: 20px">
+<img src="./gui/static/images/logo.png" width="100" style="border-radius: 15px; display: block; margin-left: auto; margin-right: auto; margin-bottom: 20px">
 
 
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
@@ -44,6 +44,7 @@ Instead of the command `/everyone` or `/all`, you can use `@everyone` or `@all`
 
 ## TO-DO
 - [ ] REST API
+- [ ] GUI
 - [ ] Ignore tag requests if time enlapsed is > 2min
 - [ ] Automatically add all members' group to Everyone's list
 

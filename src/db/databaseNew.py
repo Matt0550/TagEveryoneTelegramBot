@@ -111,6 +111,21 @@ class Database:
             # Commit the changes
             conn.commit()
 
+    def getUser(self, user_id):
+        # Create a sqlite3 connection
+        conn = sqlite3.connect(dbPath, check_same_thread=False)
+        # Create a cursor
+        c = conn.cursor()
+
+        # Get user data
+        c.execute("SELECT * FROM users WHERE user_id=?", (user_id,))
+        # Fetch all the data
+        data = c.fetchall()
+        # Close the connection
+        conn.close()
+        # Return the data
+        return data
+
     # Function to delete data from database
     def deleteData(self, group_id, member_id):
         # Create a sqlite3 connection
@@ -179,3 +194,58 @@ class Database:
         conn.commit()
         # Close the connection
         conn.close()
+
+    def getHourlyLogs(self):
+        # Create a sqlite3 connection
+        conn = sqlite3.connect(dbPath, check_same_thread=False)
+        # Create a cursor
+        c = conn.cursor()
+
+        # Get hourly logs
+        c.execute("SELECT * FROM logs WHERE datetime BETWEEN datetime('now', '-1 hour') AND datetime('now')")
+        # Fetch all the data
+        data = c.fetchall()
+        # Close the connection
+        conn.close()
+        # Return the data
+        return data
+
+    def getDailyLogs(self):
+        # Create a sqlite3 connection
+        conn = sqlite3.connect(dbPath, check_same_thread=False)
+        # Create a cursor
+        c = conn.cursor()
+
+        # Get daily logs
+        c.execute("SELECT * FROM logs WHERE datetime BETWEEN datetime('now', '-1 day') AND datetime('now')")
+        # Fetch all the data
+        data = c.fetchall()
+        # Close the connection
+        conn.close()
+        # Return the data
+        return data
+
+    def getWeeklyLogs(self):
+        # Create a sqlite3 connection
+        conn = sqlite3.connect(dbPath, check_same_thread=False)
+        # Create a cursor
+        c = conn.cursor()
+
+        # Get weekly logs
+        c.execute("SELECT * FROM logs WHERE datetime BETWEEN datetime('now', '-7 day') AND datetime('now')")
+        # Fetch all the data
+        data = c.fetchall()
+        # Close the connection
+        conn.close()
+        # Return the data
+        return data
+
+    def getLogs(self, time):
+        if time == "hour":
+            return self.getHourlyLogs()
+        elif time == "day":
+            return self.getDailyLogs()
+        elif time == "week":
+            return self.getWeeklyLogs()
+        else:
+            return None

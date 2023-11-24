@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Search</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 h-full font-sans leading-normal tracking-normal">
+
+    <div class="container mx-auto px-4">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js'
+        integrity='sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=='
+        crossorigin='anonymous'></script>
+    <script src="{{ url_for('static', filename='./js/datatables.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='./js/main.js') }}"></script>
+</body>
+
+</html>
