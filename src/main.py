@@ -71,8 +71,6 @@ def cooldown(seconds):
     return decorator
 
 # Create a decorator to check if the bot is admin and if the bot is in a group
-
-
 def group(func):
     def wrapper(update: Update, context: CallbackContext):
         # Check if bot is in a group
@@ -90,8 +88,6 @@ def group(func):
     return wrapper
 
 # Create a decorator to check if the user is owner and is private chat
-
-
 def isOwner(func):
     def wrapper(update: Update, context: CallbackContext):
         # Check if user is owner
