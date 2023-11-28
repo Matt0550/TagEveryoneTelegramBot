@@ -126,6 +126,21 @@ class Database:
         # Return the data
         return data
 
+    def getGroupsOfUser(self, user_id):
+        # Create a sqlite3 connection
+        conn = sqlite3.connect(dbPath, check_same_thread=False)
+        # Create a cursor
+        c = conn.cursor()
+
+        # Get user data
+        c.execute("SELECT * FROM groups WHERE group_id IN (SELECT group_id FROM groups_users WHERE user_id=?)", (user_id,))
+        # Fetch all the data
+        data = c.fetchall()
+        # Close the connection
+        conn.close()
+        # Return the data
+        return data
+
     # Function to delete data from database
     def deleteData(self, group_id, member_id):
         # Create a sqlite3 connection

@@ -1,7 +1,48 @@
 {% extends "base.html" %}
 {% block content %}
-<!-- Dashboard Welcome user-->
-<button id="test" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full">
-    Test
-</button>
+<!-- Loader -->
+<div id="loader"
+    class="fixed top-0 left-0 z-50 w-screen h-screen flex justify-center items-center bg-black bg-opacity-50">
+    <div class="bg-white border py-2 px-5 rounded-lg flex items-center">
+        <h1 class="text-blue-500 font-bold text-xl animate-pulse">Authenticating...</h1>
+    </div>
+</div>
+
+<div id="unauthorized"
+    class="fixed top-0 left-0 z-50 w-screen h-screen flex justify-center items-center bg-black bg-opacity-50 hidden">
+    <div class="bg-white border py-2 px-5 rounded-lg flex items-center">
+        <h1 class="text-red-500 font-bold text-xl">Unauthorized</h1>
+    </div>
+</div>
+
+<!-- Group lists -->
+<div class="flex flex-col lg:flex-row lg:justify-between">
+    <!-- Group list -->
+    <div class="w-full lg:w-1/3">
+        <div class="flex flex-col">
+            <div class="flex flex-col justify-between items-center">
+                <h1 class="text-2xl font-bold text-gray-700">Groups</h1>
+                <p class="text-sm text-gray-500">Groups you are part of in the tag list</p>
+            </div>
+            <div id="group-list" class="flex flex-col mt-4">
+                <!-- Group item -->
+                <!-- <div class="flex flex-row justify-between items-center bg-gray-200 rounded-lg p-4 mb-2">
+                    <div class="flex flex-col">
+                        <h1 class="text-lg font-bold text-gray-700">Group 1</h1>
+                        <p class="text-sm text-gray-500">2 members</p>
+                    </div>
+                    <div class="flex flex-row">
+                        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2">
+                            Edit
+                        </button>
+                        <button class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                            Delete
+                        </button>
+                    </div>
+                </div> -->
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
