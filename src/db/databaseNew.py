@@ -81,7 +81,6 @@ class Database:
         data = c.fetchall()
         # If data already exists, append to members id new member id
         if data:
-            print("[INFO] User already exists!")
             raise Exception("User already exists in group")
         else:
             # Insert user id into "groups_users" table

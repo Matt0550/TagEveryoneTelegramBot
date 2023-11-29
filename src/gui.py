@@ -39,8 +39,6 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-
-
 ## METHODS
 
 def validate(hash_str, init_data, c_str="WebAppData"):
@@ -90,9 +88,19 @@ def getUserFromQuery(query):
     return user
     
 ## ROUTES
+@app.after_request
+def add_header(r):
+    """
+    Add headers to both force latest IE rendering engine or Chrome Frame,
+    and also to cache the rendered page for 10 minutes.
+    """
+    r.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    r.headers["Pragma"] = "no-cache"
+    r.headers["Expires"] = "0"
+    r.headers['Cache-Control'] = 'public, max-age=0'
+    return r
 
 # Return all errors in json format with error handler
-
 @app.errorhandler(404)
 def page_not_found(e):
     return flask.jsonify({'status': 404, 'message': 'Not Found'}), 404
@@ -101,6 +109,10 @@ def page_not_found(e):
 def access_denied(e):
     return flask.jsonify({'status': 401, 'message': 'Unauthorized'}), 401
 
+@app.errorhandler(500)
+def internal_server_error(e):
+    return flask.jsonify({'status': 500, 'message': 'Internal Server Error'}), 500
+    
 @app.route('/getInGroups', methods=['POST'])
 def getInGroups():
     # Validate telegram webapp data
@@ -109,10 +121,6 @@ def getInGroups():
     # Validate hash
     hash_str = body['hash']
     init_data = body['init_data']
-
-    print("Hash: ", hash_str)
-    print("Init data: ", init_data)
-
     
     if not validate(hash_str, init_data):
         flask.abort(401)
@@ -122,11 +130,50 @@ def getInGroups():
     # To json
     groupsIn = [{'group_id': group[1], 'name': group[2], 'members': group[6]} for group in groupsIn]
     # JSON 200
-    return flask.jsonify({'status': 200, 'groups': groupsIn})
+    return flask.jsonify({'status': 200, 'groups': groupsIn, "isOwner": str(userId["id"]) == str(OWNER_ID)})
+
+@app.route('/getAdminPanel', methods=['POST'])
+def getAdminPanel():
+    # Validate telegram webapp data
+    # Get body
+    body = flask.request.get_json()
+    # Validate hash
+    hash_str = body['hash']
+    init_data = body['init_data']
+    
+    if not validate(hash_str, init_data) or str(getUserFromQuery(init_data)["id"]) != str(OWNER_ID):
+        flask.abort(401)
+
+    logs = db.getWeeklyLogs()
+    print(logs)
+    # To json
+    logs = [{'user_id': log[1], 'group_id': log[2], 'action': log[3], 'description': log[4], 'datetime': log[5]} for log in logs]
+    # JSON 200
+    return flask.jsonify({'status': 200, 'logs': logs})
+
+@app.route('/leaveInListGroup', methods=['POST'])
+def leaveInListGroup():
+    # Validate telegram webapp data
+    # Get body
+    body = flask.request.get_json()
+    # Validate hash
+    hash_str = body['hash']
+    init_data = body['init_data']
+    
+    if not validate(hash_str, init_data):
+        flask.abort(401)
+
+    userId = getUserFromQuery(init_data)
+    groupId = body['group_id']
+    try: 
+        db.deleteData(groupId, userId["id"])
+    except:
+        flask.abort(500)
+    # JSON 200
+    return flask.jsonify({'status': 200, 'message': 'Successfully removed from tag list!'})
 
 @app.route('/')
 def dashboard():
-
     return flask.render_template('./dashboard/index.html')
 
 @app.route('/')

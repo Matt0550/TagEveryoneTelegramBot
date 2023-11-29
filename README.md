@@ -1,9 +1,30 @@
-<img src="./gui/static/images/logo.png" width="100" style="border-radius: 15px; display: block; margin-left: auto; margin-right: auto; margin-bottom: 20px">
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![MIT License][license-shield]][license-url]
+[![Discord][discord-shield]][discord-url]
 
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <a href="https://github.com/Matt0550/TagEveryoneTelegramBot">
+    <img src="src/gui/static/images/logo.png" alt="Logo" width="100" height="100" style="border-radius: 15px;">
+  </a>
 
-[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
-[![GitHub issues](https://img.shields.io/github/issues/Matt0550/TagEveryoneTelegramBot)](https://github.com/Matt0550/TagEveryoneTelegramBot/issues)
-[![Discord](https://img.shields.io/discord/828990499507404820)](https://discord.gg/5WrVyQKWAr)
+  <h3 align="center">Tag Everyone Telegram BOT</h3>
+
+  <p align="center">
+    A Telegram bot to tag everyone in a group
+    <br />
+    <br />
+    <a href="https://t.me/TagEveryone_TheBot">View Demo</a>
+    ·
+    <a href="https://github.com/Matt0550/TagEveryoneTelegramBot/issues">Report Bug</a>
+    ·
+    <a href="https://github.com/Matt0550/TagEveryoneTelegramBot/issues">Request Feature</a>
+  </p>
+</div>
+
 
 # Tag Everyone Telegram Bot
 
@@ -19,6 +40,7 @@ _This instance can be instable._
 - `@everyone` or `@all` trigger `/everyone` command. (like Discord)
 - The user decides whether to subscribe to the list with `/in`
 - The user decides whether to exit to the list with `/out`
+- Telegram WebApp support
 - All is saved to SQLite3 database
 - Hosted or self-hosted
 
@@ -41,10 +63,11 @@ Instead of the command `/everyone` or `/all`, you can use `@everyone` or `@all`
 - Redesigned database
 - New commands
 - Optimizations
+- WebApp
 
 ## TO-DO
 - [ ] REST API
-- [ ] GUI
+- [x] WebApp
 - [ ] Ignore tag requests if time enlapsed is > 2min
 - [ ] Automatically add all members' group to Everyone's list
 
@@ -137,3 +160,17 @@ Now if you want 24/7 hosting, go to [Uptimerobot](https://uptimerobot.com/) and 
 ## License
 
 [MIT](https://choosealicense.com/licenses/mit/)
+
+
+[contributors-shield]: https://img.shields.io/github/contributors/Matt0550/TagEveryoneTelegramBot.svg?style=for-the-badge
+[contributors-url]: https://github.com/Matt0550/TagEveryoneTelegramBot/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/Matt0550/TagEveryoneTelegramBot.svg?style=for-the-badge
+[forks-url]: https://github.com/Matt0550/TagEveryoneTelegramBot/network/members
+[stars-shield]: https://img.shields.io/github/stars/Matt0550/TagEveryoneTelegramBot.svg?style=for-the-badge
+[stars-url]: https://github.com/Matt0550/TagEveryoneTelegramBot/stargazers
+[issues-shield]: https://img.shields.io/github/issues/Matt0550/TagEveryoneTelegramBot.svg?style=for-the-badge
+[issues-url]: https://github.com/Matt0550/TagEveryoneTelegramBot/issues
+[license-shield]: https://img.shields.io/github/license/Matt0550/TagEveryoneTelegramBot.svg?style=for-the-badge
+[license-url]: https://github.com/Matt0550/TagEveryoneTelegramBot/blob/master/LICENSE
+[discord-shield]: https://img.shields.io/discord/828990499507404820?style=for-the-badge
+[discord-url]: https://discord.gg/5WrVyQKWAr
