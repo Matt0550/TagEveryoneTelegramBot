@@ -35,11 +35,9 @@ TOKEN = os.environ['token']        # and insert token to TOKEN
 # and just run main.py
 
 # set WEB_SERVER_REPLIT to 1 if you want to host the bot on replit
-WEB_SERVER_REPLIT = os.environ['web_server_replit']
-SEND_MESSAGE_OWNER = os.environ['send_message_owner']
+ENABLE_WEBAPP_SERVER = os.environ['enable_webapp_server']
+REPORT_ERRORS_OWNER = os.environ['report_errors_owner']
 
-if WEB_SERVER_REPLIT == True or WEB_SERVER_REPLIT == "true":
-    from keep_alive import keep_alive  # Replit hosting
 
 # Create an istance of database
 db = Database()
@@ -432,12 +430,16 @@ def main() -> None:
 
     application.add_handler(MessageHandler(filters.TEXT, everyone))
 
-    application.add_error_handler(error_handler)
+    if REPORT_ERRORS_OWNER == True or REPORT_ERRORS_OWNER == "1" or REPORT_ERRORS_OWNER.lower() == "true":
+        application.add_error_handler(error_handler)
 
     application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == '__main__':
+    if ENABLE_WEBAPP_SERVER == True or ENABLE_WEBAPP_SERVER == "1" or ENABLE_WEBAPP_SERVER.lower() == "true":
+        from gui import mainGUI
+        from threading import Thread
+        t = Thread(target=mainGUI)
+        t.start()
+    # Start bot
     main()
-
-if WEB_SERVER_REPLIT == True or WEB_SERVER_REPLIT == "true":
-    keep_alive()  # Replit hosting

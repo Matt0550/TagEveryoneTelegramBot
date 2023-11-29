@@ -16,6 +16,11 @@ OWNER_ID = os.getenv('owner_id', None)
 GUI_PASSWORD = os.getenv('gui_password', None)
 SECRET_KEY = os.getenv('secret_key', None)
 TOKEN = os.getenv('token', None)
+WEBSERVER_DEBUG = os.getenv('webserver_debug', False)
+if WEBSERVER_DEBUG == "True" or WEBSERVER_DEBUG == "true" or WEBSERVER_DEBUG == "1":
+    WEBSERVER_DEBUG = True
+else:
+    WEBSERVER_DEBUG = False
 
 if not SECRET_KEY:
     print("Error: No secret key provided. Check your environment variables.")
@@ -180,12 +185,14 @@ def dashboard():
 def index():
     return flask.redirect('/dashboard')
 
-if __name__ == '__main__':
+def mainGUI():
     try:
         port = int(PORT)  # Convert PORT to an integer
     except ValueError:
         print("Error: Invalid port number provided. Check your environment variables.")
         sys.exit(1)
 
+    app.run(host=HOST, port=PORT, debug=WEBSERVER_DEBUG)
 
-    app.run(host=HOST, port=port, debug=True)
+if __name__ == '__main__':
+    mainGUI()
