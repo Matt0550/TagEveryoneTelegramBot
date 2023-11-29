@@ -136,8 +136,9 @@ $(document).ready(function () {
                         `);
                     }
 
+                    $("#log-div").show();
+
                 });
-                $("#log-div").show();
 
                 window.Telegram.WebApp.BackButton.show();
 
@@ -167,7 +168,7 @@ $(document).ready(function () {
                         <p class="text-sm" style="color: var(--tg-theme-hint-color);">${group.members} members</p>
                     </div>
                     <div class="flex flex-row">
-                        <button class="text-white font-bold py-2 px-4 rounded" style="background-color: var(--tg-theme-button-color)" onclick="leaveGroup(${group.group_id})">
+                        <button class="text-white font-bold py-2 px-4 rounded" style="background-color: var(--tg-theme-button-color); color: var(--tg-theme-button-text-color)" onclick="leaveGroup(${group.group_id})">
                             Leave list
                         </button>
                     </div>

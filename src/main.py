@@ -289,15 +289,18 @@ async def everyoneMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
         db.logEvent(update.message.from_user.id, group_id, "error", str(e))
 
 async def everyone(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if update.message.text != None:
-        # Check if message contains any of the commands in the list (case insensitive)
-        if any(comm.lower() in update.message.text.lower() for comm in everyoneCommands) or any(comm in update.message.text for comm in everyoneCommands):
-            # Apply cooldown only if the message is in the list (command)
-            await everyoneMessage(update, context)
+    try:
+        if update.message.text != None:
+            # Check if message contains any of the commands in the list (case insensitive)
+            if any(comm.lower() in update.message.text.lower() for comm in everyoneCommands) or any(comm in update.message.text for comm in everyoneCommands):
+                # Apply cooldown only if the message is in the list (command)
+                await everyoneMessage(update, context)
+            else:
+                return
         else:
             return
-    else:
-        return
+    except Exception as e:
+        logger.error("[ERROR] " + str(e))
 
 @cooldown(15)
 async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -391,7 +394,7 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 update.message.chat.id, "stats", "Stats sent")
 
 @isOwner
-@cooldown(1)
+@cooldown(15)
 async def announce(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Get the message
     message = update.message.text.replace("/announce ", "")
@@ -403,16 +406,58 @@ async def announce(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Iterate all groups
     for group in groups:
         try:
+            # Update group info in db
             # Send message to group id
+            group_id = update.message.chat.id
+            group_name = update.message.chat.title
+            group_description = update.message.chat.description
+            group_username = update.message.chat.username
+            group_type = update.message.chat.type
+            group_members = await update.message.chat.get_member_count()
+
+            db.updateGroupInfo(group_id, group_name, group_description, group_username, group_type, group_members)
             await context.bot.send_message(group[1], message)
             logger.info("[MESSAGE] Message sent to group: %s" % group[1])
         except Exception as e:
+            db.deleteGroup(group[1])
             logger.error("[ERROR] " + str(e))
             continue
     await update.message.reply_text("Message sent to all groups")
 
     db.logEvent(update.message.from_user.id, update.message.chat.id,
                 "announce", "Message sent to all groups")
+
+@isOwner
+@cooldown(15)
+async def checkGroups(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # Get all groups from database
+    groups = db.getAllGroups()
+    working_groups = []
+    # Iterate all groups
+    for group in groups:
+        try:
+            chat = await context.bot.get_chat(group[1])
+         
+            group_id = chat.id
+            group_name = chat.title
+            group_description = chat.description
+            group_username = chat.username
+            group_type = chat.type
+            group_members = await chat.get_member_count()
+
+            db.updateGroupInfo(group_id, group_name, group_description, group_username, group_type, group_members)
+            working_groups.append(group[1])
+            logger.info("[MESSAGE] Checked group: %s" % group[1])
+
+        except Exception as e:
+            db.deleteGroup(group[1])
+            logger.error("[ERROR] " + str(e))
+            continue
+
+    await update.message.reply_text("Working groups: %s\n\nNot working groups: %s" % (len(working_groups), len(groups) - len(working_groups)))
+
+    db.logEvent(update.message.from_user.id, update.message.chat.id,
+                "checkGroups", "Checked all groups")
 
 def main() -> None:
     application = Application.builder().token(TOKEN).build()
@@ -427,6 +472,7 @@ def main() -> None:
     application.add_handler(CommandHandler('stats', stats))
     application.add_handler(CommandHandler('list', getList))
     application.add_handler(CommandHandler('announce', announce))
+    application.add_handler(CommandHandler('checkGroups', checkGroups))
 
     application.add_handler(MessageHandler(filters.TEXT, everyone))
 

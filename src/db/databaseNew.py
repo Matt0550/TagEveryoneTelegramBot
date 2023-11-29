@@ -140,6 +140,34 @@ class Database:
         # Return the data
         return data
 
+    def deleteGroup(self, group_id):
+        # Create a sqlite3 connection
+        conn = sqlite3.connect(dbPath, check_same_thread=False)
+        # Create a cursor
+        c = conn.cursor()
+
+        # Delete group, foreign key and user (only if user is not in any group)
+        c.execute("DELETE FROM groups WHERE group_id=?", (group_id,))
+        c.execute("DELETE FROM groups_users WHERE group_id=?", (group_id,))
+        c.execute("DELETE FROM users WHERE user_id NOT IN (SELECT user_id FROM groups_users)")
+        # Commit the changes
+        conn.commit()
+        # Close the connection
+        conn.close()
+
+    def updateGroupInfo(self, group_id, group_name, group_description, group_username, group_type, group_members):
+        # Create a sqlite3 connection
+        conn = sqlite3.connect(dbPath, check_same_thread=False)
+        # Create a cursor
+        c = conn.cursor()
+
+        # Update group data
+        c.execute("UPDATE groups SET group_name=?, group_description=?, group_username=?, group_type=?, group_members=? WHERE group_id=?", (group_name, group_description, group_username, group_type, group_members, group_id))
+        # Commit the changes
+        conn.commit()
+        # Close the connection
+        conn.close()
+
     # Function to delete data from database
     def deleteData(self, group_id, member_id):
         # Create a sqlite3 connection
@@ -216,7 +244,7 @@ class Database:
         c = conn.cursor()
 
         # Get hourly logs
-        c.execute("SELECT * FROM logs WHERE datetime BETWEEN datetime('now', '-1 hour') AND datetime('now')")
+        c.execute("SELECT * FROM logs WHERE datetime BETWEEN datetime('now', '-1 hour') AND datetime('now') ORDER BY datetime DESC")
         # Fetch all the data
         data = c.fetchall()
         # Close the connection
@@ -231,7 +259,7 @@ class Database:
         c = conn.cursor()
 
         # Get daily logs
-        c.execute("SELECT * FROM logs WHERE datetime BETWEEN datetime('now', '-1 day') AND datetime('now')")
+        c.execute("SELECT * FROM logs WHERE datetime BETWEEN datetime('now', '-1 day') AND datetime('now') ORDER BY datetime DESC")
         # Fetch all the data
         data = c.fetchall()
         # Close the connection
@@ -246,7 +274,7 @@ class Database:
         c = conn.cursor()
 
         # Get weekly logs
-        c.execute("SELECT * FROM logs WHERE datetime BETWEEN datetime('now', '-7 day') AND datetime('now')")
+        c.execute("SELECT * FROM logs WHERE datetime BETWEEN datetime('now', '-7 day') AND datetime('now') ORDER BY datetime DESC")
         # Fetch all the data
         data = c.fetchall()
         # Close the connection

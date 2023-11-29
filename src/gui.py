@@ -122,10 +122,15 @@ def internal_server_error(e):
 def getInGroups():
     # Validate telegram webapp data
     # Get body
-    body = flask.request.get_json()
-    # Validate hash
-    hash_str = body['hash']
-    init_data = body['init_data']
+    try:
+        body = flask.request.get_json()
+
+        # Validate hash
+        hash_str = body['hash']
+        init_data = body['init_data']
+    except:
+        flask.abort(400)
+
     
     if not validate(hash_str, init_data):
         flask.abort(401)
@@ -150,7 +155,6 @@ def getAdminPanel():
         flask.abort(401)
 
     logs = db.getWeeklyLogs()
-    print(logs)
     # To json
     logs = [{'user_id': log[1], 'group_id': log[2], 'action': log[3], 'description': log[4], 'datetime': log[5]} for log in logs]
     # JSON 200
@@ -181,10 +185,9 @@ def leaveInListGroup():
 def dashboard():
     return flask.render_template('./dashboard/index.html')
 
-@app.route('/')
-def index():
-    return flask.redirect('/dashboard')
-
+@app.route('/status')
+def status():
+    return flask.jsonify({'status': 200, 'message': 'OK'})
 def mainGUI():
     try:
         port = int(PORT)  # Convert PORT to an integer
