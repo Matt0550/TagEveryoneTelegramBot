@@ -81,6 +81,8 @@ Telegram: https://t.me/Non_Sono_matteo
 Mail: <a href="mailto:mail@matt05.it">mail@matt05.it</a>
 
 ## Installation - Self-Host
+> [!IMPORTANT]  
+> This docs are not updated.
 
 Clone the project
 
@@ -107,6 +109,8 @@ Start the bot
 ```
 
 ## Installation - Using Docker
+> [!IMPORTANT]  
+> This docs are not updated.
 
 Install [Docker](https://www.docker.com)
 
@@ -124,6 +128,8 @@ Now, open project folder in terminal and run
 
 
 ## Installation - Using Replit
+> [!IMPORTANT]  
+> This docs are not updated.
 
 Go to [replit.com](https://replit.com) and create new Python project
 
@@ -161,6 +167,13 @@ Now if you want 24/7 hosting, go to [Uptimerobot](https://uptimerobot.com/) and 
 
 [MIT](https://choosealicense.com/licenses/mit/)
 
+## Support me
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/matt05)
+
+[![buy-me-a-coffee](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/Matt0550)
+
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://paypal.me/sillittimatteo)
 
 [contributors-shield]: https://img.shields.io/github/contributors/Matt0550/TagEveryoneTelegramBot.svg?style=for-the-badge
 [contributors-url]: https://github.com/Matt0550/TagEveryoneTelegramBot/graphs/contributors
