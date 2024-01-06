@@ -88,6 +88,8 @@ services:
       - webserver_debug=False
       - report_errors_owner=False
       - secret_key=SECRET_KEY
+      - PUID=${PUID:-10001}
+      - PGID=${PGID:-10001}
     volumes:
       - /path/to/database-new.db:/src/db/database-new.db
     ports:
@@ -105,6 +107,8 @@ docker run -d \
   -e webserver_debug=False \
   -e report_errors_owner=False \
   -e secret_key=SECRET_KEY \
+  -e PUID=1000 \
+  -e PGID=1000 \
   -v /path/to/database-new.db:/src/db/database-new.db \
   -p 5000:5000 \
   --name tageveryone_telegrambot \
