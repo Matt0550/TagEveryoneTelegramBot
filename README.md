@@ -3,6 +3,7 @@
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 [![Discord][discord-shield]][discord-url]
+[![Docker Pulls][docker-shield]][docker-url]
 
 <!-- PROJECT LOGO -->
 <br />
@@ -215,3 +216,5 @@ Mail: <a href="mailto:mail@matt05.it">mail@matt05.it</a>
 [license-url]: https://github.com/Matt0550/TagEveryoneTelegramBot/blob/master/LICENSE
 [discord-shield]: https://img.shields.io/discord/828990499507404820?style=for-the-badge
 [discord-url]: https://discord.gg/5WrVyQKWAr
+[docker-shield]: https://img.shields.io/docker/pulls/matt0550/tageveryone_telegrambot?style=for-the-badge
+[docker-url]: https://hub.docker.com/r/matt0550/tageveryone_telegrambot
