@@ -198,4 +198,7 @@ def mainGUI():
     app.run(host=HOST, port=PORT, debug=WEBSERVER_DEBUG)
 
 if __name__ == '__main__':
+    print("Tag Everyone Telegram Bot")
+    print("Developed by @Non_Sono_Matteo")
+    print("https://matt05.it")
     mainGUI()

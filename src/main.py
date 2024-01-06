@@ -482,6 +482,9 @@ def main() -> None:
     application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == '__main__':
+    print("Tag Everyone Telegram Bot")
+    print("Developed by @Non_Sono_Matteo")
+    print("https://matt05.it")
     if ENABLE_WEBAPP_SERVER == True or ENABLE_WEBAPP_SERVER == "1" or ENABLE_WEBAPP_SERVER.lower() == "true":
         from gui import mainGUI
         from threading import Thread

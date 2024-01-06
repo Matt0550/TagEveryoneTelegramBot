@@ -28,7 +28,7 @@
 
 # Tag Everyone Telegram Bot
 
-This bot allows you to **mention all users in a group**. Users who wish to receive these notifications will have to sign up using the `/in` command
+This bot allows you to **mention all users in a group**. Users who wish to receive these notifications will have to sign up using the `/in` command.
 
 ## Live demo
 You can try the bot on Telegram: https://t.me/Tag_Everyone_TheBot
@@ -43,6 +43,7 @@ _This instance can be instable._
 - Telegram WebApp support
 - All is saved to SQLite3 database
 - Hosted or self-hosted
+- Docker support
 
 
 ## Commands
@@ -71,18 +72,45 @@ Instead of the command `/everyone` or `/all`, you can use `@everyone` or `@all`
 - [ ] Ignore tag requests if time enlapsed is > 2min
 - [ ] Automatically add all members' group to Everyone's list
 
-## Help - feedback
-You can contact me on:
 
-Discord: https://discord.gg/5WrVyQKWAr
+## Installation - Using Docker Compose (recommended)
+```yaml
+version: '3'
 
-Telegram: https://t.me/Non_Sono_matteo
+services:
+  tageveryone_telegrambot:
+    image: matt0550/tageveryone_telegrambot
+    environment:
+      - token=BOT_TOKEN
+      - owner_id=OWNER_ID
+      - enable_webapp_server=True
+      - webserver_debug=False
+      - report_errors_owner=False
+      - secret_key=SECRET_KEY
+    volumes:
+      - /path/to/database-new.db:/src/db/database-new.db
+    ports:
+      - 5000:5000
+    restart: unless-stopped
+```
+Run the container with `docker-compose up -d`
 
-Mail: <a href="mailto:mail@matt05.it">mail@matt05.it</a>
+## Installation - Using Docker Run
+```bash
+docker run -d \
+  -e token=TG_BOT_TOKEN \
+  -e owner_id=TG_OWNER_ID \
+  -e enable_webapp_server=True \
+  -e webserver_debug=False \
+  -e report_errors_owner=False \
+  -e secret_key=SECRET_KEY \
+  -v /path/to/database-new.db:/src/db/database-new.db \
+  -p 5000:5000 \
+  --name tageveryone_telegrambot \
+  matt0550/tageveryone_telegrambot
+```
 
-## Installation - Self-Host
-> [!IMPORTANT]  
-> This docs are not updated.
+## Installation - Self-Host or docker build
 
 Clone the project
 
@@ -96,40 +124,30 @@ Go to the project directory
   cd TagEveryoneTelegramBot-master
 ```
 
+OPTIONAL: use docker to build the image
+
+```bash
+  docker build -t tageveryone_telegrambot .
+```
+If you don't want to use docker, skip this step.
+Else, change the `image` in `docker-compose.yml` with the image name you used.
+Run the container with `docker-compose up -d`
+
 Install dependencies
 
 ```bash
   pip install -r requirements.txt
 ```
 
-Start the bot
+Start the bot (after setting the environment variables)
 
 ```bash
-  python main.py
+  python ./src/main.py
 ```
-
-## Installation - Using Docker
-> [!IMPORTANT]  
-> This docs are not updated.
-
-Install [Docker](https://www.docker.com)
-
-Clone the project
-```bash
-  git clone https://github.com/Matt0550/TagEveryoneTelegramBot
-```
-
-Set `bot token` and `owner id` in docker-compose.yml
-
-Now, open project folder in terminal and run
-```bash
-  docker-compose up -d
-```
-
 
 ## Installation - Using Replit
 > [!IMPORTANT]  
-> This docs are not updated.
+> Outdated. Replit hosting has been disabled for free users.
 
 Go to [replit.com](https://replit.com) and create new Python project
 
@@ -163,6 +181,16 @@ os.environ['token']
 ```
 
 Now if you want 24/7 hosting, go to [Uptimerobot](https://uptimerobot.com/) and create a new monitor with the URL provided by Replit.
+
+## Help - feedback
+You can contact me on:
+
+Discord: https://discord.gg/5WrVyQKWAr
+
+Telegram: https://t.me/Non_Sono_matteo
+
+Mail: <a href="mailto:mail@matt05.it">mail@matt05.it</a>
+
 ## License
 
 [MIT](https://choosealicense.com/licenses/mit/)
