@@ -1,5 +1,9 @@
 # syntax=docker/dockerfile:1
 
+# Comments are provided throughout this file to help you get started.
+# If you need more help, visit the Dockerfile reference guide at
+# https://docs.docker.com/engine/reference/builder/
+
 ARG PYTHON_VERSION=3.9.2
 FROM python:${PYTHON_VERSION}-slim as base
 
@@ -15,16 +19,13 @@ WORKDIR /
 # Create a non-privileged user that the app will run under.
 # See https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#user
 ARG UID=10001
-ARG GID=10001
-RUN addgroup --gid "${GID}" appgroup && \
-    adduser \
+RUN adduser \
     --disabled-password \
     --gecos "" \
     --home "/nonexistent" \
     --shell "/sbin/nologin" \
     --no-create-home \
     --uid "${UID}" \
-    --gid "${GID}" \
     appuser
 
 # Download dependencies as a separate step to take advantage of Docker's caching.

@@ -3,6 +3,7 @@ version: '3'
 services:
   tageveryone_telegrambot:
     image: matt0550/tageveryone_telegrambot
+    user: 1001:1001
     environment:
       - token=BOT_TOKEN
       - owner_id=OWNER_ID
@@ -10,8 +11,6 @@ services:
       - webserver_debug=False
       - report_errors_owner=False
       - secret_key=SECRET_KEY
-      - PUID=${PUID:-10001}
-      - PGID=${PGID:-10001}
     volumes:
       - /path/to/database-new.db:/src/db/database-new.db
     ports:

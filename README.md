@@ -81,6 +81,7 @@ version: '3'
 services:
   tageveryone_telegrambot:
     image: matt0550/tageveryone_telegrambot
+    user: 1001:1001
     environment:
       - token=BOT_TOKEN
       - owner_id=OWNER_ID
@@ -88,8 +89,6 @@ services:
       - webserver_debug=False
       - report_errors_owner=False
       - secret_key=SECRET_KEY
-      - PUID=${PUID:-10001}
-      - PGID=${PGID:-10001}
     volumes:
       - /path/to/database-new.db:/src/db/database-new.db
     ports:
@@ -107,8 +106,6 @@ docker run -d \
   -e webserver_debug=False \
   -e report_errors_owner=False \
   -e secret_key=SECRET_KEY \
-  -e PUID=1000 \
-  -e PGID=1000 \
   -v /path/to/database-new.db:/src/db/database-new.db \
   -p 5000:5000 \
   --name tageveryone_telegrambot \
