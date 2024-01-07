@@ -3,7 +3,6 @@ version: '3'
 services:
   tageveryone_telegrambot:
     image: matt0550/tageveryone_telegrambot
-    user: 1001:1001
     environment:
       - token=BOT_TOKEN
       - owner_id=OWNER_ID
@@ -11,8 +10,8 @@ services:
       - webserver_debug=False
       - report_errors_owner=False
       - secret_key=SECRET_KEY
-    volumes:
-      - /path/to/database-new.db:/src/db/database-new.db
+      - PUID=1000     # UID of the user inside the container, make sure it has access to the database file
+      - PGID=1000     # GID of the user inside the container, make sure it has access to the database file
     ports:
       - 5000:5000
     restart: unless-stopped

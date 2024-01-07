@@ -16,38 +16,29 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /
 
-# Create a non-privileged user that the app will run under.
-# See https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#user
-ARG UID=10001
-RUN adduser \
-    --disabled-password \
-    --gecos "" \
-    --home "/nonexistent" \
-    --shell "/sbin/nologin" \
-    --no-create-home \
-    --uid "${UID}" \
-    appuser
+ARG APP_USER=appuser
+ENV APP_USER=${APP_USER}
+ARG APP_UID=1000
+ARG APP_GID=1000
 
-# Download dependencies as a separate step to take advantage of Docker's caching.
-# Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.
-# Leverage a bind mount to requirements.txt to avoid having to copy them into
-# into this layer.
+RUN groupadd -g ${APP_GID} ${APP_USER} && \
+    useradd -u ${APP_UID} -g ${APP_GID} -M -s /usr/sbin/nologin ${APP_USER}
+
+RUN apt-get update && apt-get install -y gosu
+
 RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=bind,source=requirements.txt,target=requirements.txt \
     python -m pip install -r requirements.txt
 
-# Switch to the non-privileged user to run the application.
-USER appuser
-
-VOLUME [ "/src/db/database-new.db" ]
-
 # Copy the source code into the container.
-COPY . .
+COPY /src /src
 
-WORKDIR /src
+RUN chown -R ${APP_USER}:${APP_USER} /src
+
+COPY /scripts /scripts
+RUN chmod +x /scripts/*
 
 # Expose the port that the application listens on.
 EXPOSE 5000
 
-# Run the application.
-CMD python main.py
+ENTRYPOINT [ "/scripts/init.sh" ]
