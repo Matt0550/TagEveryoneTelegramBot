@@ -2,7 +2,11 @@ import sqlite3
 import json
 import os
 
-dbPath = os.path.join(os.path.dirname(__file__), 'database.db')
+dbPath = os.path.join(os.path.dirname(__file__), './input/database.db')
+
+if not os.path.exists(dbPath):
+    # Die
+    raise Exception("Database file not found")
 
 class Database:
     # Function to get all data from groups table

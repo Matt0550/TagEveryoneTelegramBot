@@ -14,7 +14,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # the application crashes without emitting any logs due to buffering.
 ENV PYTHONUNBUFFERED=1
 
-WORKDIR /
+WORKDIR /home
 
 ARG APP_USER=appuser
 ENV APP_USER=${APP_USER}
@@ -40,5 +40,7 @@ RUN chmod +x /scripts/*
 
 # Expose the port that the application listens on.
 EXPOSE 5000
+
+VOLUME [ "/src/db/input" ]
 
 ENTRYPOINT [ "/scripts/init.sh" ]
