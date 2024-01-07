@@ -3,7 +3,12 @@ import json
 import os
 from datetime import datetime
 
-dbPath = os.path.join(os.path.dirname(__file__), 'database-new.db')
+dbPath = os.path.join(os.path.dirname(__file__), './input/database-new.db')
+
+if not os.path.exists(dbPath):
+    # Die
+    raise Exception("Database file not found")
+
 # DB
 # CREATE TABLE "groups" (
 # 	"id"	INTEGER NOT NULL,
