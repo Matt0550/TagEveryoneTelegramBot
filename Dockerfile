@@ -31,16 +31,17 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     python -m pip install -r requirements.txt
 
 # Copy the source code into the container.
-COPY /src /src
+COPY . .
 
-RUN chown -R ${APP_USER}:${APP_USER} /src
+RUN chown -R ${APP_USER}:${APP_USER} ./src
 
-COPY /scripts /scripts
-RUN chmod +x /scripts/*
+RUN chmod 755 ./scripts/init.sh
+
+USER ${APP_USER}
+
+VOLUME [ "/home/src/db/input" ]
+
+ENTRYPOINT [ "/home/scripts/init.sh" ]
 
 # Expose the port that the application listens on.
 EXPOSE 5000
-
-VOLUME [ "/src/db/input" ]
-
-ENTRYPOINT [ "/scripts/init.sh" ]
