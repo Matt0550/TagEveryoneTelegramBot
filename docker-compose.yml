@@ -4,14 +4,16 @@ services:
   tageveryone_telegrambot:
     image: matt0550/tageveryone_telegrambot
     environment:
-      - token=BOT_TOKEN
-      - owner_id=OWNER_ID
-      - enable_webapp_server=True
+      - token=TG_TOKEN
+      - owner_id=TG_OWNER_ID
+      - enable_webapp_server=True # For the telegram webapp.
       - webserver_debug=False
-      - report_errors_owner=False
-      - secret_key=SECRET_KEY
+      - report_errors_owner=True # Report errors to the owner.
+      - secret_key=SECRET_KEY    # Random string
       - PUID=1000     # UID of the user inside the container, make sure it has access to the database file
       - PGID=1000     # GID of the user inside the container, make sure it has access to the database file
     ports:
-      - 5000:5000
+      - 5040:5000
+    volumes:
+      - /volume1/docker/tg/:/home/src/db/input/
     restart: unless-stopped

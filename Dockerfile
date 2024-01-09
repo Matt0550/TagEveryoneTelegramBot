@@ -37,11 +37,9 @@ RUN chown -R ${APP_USER}:${APP_USER} ./src
 
 RUN chmod 755 ./scripts/init.sh
 
-USER ${APP_USER}
-
 VOLUME [ "/home/src/db/input" ]
-
-ENTRYPOINT [ "/home/scripts/init.sh" ]
 
 # Expose the port that the application listens on.
 EXPOSE 5000
+
+ENTRYPOINT [ "/home/scripts/init.sh" ]
