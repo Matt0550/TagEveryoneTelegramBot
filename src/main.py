@@ -1,7 +1,7 @@
 #################################
 #   Tag Everyone Telegram Bot   #
 # Developed by @Non_Sono_Matteo #
-#       https://matt05.it       #
+#   https://matteosillitti.it   #
 #       Github: @Matt0550       #
 #################################
 
@@ -192,7 +192,7 @@ async def join_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     (group_id, user_id))
 
         await  update.message.reply_text(
-            "You have been added to the list. To remove yourself from the list type /out\n\nThanks for using this bot.\nBuy me a coffee: https://buymeacoffee.com/Matt0550", disable_web_page_preview=True)
+            "You have been added to the list. To remove yourself from the list type /out\n\nThanks for using this bot.\nBuy me a coffee: https://buymeacoffee.com/Matt0550\nSource code: https://github.com/Matt0550/TagEveryoneTelegramBot", disable_web_page_preview=True)
 
         db.logEvent(user_id, group_id, "join_list", "User added to the list")
     except Exception as e:
@@ -217,7 +217,7 @@ async def leave_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     (group_id, user_id))
                     
         await update.message.reply_text(
-            "You have been removed from the list. To add yourself to the list type /in\n\nThanks for using this bot.\nBuy me a coffee: https://buymeacoffee.com/Matt0550", disable_web_page_preview=True)
+            "You have been removed from the list. To add yourself to the list type /in\n\nThanks for using this bot.\nBuy me a coffee: https://buymeacoffee.com/Matt0550\nSource code: https://github.com/Matt0550/TagEveryoneTelegramBot", disable_web_page_preview=True)
 
         db.logEvent(user_id, group_id, "leave_list",
                     "User removed from the list")
@@ -321,8 +321,9 @@ Triggers:
 This project is open source and free to use.
 Follow updates on News channel: @tageveryone_news\n
 Developed by @Non_Sono_Matteo
-https://matt05.it
-Github: @Matt0550
+https://matteosillitti.it
+                                    
+Source code: https://github.com/Matt0550/TagEveryoneTelegramBot
 Buy me a coffee: https://buymeacoffee.com/Matt0550
 """)
 
@@ -353,7 +354,7 @@ async def getList(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         continue
                 # Send message with list of members
                 await update.message.reply_text("\n".join(
-                    members) + "\n\nThanks for using this bot. Buy me a coffee: https://buymeacoffee.com/Matt0550", disable_web_page_preview=True)
+                    members) + "\n\nThanks for using this bot. Buy me a coffee: https://buymeacoffee.com/Matt0550\nSource code: https://github.com/Matt0550/TagEveryoneTelegramBot", disable_web_page_preview=True)
 
                 db.logEvent(update.message.from_user.id,
                             group_id, "list", "List sent")
@@ -377,7 +378,7 @@ async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
     uptime = str(uptime).split(".")[0]
 
     await update.message.reply_text("✅ If you see this message, the bot is working\n⏰ Uptime: %s" % str(
-        uptime) + "\n\nThanks for using this bot.\nBuy me a coffee: https://buymeacoffee.com/Matt0550", disable_web_page_preview=True)
+        uptime) + "\n\nThanks for using this bot.\nBuy me a coffee: https://buymeacoffee.com/Matt0550\nSource code: https://github.com/Matt0550/TagEveryoneTelegramBot", disable_web_page_preview=True)
 
     db.logEvent(update.message.from_user.id,
                 update.message.chat.id, "status", "Status sent")
@@ -388,7 +389,7 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     total_members = db.getTotalUsers()
 
     await update.message.reply_text("Total active groups: %s\nTotal active members: %s" % (total_groups, total_members) +
-                              "\n\nThanks for using this bot.\nBuy me a coffee: https://buymeacoffee.com/Matt0550", disable_web_page_preview=True)
+                              "\n\nThanks for using this bot.\nBuy me a coffee: https://buymeacoffee.com/Matt0550\nSource code: https://github.com/Matt0550/TagEveryoneTelegramBot", disable_web_page_preview=True)
 
     db.logEvent(update.message.from_user.id,
                 update.message.chat.id, "stats", "Stats sent")
@@ -484,7 +485,7 @@ def main() -> None:
 if __name__ == '__main__':
     print("Tag Everyone Telegram Bot")
     print("Developed by @Non_Sono_Matteo")
-    print("https://matt05.it")
+    print("https://matteosillitti.it")
     if ENABLE_WEBAPP_SERVER == True or ENABLE_WEBAPP_SERVER == "1" or ENABLE_WEBAPP_SERVER.lower() == "true":
         from gui import mainGUI
         from threading import Thread
