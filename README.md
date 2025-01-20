@@ -131,8 +131,8 @@ OPTIONAL: use docker to build the image
 ```bash
   docker build -t tageveryone_telegrambot .
 ```
-If you don't want to use docker, skip this step.
-Else, change the `image` in `docker-compose.yml` with the image name you used.
+If you don't want to use docker, you can just go ahead and skip this step.
+Otherwise, change the `image` in `docker-compose.yml` with the image name you used.
 Run the container with `docker-compose up -d`
 
 Install dependencies
@@ -147,51 +147,14 @@ Start the bot (after setting the environment variables)
   python ./src/main.py
 ```
 
-## Installation - Using Replit
-> [!IMPORTANT]  
-> Outdated. Replit hosting has been disabled for free users.
-
-Go to [replit.com](https://replit.com) and create new Python project
-
-Clone the project to local directory
-```bash
-  git clone https://github.com/Matt0550/TagEveryoneTelegramBot
-```
-
-Move all file to replit project.
-
-Now, click `Show hidden files` from the menu and open `.replit`
-
-Set to `false` the `guessImports` option.
-
-From the package manager, install `python-telegram-bot` and `flask`
-
-From the *secrets manager* create new secrets with bot token
-
-Open `main.py` and uncomment this line:
-```python
-import os
-from keep_alive import keep_alive
-...
-...
-keep_alive() # Replit hosting
-```
-
-Change the bot token with this:
-```python
-os.environ['token']
-```
-
-Now if you want 24/7 hosting, go to [Uptimerobot](https://uptimerobot.com/) and create a new monitor with the URL provided by Replit.
-
 ## Help - feedback
 You can contact me on:
 
-Discord: https://discord.gg/5WrVyQKWAr
+Discord: https://matt05.it/discord
 
-Telegram: https://t.me/Non_Sono_matteo
+Telegram: https://matt05.it/telegram
 
-Mail: <a href="mailto:mail@matt05.it">mail@matt05.it</a>
+Mail: <a href="mailto:mail@matteosillitti.com">mail@matteosillitti.com</a>
 
 ## License
 
@@ -216,6 +179,6 @@ Mail: <a href="mailto:mail@matt05.it">mail@matt05.it</a>
 [license-shield]: https://img.shields.io/github/license/Matt0550/TagEveryoneTelegramBot.svg?style=for-the-badge
 [license-url]: https://github.com/Matt0550/TagEveryoneTelegramBot/blob/master/LICENSE
 [discord-shield]: https://img.shields.io/discord/828990499507404820?style=for-the-badge
-[discord-url]: https://discord.gg/5WrVyQKWAr
+[discord-url]: [https://discord.gg/5WrVyQKWAr](https://matt05.it/discord)
 [docker-shield]: https://img.shields.io/docker/pulls/matt0550/tageveryone_telegrambot?style=for-the-badge
 [docker-url]: https://hub.docker.com/r/matt0550/tageveryone_telegrambot
