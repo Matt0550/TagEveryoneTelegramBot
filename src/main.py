@@ -16,6 +16,8 @@ import logging
 import os
 import traceback
 import html
+import random
+
 
 # Enable logging
 logging.basicConfig(
@@ -47,11 +49,14 @@ global everyoneCommands
 # everyoneCommands = ["@everyone", "@all", "/everyone", "/all", "/everyone@"+application.bot.username, "/all@" +
 #                 application.bot.username, "@"+application.bot.username]  # You can add more aliases for the command /everyone
 
-everyoneCommands = ["@everyone", "@all", "/everyone", "/all"]  # You can add more aliases for the command /everyone
+# You can add more aliases for the command /everyone
+everyoneCommands = ["@everyone", "@all", "/everyone", "/all"]
 
 start_time = datetime.datetime.now()  # For the uptime command
 
 # Create a decorator to apply cooldown to a function (in seconds) for user who used the command
+
+
 def cooldown(seconds):
     def decorator(func):
         # Create a dictionary to store the last time the user used the command
@@ -80,6 +85,8 @@ def cooldown(seconds):
     return decorator
 
 # Create a decorator to check if the bot is admin and if the bot is in a group
+
+
 def group(func):
     async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Check if bot is in a group
@@ -98,6 +105,8 @@ def group(func):
     return wrapper
 
 # Create a decorator to check if the user is owner and is private chat
+
+
 def isOwner(func):
     async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Check if user is owner
@@ -113,6 +122,7 @@ def isOwner(func):
             await update.message.reply_text("You are not the owner of the bot")
     return wrapper
 
+
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Log the error and send a telegram message to notify the developer."""
     # Log the error before we do anything else, so we can see it even if something breaks.
@@ -120,7 +130,8 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
 
     # traceback.format_exception returns the usual python message about an exception, but as a
     # list of strings rather than a single string, so we have to join them together.
-    tb_list = traceback.format_exception(None, context.error, context.error.__traceback__)
+    tb_list = traceback.format_exception(
+        None, context.error, context.error.__traceback__)
     tb_string = "".join(tb_list)
 
     # Build the message with some markup and additional information about what happened.
@@ -153,7 +164,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "Welcome to Tag Everyone Bot\n\nFor more information type /help\n\nTo get started add this bot to a group and type /start in the group")
     else:
         # Check if bot is admin in the group
-        if update.message.chat.get_member(updater.bot.id).status == "administrator":
+        if update.message.chat.get_member(context.application.bot.id).status == "administrator":
             await update.message.reply_text(
                 "Bot is now ready to use.\nFor more information type /help")
         else:
@@ -163,7 +174,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     db.logEvent(update.message.from_user.id, update.message.chat.id,
                 "start", "User started the bot")
 
-
+    
 @cooldown(15)
 @group
 # Function to add a member to the list
@@ -174,6 +185,9 @@ async def join_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user_first_name = update.message.from_user.first_name
         user_last_name = update.message.from_user.last_name
         user_username = update.message.from_user.username
+        if user_username == None:
+            await update.message.reply_text("You must have an username to use this bot. Please set an username in your Telegram settings")
+            return
 
         # Remove from group id "-" and convert to int
         group_id = update.message.chat.id
@@ -183,7 +197,6 @@ async def join_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
         group_type = update.message.chat.type
         group_members = await update.message.chat.get_member_count()
 
-
         # Insert data into database
         db.insertData(group_id, group_name, group_description, group_username, group_type,
                       group_members, user_id, user_first_name, user_last_name, user_username)
@@ -191,7 +204,7 @@ async def join_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
         logger.info("[DATABAE] Inserted data into database: %s, %s" %
                     (group_id, user_id))
 
-        await  update.message.reply_text(
+        await update.message.reply_text(
             "You have been added to the list. To remove yourself from the list type /out\n\nThanks for using this bot.\nBuy me a coffee: https://buymeacoffee.com/Matt0550\nSource code: https://github.com/Matt0550/TagEveryoneTelegramBot", disable_web_page_preview=True)
 
         db.logEvent(user_id, group_id, "join_list", "User added to the list")
@@ -199,6 +212,7 @@ async def join_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
         logger.error("[ERROR] " + str(e))
 
         await update.message.reply_text("Error:\n`%s`" % e, parse_mode="Markdown")
+
 
 @cooldown(15)
 @group
@@ -212,10 +226,10 @@ async def leave_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
         group_id = update.message.chat.id
         # Delete data from database
         db.deleteData(group_id, user_id)
-        
+
         logger.info("[DATABAE] Deleted data from database: %s, %s" %
                     (group_id, user_id))
-                    
+
         await update.message.reply_text(
             "You have been removed from the list. To add yourself to the list type /in\n\nThanks for using this bot.\nBuy me a coffee: https://buymeacoffee.com/Matt0550\nSource code: https://github.com/Matt0550/TagEveryoneTelegramBot", disable_web_page_preview=True)
 
@@ -228,6 +242,7 @@ async def leave_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         db.logEvent(user_id, group_id, "error", str(e))
 
+
 @cooldown(15)
 @group
 async def everyoneMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -238,6 +253,14 @@ async def everyoneMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
         data = db.getMembers(group_id)
 
         logger.info("[DATABASE] Got data from database: %s" % group_id)
+
+        # Get a random number from 0 to 5
+        random_number = random.randint(0, 5)
+        donation_text = (
+            "\n\nEnjoying this free bot? 🌟 Show your support by making a donation to help keep it running and improving! Every contribution matters. 🙏 Donate here: https://github.com/Matt0550/TagEveryoneTelegramBot#support-me"
+            if random_number == 5
+            else ""
+        )
 
         if not data:
             await update.message.reply_text("No one is in the list")
@@ -252,7 +275,7 @@ async def everyoneMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         members.append(
                             "@" + member.user.username)
                     except Exception as e:
-                        logger.warn("[USER] " + str(e) + " - " + str(i))
+                        logger.info("[USER] " + str(e) + " - " + str(i))
                         continue
 
                 # If the members are more than 50 send the message in multiple messages
@@ -264,11 +287,11 @@ async def everyoneMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     for i in members:
                         # Send message with list of members
                         await update.message.reply_text("\n".join(
-                            i))
+                            i) + donation_text, disable_web_page_preview=True)
                 else:
                     # Send message with list of members
                     await update.message.reply_text("\n".join(
-                        members))
+                        members) + donation_text, disable_web_page_preview=True)
 
                 db.logEvent(update.message.from_user.id, group_id,
                             "everyone", "Message sent to all in the list")
@@ -288,6 +311,7 @@ async def everyoneMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         db.logEvent(update.message.from_user.id, group_id, "error", str(e))
 
+
 async def everyone(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         if update.message.text != None:
@@ -301,6 +325,7 @@ async def everyone(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
     except Exception as e:
         logger.error("[ERROR] " + str(e))
+
 
 @cooldown(15)
 async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -371,6 +396,7 @@ async def getList(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Print error with code markup
         await update.message.reply_text("Error:\n`%s`" % e, parse_mode="Markdown")
 
+
 @cooldown(15)
 async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Get the bot uptime widout microseconds
@@ -383,16 +409,18 @@ async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
     db.logEvent(update.message.from_user.id,
                 update.message.chat.id, "status", "Status sent")
 
+
 @cooldown(60)
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     total_groups = db.getTotalGroups()
     total_members = db.getTotalUsers()
 
     await update.message.reply_text("Total active groups: %s\nTotal active members: %s" % (total_groups, total_members) +
-                              "\n\nThanks for using this bot.\nBuy me a coffee: https://buymeacoffee.com/Matt0550\nSource code: https://github.com/Matt0550/TagEveryoneTelegramBot", disable_web_page_preview=True)
+                                    "\n\nThanks for using this bot.\nBuy me a coffee: https://buymeacoffee.com/Matt0550\nSource code: https://github.com/Matt0550/TagEveryoneTelegramBot", disable_web_page_preview=True)
 
     db.logEvent(update.message.from_user.id,
                 update.message.chat.id, "stats", "Stats sent")
+
 
 @isOwner
 @cooldown(15)
@@ -416,7 +444,8 @@ async def announce(update: Update, context: ContextTypes.DEFAULT_TYPE):
             group_type = update.message.chat.type
             group_members = await update.message.chat.get_member_count()
 
-            db.updateGroupInfo(group_id, group_name, group_description, group_username, group_type, group_members)
+            db.updateGroupInfo(group_id, group_name, group_description,
+                               group_username, group_type, group_members)
             await context.bot.send_message(group[1], message)
             logger.info("[MESSAGE] Message sent to group: %s" % group[1])
         except Exception as e:
@@ -428,6 +457,7 @@ async def announce(update: Update, context: ContextTypes.DEFAULT_TYPE):
     db.logEvent(update.message.from_user.id, update.message.chat.id,
                 "announce", "Message sent to all groups")
 
+
 @isOwner
 @cooldown(15)
 async def checkGroups(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -438,7 +468,7 @@ async def checkGroups(update: Update, context: ContextTypes.DEFAULT_TYPE):
     for group in groups:
         try:
             chat = await context.bot.get_chat(group[1])
-         
+
             group_id = chat.id
             group_name = chat.title
             group_description = chat.description
@@ -446,7 +476,8 @@ async def checkGroups(update: Update, context: ContextTypes.DEFAULT_TYPE):
             group_type = chat.type
             group_members = await chat.get_member_count()
 
-            db.updateGroupInfo(group_id, group_name, group_description, group_username, group_type, group_members)
+            db.updateGroupInfo(group_id, group_name, group_description,
+                               group_username, group_type, group_members)
             working_groups.append(group[1])
             logger.info("[MESSAGE] Checked group: %s" % group[1])
 
@@ -460,9 +491,10 @@ async def checkGroups(update: Update, context: ContextTypes.DEFAULT_TYPE):
     db.logEvent(update.message.from_user.id, update.message.chat.id,
                 "checkGroups", "Checked all groups")
 
+
 def main() -> None:
     application = Application.builder().token(TOKEN).build()
-
+    
     application.add_handler(CommandHandler('start', start))
     application.add_handler(CommandHandler('everyone', everyone))
     application.add_handler(CommandHandler('all', everyone))
@@ -481,6 +513,7 @@ def main() -> None:
         application.add_error_handler(error_handler)
 
     application.run_polling(allowed_updates=Update.ALL_TYPES)
+
 
 if __name__ == '__main__':
     print("Tag Everyone Telegram Bot")

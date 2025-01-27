@@ -75,6 +75,7 @@ Instead of the command `/everyone` or `/all`, you can use `@everyone` or `@all`
 - [x] WebApp
 - [ ] Ignore tag requests if time enlapsed is > 2min
 - [ ] Automatically add all members' group to Everyone's list
+- [ ] Welcome message when the bot is added to a group
 
 # Self-hosting
 ## Environment variables
