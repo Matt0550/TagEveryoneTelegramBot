@@ -29,7 +29,7 @@ db = Database()
 
 # Host configuration
 if os.name == 'nt':
-    HOST = os.getenv('APP_HOST', "192.168.1.75")
+    HOST = os.getenv('APP_HOST', "localhost")
 else:
     HOST = os.getenv('APP_HOST', "0.0.0.0")
 
@@ -181,12 +181,15 @@ def status():
 def mainGUI():
     try:
         port = int(PORT)
+        app.run(host=HOST, port=PORT, debug=WEBSERVER_DEBUG)
     except ValueError:
         print("Error: Invalid port number provided. Check your environment variables.")
         sys.exit(1)
+    except Exception as e:
+        print(f"Error: {e}")
+        sys.exit(1)
 
-    app.run(host=HOST, port=PORT, debug=WEBSERVER_DEBUG)
-
+   
 
 if __name__ == '__main__':
     print("Tag Everyone Telegram Bot")

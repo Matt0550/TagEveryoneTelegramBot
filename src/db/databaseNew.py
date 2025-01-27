@@ -6,8 +6,15 @@ from datetime import datetime
 dbPath = os.path.join(os.path.dirname(__file__), './input/database-new.db')
 
 if not os.path.exists(dbPath):
-    # Die
-    raise Exception("Database file not found")
+    # Copy database-new_structure.db to database-new.db
+    try:
+        with open(os.path.join(os.path.dirname(__file__), './database-new_structure.db'), 'r') as f:
+            with open(dbPath, 'w') as f2:
+                f2.write(f.read())
+    except Exception as e:
+        print(e)
+        print("Error: Could not create database file.")
+        exit(1)
 
 # DB
 # CREATE TABLE "groups" (

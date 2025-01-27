@@ -31,10 +31,19 @@
 
 This bot allows you to **mention all users in a group**. Users who wish to receive these notifications will have to sign up using the `/in` command.
 
-## Live demo
-You can try the bot on Telegram: https://t.me/Tag_Everyone_TheBot
+## Public bot on Telegram
+You can use the public bot on Telegram: [TagEveryone_TheBot](https://t.me/Tag_Everyone_TheBot)
 
-_This instance can be instable._
+> [!NOTE]
+> The public bot is hosted on my server, so it may be slow or not available. You can host the bot yourself or use the Docker image. Consider supporting me on [Ko-fi](https://ko-fi.com/matt05) or [Buy me a coffee](https://www.buymeacoffee.com/Matt0550) to keep the bot online.
+
+## Usage
+
+1. Add the bot to your group
+2. Give the bot the permission to read messages and send messages (**admin**)
+3. Use the `/in` command to add yourself to the list
+4. Use the `/everyone` command to mention all users in the list
+
 
 ## Features
 
@@ -60,12 +69,6 @@ _This instance can be instable._
 
 Instead of the command `/everyone` or `/all`, you can use `@everyone` or `@all`
 
-## Changelog
-#### VERSION 1.3
-- Redesigned database
-- New commands
-- Optimizations
-- WebApp
 
 ## TO-DO
 - [ ] REST API
@@ -73,14 +76,33 @@ Instead of the command `/everyone` or `/all`, you can use `@everyone` or `@all`
 - [ ] Ignore tag requests if time enlapsed is > 2min
 - [ ] Automatically add all members' group to Everyone's list
 
+# Self-hosting
+## Environment variables
+| Variable | Description | Default |
+|----------|-------------|---------|
+| token | Telegram Bot Token | - |
+| owner_id | Telegram User ID | - |
+| enable_webapp_server | Enable the WebApp server | True |
+| webserver_debug | Enable Flask debug | False |
+| report_errors_owner | Report errors to the owner | False |
+| secret_key | Flask secret key. Generate a random | - |
+| APP_HOST | Flask host | localhost/0.0.0.0 |
+| APP_PORT | Flask port | 5000 |
 
-## Installation - Using Docker Compose (recommended)
+## Installation - Using Docker
+### Build the image
+```bash
+docker build -t tageveryone_telegrambot .
+```
+### Run the container with docker-compose
+Create a `docker-compose.yml` file with the following content:
+
 ```yaml
 version: '3'
 
 services:
   tageveryone_telegrambot:
-    image: matt0550/tageveryone_telegrambot
+    image: matt0550/tageveryone_telegrambot # or the image name you used
     user: 1001:1001
     environment:
       - token=BOT_TOKEN
@@ -95,9 +117,10 @@ services:
       - 5000:5000
     restart: unless-stopped
 ```
+
 Run the container with `docker-compose up -d`
 
-## Installation - Using Docker Run
+### Run the container with docker run
 ```bash
 docker run -d \
   -e token=TG_BOT_TOKEN \
@@ -112,7 +135,7 @@ docker run -d \
   matt0550/tageveryone_telegrambot
 ```
 
-## Installation - Self-Host or docker build
+## Installation - Without Docker
 
 Clone the project
 
@@ -126,19 +149,16 @@ Go to the project directory
   cd TagEveryoneTelegramBot-master
 ```
 
-OPTIONAL: use docker to build the image
-
-```bash
-  docker build -t tageveryone_telegrambot .
-```
-If you don't want to use docker, skip this step.
-Else, change the `image` in `docker-compose.yml` with the image name you used.
-Run the container with `docker-compose up -d`
-
 Install dependencies
 
 ```bash
   pip install -r requirements.txt
+```
+
+Set the environment variables copying the `.env.example` file to `.env` and filling the values
+
+```bash
+  cp .env.example .env
 ```
 
 Start the bot (after setting the environment variables)
@@ -147,57 +167,37 @@ Start the bot (after setting the environment variables)
   python ./src/main.py
 ```
 
-## Installation - Using Replit
-> [!IMPORTANT]  
-> Outdated. Replit hosting has been disabled for free users.
+## Set up the WebApp
+If you want to enable the WebApp, you have to set the `enable_webapp_server` environment variable to `True`.
 
-Go to [replit.com](https://replit.com) and create new Python project
+The WebApp is available at `http://<ip>:<port>` by default.
 
-Clone the project to local directory
-```bash
-  git clone https://github.com/Matt0550/TagEveryoneTelegramBot
-```
+To show the WebApp on the Telegram bot, you have to setup a reverse proxy to the WebApp. You can use Nginx or Caddy. Then configure the webapp URL in the bot settings in the Telegram BotFather.
 
-Move all file to replit project.
-
-Now, click `Show hidden files` from the menu and open `.replit`
-
-Set to `false` the `guessImports` option.
-
-From the package manager, install `python-telegram-bot` and `flask`
-
-From the *secrets manager* create new secrets with bot token
-
-Open `main.py` and uncomment this line:
-```python
-import os
-from keep_alive import keep_alive
-...
-...
-keep_alive() # Replit hosting
-```
-
-Change the bot token with this:
-```python
-os.environ['token']
-```
-
-Now if you want 24/7 hosting, go to [Uptimerobot](https://uptimerobot.com/) and create a new monitor with the URL provided by Replit.
 
 ## Help - feedback
 You can contact me on:
 
-Discord: https://discord.gg/5WrVyQKWAr
+Discord: https://matt05.it/discord
 
-Telegram: https://t.me/Non_Sono_matteo
+Telegram: https://matt05.it/telegram
 
-Mail: <a href="mailto:mail@matt05.it">mail@matt05.it</a>
+Mail: <a href="mailto:mail@matteosillitti.com">mail@matteosillitti.com</a>
 
-## License
+# Contributors
+
+<!-- Copy-paste in your Readme.md file -->
+
+<a href = "https://github.com/Matt0550/TagEveryoneTelegramBot/graphs/contributors">
+  <img src = "https://contrib.rocks/image?repo=Matt0550/TagEveryoneTelegramBot"/>
+</a>
+
+
+# License
 
 [MIT](https://choosealicense.com/licenses/mit/)
 
-## Support me
+# Support me
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/matt05)
 
