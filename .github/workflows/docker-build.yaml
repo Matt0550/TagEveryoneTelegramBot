@@ -4,9 +4,7 @@ on:
   push:
     branches:
       - production
-  pull_request:
-    branches:
-      - production
+
 
 jobs:
   build_and_push:
@@ -52,7 +50,7 @@ jobs:
           file: ./Dockerfile
           push: true
           platforms: linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v8
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: latest, ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
       # Step 6: Generate artifact attestation
