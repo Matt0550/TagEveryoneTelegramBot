@@ -276,8 +276,10 @@ async def everyoneMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     # Append to members list the username of the member
                     try:
                         member = await update.message.chat.get_member(int(i[0]))
-                        members.append(
-                            "@" + member.user.username)
+                        if member.user.username != None:
+                            members.append(
+                                "@" + member.user.username)
+ 
                     except Exception as e:
                         logger.info("[USER] " + str(e) + " - " + str(i))
                         continue
