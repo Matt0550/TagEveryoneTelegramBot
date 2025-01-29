@@ -5,9 +5,9 @@
 #       Github: @Matt0550       #
 #################################
 
-from telegram import Update, Chat, Bot
+from telegram import Update, Chat
 from telegram.constants import ParseMode
-from telegram.ext import Application, Updater, ContextTypes, MessageHandler, filters, CommandHandler
+from telegram.ext import Application, ContextTypes, MessageHandler, filters, CommandHandler
 from db.databaseNew import Database
 import json
 import datetime
@@ -21,7 +21,8 @@ import random
 
 # Enable logging
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)",
+    level=logging.INFO,
 )
 # set higher logging level for httpx to avoid all GET and POST requests being logged
 logging.getLogger("httpx").setLevel(logging.WARNING)
@@ -63,6 +64,8 @@ def cooldown(seconds):
         last_time = {}
 
         async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE):
+            if update.message.text == None:
+                return
             if any(comm in update.message.text.lower() for comm in everyoneCommands) or update.message.text.startswith("/"):
                 # Get the user id
                 user_id = update.message.from_user.id
@@ -192,7 +195,8 @@ async def join_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Remove from group id "-" and convert to int
         group_id = update.message.chat.id
         group_name = update.message.chat.title
-        group_description = update.message.chat.description
+        chat = await context.application.bot.get_chat(group_id)
+        group_description = chat.description
         group_username = update.message.chat.username
         group_type = update.message.chat.type
         group_members = await update.message.chat.get_member_count()
@@ -314,6 +318,10 @@ async def everyoneMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def everyone(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
+        # Check if is edited message
+        if update.edited_message != None:
+            return
+        
         if update.message.text != None:
             # Check if message contains any of the commands in the list (case insensitive)
             if any(comm.lower() in update.message.text.lower() for comm in everyoneCommands) or any(comm in update.message.text for comm in everyoneCommands):
@@ -439,7 +447,8 @@ async def announce(update: Update, context: ContextTypes.DEFAULT_TYPE):
             # Send message to group id
             group_id = update.message.chat.id
             group_name = update.message.chat.title
-            group_description = update.message.chat.description
+            chat = await context.application.bot.get_chat(group_id)
+            group_description = chat.description
             group_username = update.message.chat.username
             group_type = update.message.chat.type
             group_members = await update.message.chat.get_member_count()
