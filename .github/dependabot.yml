@@ -1,0 +1,17 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"  # Specifies the Python package ecosystem
+    directory: "/"  # Location of the requirements.txt file (root of the repository)
+    schedule:
+      interval: "weekly"  # Check for updates weekly
+    open-pull-requests-limit: 10  # Limit the number of open pull requests at any time
+    assignees:
+      - "LightYagami28"  # Automatically assign pull requests to LightYagami28
+    reviewers:
+      - "LightYagami28"  # Request review from LightYagami28
+    labels:
+      - "dependencies"  # Add dependency-related labels to pull requests
+      - "python"  # Label pull requests as Python-related
+    commit-message:
+      prefix: "deps"  # Prefix for commit messages related to dependencies
+      include: "scope"  # Include the updated package name in the commit message
