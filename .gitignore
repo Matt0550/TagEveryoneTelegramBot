@@ -4,3 +4,4 @@ database.db
 database-new.db
 .cache_ggshield
 .venv/
+.idea

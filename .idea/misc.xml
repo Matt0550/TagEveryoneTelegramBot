@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Black">
+    <option name="sdkName" value="Python 3.11.2 WSL (Debian): (/usr/bin/python3)" />
+  </component>
+  <component name="MaliciousPackageCheckinHandlerState">
+    <option name="packageCheck" value="true" />
+  </component>
+  <component name="ProjectInspectionProfilesVisibleTreeState">
+    <entry key="Project Default">
+      <profile-state>
+        <expanded-state>
+          <State>
+            <id>Proofreading</id>
+          </State>
+        </expanded-state>
+        <selected-state>
+          <State>
+            <id>Proofreading</id>
+          </State>
+        </selected-state>
+      </profile-state>
+    </entry>
+  </component>
+  <component name="ProjectResources">
+    <xml-schema-version>XMLSchema_1_1</xml-schema-version>
+  </component>
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.11.2 WSL (Debian): (/home/light/.virtualenvs/TagEveryoneTelegramBot/bin/python)" project-jdk-type="Python SDK" />
+  <component name="PyDebuggerOptionsProvider">
+    <option name="mySaveCallSignatures" value="true" />
+    <option name="mySupportGeventDebugging" value="true" />
+    <option name="myDropIntoDebuggerOnFailedTests" value="true" />
+  </component>
+  <component name="ReaderModeSettings">
+    <option name="increaseLineSpacing" value="true" />
+    <option name="showWarnings" value="true" />
+  </component>
+  <component name="TestsVcsConfig">
+    <option name="enabled" value="true" />
+  </component>
+</project>
