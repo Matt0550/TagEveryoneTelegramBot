@@ -1,12 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ENV not configured</title>
+
+    <!-- Tailwind CSS (via CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h1>ENV not configured</h1>
-    <p>Sorry, the environment variables are not configured.</p>
+
+<body class="h-screen bg-gray-100 flex items-center justify-center text-center text-gray-700">
+
+    <div class="max-w-md w-full bg-white shadow-lg rounded-lg p-8">
+        <h1 class="text-4xl font-bold text-yellow-600">ENV not configured</h1>
+        <p class="text-lg mt-4">Sorry, the environment variables are not configured properly.</p>
+        <p class="mt-4 text-sm text-gray-500">Please check your environment setup and ensure all required variables are properly configured.</p>
+        <a href="/" class="mt-6 inline-block text-blue-600 hover:text-blue-800">Go back to homepage</a>
+    </div>
+
 </body>
+
 </html>

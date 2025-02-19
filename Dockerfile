@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # Use the latest stable Python version
-ARG PYTHON_VERSION=3.11
+ARG PYTHON_VERSION=3.13
 FROM python:${PYTHON_VERSION}-slim as base
 
 # Set environment variables for Python optimization

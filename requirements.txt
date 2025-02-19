@@ -1,5 +1,4 @@
 Flask
-Flask_Cors
 python-dotenv
 python-telegram-bot
-Werkzeug
+Flask-Cors

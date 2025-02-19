@@ -3,11 +3,18 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Search</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Search</title>
+
+    <!-- Telegram Web App JS -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
+    <!-- Tailwind CSS (via CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Additional Head Resources -->
+    {% block head %}
+    {% endblock %}
 </head>
 
 <body class="h-full font-sans leading-normal tracking-normal" style="background-color: var(--tg-theme-bg-color); color: var(--tg-theme-text-color);">
@@ -17,11 +24,15 @@
         {% endblock %}
     </div>
 
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js'
-        integrity='sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=='
-        crossorigin='anonymous'></script>
-    <script src="{{ url_for('static', filename='./js/datatables.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='./js/main.js') }}"></script>
+    <!-- jQuery (via CDN) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+            integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+            crossorigin="anonymous"></script>
+
+    <!-- Static JS Files -->
+    <script src="{{ url_for('static', filename='js/datatables.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
 </body>
 
 </html>

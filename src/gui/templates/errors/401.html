@@ -1,12 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>401 Unauthorized</title>
+
+    <!-- Tailwind CSS (via CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h1>401 Unauthorized</h1>
-    <p>Sorry, you are not authorized to access this page.</p>
+
+<body class="h-screen bg-gray-100 flex items-center justify-center text-center text-gray-700">
+
+    <div class="max-w-md w-full bg-white shadow-lg rounded-lg p-8">
+        <h1 class="text-4xl font-bold text-red-600">401 Unauthorized</h1>
+        <p class="text-lg mt-4">Sorry, you are not authorized to access this page.</p>
+        <p class="mt-4 text-sm text-gray-500">Please check your credentials or contact support.</p>
+    </div>
+
 </body>
+
 </html>

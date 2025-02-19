@@ -1,305 +1,162 @@
 import sqlite3
-import json
 import os
 from datetime import datetime
 
 dbPath = os.path.join(os.path.dirname(__file__), './input/database-new.db')
 
+# Ensure the database exists, create if not
 if not os.path.exists(dbPath):
-    # Copy database-new_structure.db to database-new.db
-    try:
-        with open(os.path.join(os.path.dirname(__file__), './database-new_structure.db'), 'r') as f:
-            with open(dbPath, 'w') as f2:
-                f2.write(f.read())
-    except Exception as e:
-        print(e)
-        print("Error: Could not create database file.")
-        exit(1)
+	try:
+		with open(os.path.join(os.path.dirname(__file__), './database-new_structure.db'), 'r') as src_file:
+			with open(dbPath, 'w') as dest_file:
+				dest_file.write(src_file.read())
+	except Exception as e:
+		print(f"Error: Could not create database file - {e}")
+		exit(1)
 
-# DB
-# CREATE TABLE "groups" (
-# 	"id"	INTEGER NOT NULL,
-# 	"group_id"	TEXT NOT NULL,
-# 	"group_name"	TEXT,
-# 	"group_description"	TEXT,
-# 	"group_username"	TEXT,
-# 	"group_type"	TEXT,
-# 	"group_members"	TEXT,
-# 	PRIMARY KEY("id" AUTOINCREMENT)
-# )
-# CREATE TABLE "groups_users" (
-# 	"id"	INTEGER NOT NULL,
-# 	"group_id"	INTEGER,
-# 	"user_id"	INTEGER,
-# 	"datetime"	TEXT,
-# 	FOREIGN KEY("user_id") REFERENCES "users"("user_id"),
-# 	FOREIGN KEY("group_id") REFERENCES "groups_users"("group_id"),
-# 	PRIMARY KEY("id" AUTOINCREMENT)
-# )
-# CREATE TABLE "users" (
-# 	"id"	INTEGER NOT NULL,
-# 	"user_id"	INTEGER NOT NULL,
-# 	"first_name"	TEXT,
-# 	"last_name"	TEXT,
-# 	"username"	TEXT,
-# 	"created_at"	TEXT NOT NULL,
-# 	"updated_at"	TEXT,
-# 	PRIMARY KEY("id" AUTOINCREMENT)
-# )
+
 class Database:
-    # Function to members id from group id
-    def getMembers(self, group_id):
-        # Create a sqlite3 connection
-        conn = sqlite3.connect(dbPath, check_same_thread=False)
-        # Create a cursor
-        c = conn.cursor()
-        # Get all members id from "groups_users" table
-        c.execute("SELECT user_id FROM groups_users WHERE group_id=?", (group_id,))
-        # Fetch all the data
-        data = c.fetchall()
-        # Close the connection
-        conn.close()
-        # Return the data
-        return data 
-    
-    # Function to insert data into database
-    def insertData(self, group_id, group_name, group_description, group_username, group_type, group_members, member_id, first_name, last_name, username):
-        # Create a sqlite3 connection
-        conn = sqlite3.connect(dbPath, check_same_thread=False)
-        # Create a cursor
-        c = conn.cursor()
-        # Check if group id exists
-        c.execute("SELECT group_id FROM groups WHERE group_id=?", (group_id,))
-        # Fetch all the data
-        data = c.fetchall()
-        # If data already exists, append to members id new member id
-        if data:
-            # Update group data
-            c.execute("UPDATE groups SET group_name=?, group_description=?, group_username=?, group_type=?, group_members=? WHERE group_id=?", (group_name, group_description, group_username, group_type, group_members, group_id))
-            # Commit the changes
-            conn.commit()
-        else:
-            # Insert group data
-            c.execute("INSERT INTO groups (group_id, group_name, group_description, group_username, group_type, group_members) VALUES (?, ?, ?, ?, ?, ?)", (group_id, group_name, group_description, group_username, group_type, group_members))
-            # Commit the changes
-            conn.commit()
-
-        # Check if user exists. If not create new user else update user data
-        self.createUser(member_id, first_name, last_name, username)
-
-        # Check if user id exists
-        c.execute("SELECT user_id FROM groups_users WHERE user_id=? AND group_id=?", (member_id, group_id))
-        # Fetch all the data
-        data = c.fetchall()
-        # If data already exists, append to members id new member id
-        if data:
-            raise Exception("User already exists in group")
-        else:
-            # Insert user id into "groups_users" table
-            c.execute("INSERT INTO groups_users (group_id, user_id, datetime) VALUES (?, ?, ?)", (group_id, member_id, datetime.now()))
-            # Commit the changes
-            conn.commit()
-
-    def createUser(self, user_id, first_name, last_name, username):
-        # Create a sqlite3 connection
-        conn = sqlite3.connect(dbPath, check_same_thread=False)
-        # Create a cursor
-        c = conn.cursor()
-
-        # Check if user exists. If not create new user else update user data
-        c.execute("SELECT user_id FROM users WHERE user_id=?", (user_id,))
-        # Fetch all the data
-        data = c.fetchall()
-        # If data already exists, append to members id new member id
-        if data:
-            # Update user data
-            c.execute("UPDATE users SET first_name=?, last_name=?, username=?, updated_at=? WHERE user_id=?", (first_name, last_name, username, datetime.now(), user_id))
-            # Commit the changes
-            conn.commit()
-        else:
-            # Insert user data
-            c.execute("INSERT INTO users (user_id, first_name, last_name, username, created_at) VALUES (?, ?, ?, ?, ?)", (user_id, first_name, last_name, username, datetime.now()))
-            # Commit the changes
-            conn.commit()
-
-    def getUser(self, user_id):
-        # Create a sqlite3 connection
-        conn = sqlite3.connect(dbPath, check_same_thread=False)
-        # Create a cursor
-        c = conn.cursor()
-
-        # Get user data
-        c.execute("SELECT * FROM users WHERE user_id=?", (user_id,))
-        # Fetch all the data
-        data = c.fetchall()
-        # Close the connection
-        conn.close()
-        # Return the data
-        return data
-
-    def getGroupsOfUser(self, user_id):
-        # Create a sqlite3 connection
-        conn = sqlite3.connect(dbPath, check_same_thread=False)
-        # Create a cursor
-        c = conn.cursor()
-
-        # Get user data
-        c.execute("SELECT * FROM groups WHERE group_id IN (SELECT group_id FROM groups_users WHERE user_id=?)", (user_id,))
-        # Fetch all the data
-        data = c.fetchall()
-        # Close the connection
-        conn.close()
-        # Return the data
-        return data
-
-    def deleteGroup(self, group_id):
-        # Create a sqlite3 connection
-        conn = sqlite3.connect(dbPath, check_same_thread=False)
-        # Create a cursor
-        c = conn.cursor()
-
-        # Delete group, foreign key and user (only if user is not in any group)
-        c.execute("DELETE FROM groups WHERE group_id=?", (group_id,))
-        c.execute("DELETE FROM groups_users WHERE group_id=?", (group_id,))
-        c.execute("DELETE FROM users WHERE user_id NOT IN (SELECT user_id FROM groups_users)")
-        # Commit the changes
-        conn.commit()
-        # Close the connection
-        conn.close()
-
-    def updateGroupInfo(self, group_id, group_name, group_description, group_username, group_type, group_members):
-        # Create a sqlite3 connection
-        conn = sqlite3.connect(dbPath, check_same_thread=False)
-        # Create a cursor
-        c = conn.cursor()
-
-        # Update group data
-        c.execute("UPDATE groups SET group_name=?, group_description=?, group_username=?, group_type=?, group_members=? WHERE group_id=?", (group_name, group_description, group_username, group_type, group_members, group_id))
-        # Commit the changes
-        conn.commit()
-        # Close the connection
-        conn.close()
-
-    # Function to delete data from database
-    def deleteData(self, group_id, member_id):
-        # Create a sqlite3 connection
-        conn = sqlite3.connect(dbPath, check_same_thread=False)
-        # Create a cursor
-        c = conn.cursor()
-        # Delete user from groups_users
-        c.execute("DELETE FROM groups_users WHERE group_id=? AND user_id=?", (group_id, member_id))
-        # If user is not in any group, delete user from users
-        c.execute("DELETE FROM users WHERE user_id NOT IN (SELECT user_id FROM groups_users)")
-        # Commit the changes
-        conn.commit()
-        # Close the connection
-        conn.close()
-
-    def getTotalGroups(self):
-        # Create a sqlite3 connection
-        conn = sqlite3.connect(dbPath, check_same_thread=False)
-        # Create a cursor
-        c = conn.cursor()
-        # Get total groups
-        c.execute("SELECT COUNT(*) FROM groups")
-        # Fetch all the data
-        data = c.fetchall()
-        # Close the connection
-        conn.close()
-        # Return the data
-        return data[0][0]
-
-    def getTotalUsers(self):
-        # Create a sqlite3 connection
-        conn = sqlite3.connect(dbPath, check_same_thread=False)
-        # Create a cursor
-        c = conn.cursor()
-        # Get total users
-        c.execute("SELECT COUNT(*) FROM users")
-        # Fetch all the data
-        data = c.fetchall()
-        # Close the connection
-        conn.close()
-        # Return the data
-        return data[0][0]
-
-    def getAllGroups(self):
-        # Create a sqlite3 connection
-        conn = sqlite3.connect(dbPath, check_same_thread=False)
-        # Create a cursor
-        c = conn.cursor()
-        # Get all groups
-        c.execute("SELECT * FROM groups")
-        # Fetch all the data
-        data = c.fetchall()
-        # Close the connection
-        conn.close()
-        # Return the data
-        return data
-
-    def logEvent(self, user_id, group_id, action, description):
-        # Create a sqlite3 connection
-        conn = sqlite3.connect(dbPath, check_same_thread=False)
-        # Create a cursor
-        c = conn.cursor()
-        # Insert log
-        c.execute("INSERT INTO logs (user_id, group_id, action, description, datetime) VALUES (?, ?, ?, ?, ?)", (user_id, group_id, action, description, datetime.now()))
-        # Commit the changes
-        conn.commit()
-        # Close the connection
-        conn.close()
-
-    def getHourlyLogs(self):
-        # Create a sqlite3 connection
-        conn = sqlite3.connect(dbPath, check_same_thread=False)
-        # Create a cursor
-        c = conn.cursor()
-
-        # Get hourly logs
-        c.execute("SELECT * FROM logs WHERE datetime BETWEEN datetime('now', '-1 hour') AND datetime('now') ORDER BY datetime DESC")
-        # Fetch all the data
-        data = c.fetchall()
-        # Close the connection
-        conn.close()
-        # Return the data
-        return data
-
-    def getDailyLogs(self):
-        # Create a sqlite3 connection
-        conn = sqlite3.connect(dbPath, check_same_thread=False)
-        # Create a cursor
-        c = conn.cursor()
-
-        # Get daily logs
-        c.execute("SELECT * FROM logs WHERE datetime BETWEEN datetime('now', '-1 day') AND datetime('now') ORDER BY datetime DESC")
-        # Fetch all the data
-        data = c.fetchall()
-        # Close the connection
-        conn.close()
-        # Return the data
-        return data
-
-    def getWeeklyLogs(self):
-        # Create a sqlite3 connection
-        conn = sqlite3.connect(dbPath, check_same_thread=False)
-        # Create a cursor
-        c = conn.cursor()
-
-        # Get weekly logs
-        c.execute("SELECT * FROM logs WHERE datetime BETWEEN datetime('now', '-7 day') AND datetime('now') ORDER BY datetime DESC")
-        # Fetch all the data
-        data = c.fetchall()
-        # Close the connection
-        conn.close()
-        # Return the data
-        return data
-
-    def getLogs(self, time):
-        if time == "hour":
-            return self.getHourlyLogs()
-        elif time == "day":
-            return self.getDailyLogs()
-        elif time == "week":
-            return self.getWeeklyLogs()
-        else:
-            return None
+	# Helper function to create a database connection using context manager
+	def _connect(self):
+		return sqlite3.connect(dbPath, check_same_thread=False)
+	
+	def getMembers(self, group_id):
+		with self._connect() as conn:
+			cursor = conn.cursor()
+			cursor.execute("SELECT user_id FROM groups_users WHERE group_id=?", (group_id,))
+			return cursor.fetchall()
+	
+	def insertData(self, group_id, group_name, group_description, group_username, group_type, group_members, member_id,
+	               first_name, last_name, username):
+		with self._connect() as conn:
+			cursor = conn.cursor()
+			# Insert or update group data
+			cursor.execute("SELECT group_id FROM groups WHERE group_id=?", (group_id,))
+			group_data = cursor.fetchall()
+			if group_data:
+				cursor.execute(
+					"UPDATE groups SET group_name=?, group_description=?, group_username=?, group_type=?, group_members=? WHERE group_id=?",
+					(group_name, group_description, group_username, group_type, group_members, group_id))
+			else:
+				cursor.execute(
+					"INSERT INTO groups (group_id, group_name, group_description, group_username, group_type, group_members) VALUES (?, ?, ?, ?, ?, ?)",
+					(group_id, group_name, group_description, group_username, group_type, group_members))
+			
+			# Insert or update user data
+			self.createUser(member_id, first_name, last_name, username)
+			
+			# Check if user is already in the group
+			cursor.execute("SELECT user_id FROM groups_users WHERE user_id=? AND group_id=?", (member_id, group_id))
+			user_group_data = cursor.fetchall()
+			if user_group_data:
+				raise Exception("User already exists in group")
+			else:
+				cursor.execute("INSERT INTO groups_users (group_id, user_id, datetime) VALUES (?, ?, ?)",
+				               (group_id, member_id, datetime.now()))
+			conn.commit()
+	
+	def createUser(self, user_id, first_name, last_name, username):
+		with self._connect() as conn:
+			cursor = conn.cursor()
+			cursor.execute("SELECT user_id FROM users WHERE user_id=?", (user_id,))
+			user_data = cursor.fetchall()
+			if user_data:
+				cursor.execute("UPDATE users SET first_name=?, last_name=?, username=?, updated_at=? WHERE user_id=?",
+				               (first_name, last_name, username, datetime.now(), user_id))
+			else:
+				cursor.execute(
+					"INSERT INTO users (user_id, first_name, last_name, username, created_at) VALUES (?, ?, ?, ?, ?)",
+					(user_id, first_name, last_name, username, datetime.now()))
+			conn.commit()
+	
+	def getUser(self, user_id):
+		with self._connect() as conn:
+			cursor = conn.cursor()
+			cursor.execute("SELECT * FROM users WHERE user_id=?", (user_id,))
+			return cursor.fetchall()
+	
+	def getGroupsOfUser(self, user_id):
+		with self._connect() as conn:
+			cursor = conn.cursor()
+			cursor.execute("SELECT * FROM groups WHERE group_id IN (SELECT group_id FROM groups_users WHERE user_id=?)",
+			               (user_id,))
+			return cursor.fetchall()
+	
+	def deleteGroup(self, group_id):
+		with self._connect() as conn:
+			cursor = conn.cursor()
+			cursor.execute("DELETE FROM groups WHERE group_id=?", (group_id,))
+			cursor.execute("DELETE FROM groups_users WHERE group_id=?", (group_id,))
+			cursor.execute("DELETE FROM users WHERE user_id NOT IN (SELECT user_id FROM groups_users)")
+			conn.commit()
+	
+	def updateGroupInfo(self, group_id, group_name, group_description, group_username, group_type, group_members):
+		with self._connect() as conn:
+			cursor = conn.cursor()
+			cursor.execute(
+				"UPDATE groups SET group_name=?, group_description=?, group_username=?, group_type=?, group_members=? WHERE group_id=?",
+				(group_name, group_description, group_username, group_type, group_members, group_id))
+			conn.commit()
+	
+	def deleteData(self, group_id, member_id):
+		with self._connect() as conn:
+			cursor = conn.cursor()
+			cursor.execute("DELETE FROM groups_users WHERE group_id=? AND user_id=?", (group_id, member_id))
+			cursor.execute("DELETE FROM users WHERE user_id NOT IN (SELECT user_id FROM groups_users)")
+			conn.commit()
+	
+	def getTotalGroups(self):
+		with self._connect() as conn:
+			cursor = conn.cursor()
+			cursor.execute("SELECT COUNT(*) FROM groups")
+			return cursor.fetchone()[0]
+	
+	def getTotalUsers(self):
+		with self._connect() as conn:
+			cursor = conn.cursor()
+			cursor.execute("SELECT COUNT(*) FROM users")
+			return cursor.fetchone()[0]
+	
+	def getAllGroups(self):
+		with self._connect() as conn:
+			cursor = conn.cursor()
+			cursor.execute("SELECT * FROM groups")
+			return cursor.fetchall()
+	
+	def logEvent(self, user_id, group_id, action, description):
+		with self._connect() as conn:
+			cursor = conn.cursor()
+			cursor.execute("INSERT INTO logs (user_id, group_id, action, description, datetime) VALUES (?, ?, ?, ?, ?)",
+			               (user_id, group_id, action, description, datetime.now()))
+			conn.commit()
+	
+	def getHourlyLogs(self):
+		return self._getLogs('hour')
+	
+	def getDailyLogs(self):
+		return self._getLogs('day')
+	
+	def getWeeklyLogs(self):
+		return self._getLogs('week')
+	
+	def _getLogs(self, time_frame):
+		time_intervals = {
+			"hour": "-1 hour",
+			"day": "-1 day",
+			"week": "-7 day"
+		}
+		if time_frame not in time_intervals:
+			return None
+		
+		with self._connect() as conn:
+			cursor = conn.cursor()
+			cursor.execute(
+				f"SELECT * FROM logs WHERE datetime BETWEEN datetime('now', '{time_intervals[time_frame]}') AND datetime('now') ORDER BY datetime DESC")
+			return cursor.fetchall()
+	
+	def getLogs(self, time):
+		return {
+			"hour": self.getHourlyLogs(),
+			"day": self.getDailyLogs(),
+			"week": self.getWeeklyLogs()
+		}.get(time, None)

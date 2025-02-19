@@ -1,20 +1,21 @@
 {% extends "base.html" %}
 {% block content %}
-<div id="unauthorized"
-    class="fixed top-0 left-0 z-50 w-screen h-screen flex justify-center items-center bg-black bg-opacity-50 hidden">
+
+<!-- Unauthorized Alert -->
+<div id="unauthorized" class="fixed top-0 left-0 z-50 w-screen h-screen flex justify-center items-center bg-black bg-opacity-50 hidden">
     <div class="border py-2 px-5 rounded-lg flex items-center">
         <h1 class="text-red-500 font-bold text-xl">Unauthorized</h1>
     </div>
 </div>
 
-<!-- Group lists -->
+<!-- Group Lists Section -->
 <div class="flex flex-col lg:flex-row lg:justify-between mt-2" id="group-div">
-    <!-- Group list -->
+    <!-- Group List -->
     <div class="w-full lg:w-1/3">
         <div class="flex flex-col">
-            <div class="flex flex-col justify-between items-center">
+            <div class="flex flex-col justify-center items-center">
                 <h1 class="text-2xl font-bold">Groups</h1>
-                <p class="text-sm" style="color: var(--tg-theme-hint-color);">Groups you are part of in the tag list</p>
+                <p class="text-sm text-gray-500">Groups you are part of in the tag list</p>
             </div>
             <div id="group-list" class="flex flex-col mt-4">
             </div>
@@ -22,17 +23,15 @@
     </div>
 </div>
 
-<!-- Group lists -->
+<!-- Logs Section (Initially Hidden) -->
 <div class="flex flex-col lg:flex-row lg:justify-between mt-2 hidden" id="log-div">
-    <!-- Group list -->
+    <!-- Log List -->
     <div class="w-full lg:w-1/3">
         <div class="flex flex-col">
-            <div class="flex flex-col justify-between items-center">
+            <div class="flex flex-col justify-center items-center">
                 <h1 class="text-2xl font-bold">Logs</h1>
-                <p class="text-sm" style="color: var(--tg-theme-hint-color);">
-                    Logs of the last 7 days
-                </p>
-                <p class="text-sm" style="color: var(--tg-theme-hint-color);">
+                <p class="text-sm text-gray-500">Logs from the last 7 days</p>
+                <p class="text-sm text-gray-500">
                     <span id="log-count"></span> logs found
                 </p>
             </div>
