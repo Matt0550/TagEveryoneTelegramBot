@@ -30,7 +30,7 @@
 **/obj
 **/secrets.dev.yaml
 **/values.dev.yaml
-LICENSE
+LICENSE.MD
 README.md
 
 **/src/db/database-new.db
