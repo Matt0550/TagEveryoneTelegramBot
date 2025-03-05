@@ -55,7 +55,7 @@ You can view the live demo and interact with the bot using [this link](https://t
 
 ## Public Bot Access
 
-You can try the public bot here: [TagEveryone_TheBot](https://t.me/Tag_Everyone_TheBot).
+You can try the public bot here: [TagEveryone_TheBot](https://t.me/TagEveryone_TheBot).
 
 > **Note**  
 > The public bot is hosted on a personal server and might experience downtime. You are welcome to host it yourself using Docker or other methods. If you'd like to support the bot's upkeep, you can do so via [Ko-fi](https://ko-fi.com/matt05) or [Buy Me A Coffee](https://www.buymeacoffee.com/Matt0550).
