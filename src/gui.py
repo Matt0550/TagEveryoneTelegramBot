@@ -2,6 +2,7 @@ import hashlib
 import hmac
 import os
 import sys
+import json
 from dotenv import load_dotenv
 from flask import Flask, jsonify, request, render_template, abort
 from flask_cors import CORS
@@ -77,9 +78,9 @@ def getUserFromQuery(query):
 	user = user.replace('true', 'True').replace('false', 'False')
 	
 	try:
-		# Safely parse the string into a dictionary or list (avoiding eval)
-		user = eval(user, {"__builtins__": None}, {})
-	except (SyntaxError, ValueError):
+		# Safely parse the string into a dictionary or list using json.loads
+		user = json.loads(user)
+	except (json.JSONDecodeError, ValueError):
 		return None
 	return user
 
