@@ -1,18 +1,20 @@
 <script setup lang="ts">
-import Navbar from './Navbar.vue';
-import Hero from './Hero.vue';
-import Features from './Features.vue';
 
 // Anno corrente per il copyright
 const currentYear = new Date().getFullYear();
 
 // Social media links
-const socialLinks = [
-  { name: 'Telegram', url: 'https://t.me/tageveryone', icon: 'telegram' },
-  { name: 'Twitter', url: 'https://twitter.com/matt05_dev', icon: 'twitter' },
-  { name: 'GitHub', url: 'https://github.com/matt-05/tageveryone', icon: 'github' },
-  { name: 'Discord', url: '#', icon: 'discord' }
-];
+interface SocialLink {
+  name: string;
+  url: string;
+  icon: keyof typeof socialIcons;
+}
+
+const socialLinks: SocialLink[] = [
+  { name: 'Telegram', url: 'https://t.me/TagEveryone', icon: 'telegram' },
+  { name: 'Twitter', url: 'https://twitter.com/TagEveryone', icon: 'twitter' },
+  { name: 'GitHub', url: '', icon: 'github' },
+  { name: 'Discord', url: 'https://discord.gg/TagEveryone', icon: 'discord' }];
 
 // Icone SVG per i social media
 const socialIcons = {

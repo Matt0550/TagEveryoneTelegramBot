@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import Navbar from '../components/NavBar.vue';
 import Pricing from '../components/Pricing.vue';
 </script>
 
