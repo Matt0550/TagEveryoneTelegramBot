@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const billingCycle = ref('monthly');
 
@@ -77,6 +80,40 @@ const averageDiscountPercentage = computed(() => {
 
   const sum = discounts.reduce((total, current) => total + current, 0);
   return Math.round(sum / discounts.length);
+});
+
+interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+// Ottieni le FAQ dal file di traduzione e convertile nel formato corretto
+const faqItems = computed<FaqItem[]>(() => {
+  try {
+    // Array per memorizzare le FAQ formattate
+    const formattedFaqs: FaqItem[] = [];
+    
+    // Cicla attraverso le chiavi di domanda (q1, q2, ecc.)
+    for (let i = 1; i <= 5; i++) {
+      const questionKey = `q${i}`;
+      const answerKey = `a${i}`;
+      
+      // Verifica se esistono domanda e risposta per questo indice
+      const question = t(`faq.questions.${questionKey}`);
+      const answer = t(`faq.questions.${answerKey}`);
+      
+      // Se sia la domanda che la risposta esistono, aggiungi all'array
+      if (question !== null && question !== `faq.questions.${questionKey}` &&
+          answer !== null && answer !== `faq.questions.${answerKey}`) {
+        formattedFaqs.push({ question, answer });
+      }
+    }
+    
+    return formattedFaqs;
+  } catch (error) {
+    console.error('Errore nel caricamento delle FAQ:', error);
+    return []; // Restituisci un array vuoto in caso di errore
+  }
 });
 </script>
 
@@ -177,26 +214,26 @@ const averageDiscountPercentage = computed(() => {
 
       <!-- FAQ -->
       <div class="mt-24 max-w-3xl mx-auto">
-        <h3 class="text-2xl font-bold mb-8 text-center text-white">{{ $t('faq.title') }}</h3>
+      <h3 class="text-2xl font-bold mb-8 text-center text-white">{{ $t('faq.title') }}</h3>
 
-        <div class="space-y-4">
-          <div v-for="(question, index) in $tm('faq.questions')" :key="index"
-            class="border border-gray-700 rounded-lg overflow-hidden">
-            <details class="group">
-              <summary class="flex justify-between items-center p-5 bg-gray-800/50 cursor-pointer">
-                <h4 class="text-lg font-medium text-white">{{ question.question }}</h4>
-                <svg class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform" fill="none"
-                  stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-              </summary>
-              <div class="p-5 border-t border-gray-700">
-                <p class="text-gray-300">{{ question.answer }}</p>
-              </div>
-            </details>
-          </div>
+      <div class="space-y-4">
+        <div v-for="(faq, index) in faqItems" :key="index"
+          class="border border-gray-700 rounded-lg overflow-hidden">
+          <details class="group">
+            <summary class="flex justify-between items-center p-5 bg-gray-800/50 cursor-pointer">
+              <h4 class="text-lg font-medium text-white">{{ faq.question }}</h4>
+              <svg class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform" fill="none"
+                stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </summary>
+            <div class="p-5 border-t border-gray-700">
+              <p class="text-gray-300">{{ faq.answer }}</p>
+            </div>
+          </details>
         </div>
       </div>
+    </div>
 
       <!-- CTA -->
       <div class="mt-16 text-center">

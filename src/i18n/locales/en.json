@@ -7,7 +7,9 @@
     "contact": "Contact Us",
     "login": "Log In",
     "signup": "Sign Up",
-    "cta": "Get Started"
+    "cta": "Get Started",
+    "selectLanguage": "Select Language"
+
   },
   "hero": {
     "subtitle": "The ultimate solution for group mentions on Telegram",
@@ -162,30 +164,19 @@
   },
   "faq": {
     "title": "Frequently Asked Questions",
-    "questions": [
-      {
-        "question": "How can I get started with TagEveryone?",
-        "answer": "You can start with TagEveryone for free. Just launch the bot on Telegram and follow the instructions to set up your first group. If you want advanced features, you can upgrade to a Premium plan anytime."
-      },
-      {
-        "question": "How do I activate the Premium plan after purchase?",
-        "answer": "After completing the payment, you will receive an email with instructions on activating your Premium plan for a group of your choice. Follow the instructions to start using Premium features."
-      },
-      {
-        "question": "Can I transfer my subscription to another group?",
-        "answer": "Yes, you can transfer your subscription to another group anytime. Simply follow the instructions in the dashboard to move the Premium plan to another group."
-      },
-      {
-        "question": "Can I change plans anytime?",
-        "answer": "Yes, you can easily switch plans at any time. If you upgrade, the difference will be calculated proportionally based on the remaining subscription time."
-      },
-      {
-        "question": "What payment methods do you accept?",
-        "answer": "We accept all major credit cards (Visa, Mastercard, American Express), PayPal, and bank transfers for businesses. We use Stripe as a secure payment gateway."
-      }
-    ]
+    "questions": {
+      "q1": "How can I get started with TagEveryone?",
+      "a1": "You can start using TagEveryone for free. Just launch the bot on Telegram and follow the instructions to set up your first group. If you want advanced features, you can upgrade to a Premium plan at any time.",
+      "q2": "How do I activate the Premium plan after purchase?",
+      "a2": "Once your payment is complete, you will receive an email with instructions on how to activate your Premium plan for a group of your choice. Follow the instructions to start using the Premium features.",
+      "q3": "Can I transfer my subscription to another group?",
+      "a3": "Yes, you can transfer your subscription to another group at any time. Just follow the instructions in the dashboard to move the Premium plan to another group.",
+      "q4": "Can I change my plan at any time?",
+      "a4": "Yes, you can easily switch between plans at any time. If you upgrade, the difference will be calculated proportionally based on the remaining time of your current subscription.",
+      "q5": "What payment methods do you accept?",
+      "a5": "We accept all major credit cards (Visa, Mastercard, American Express), PayPal, and bank transfers for businesses. We use Stripe as a secure payment gateway."
+    }
   },
-
   "footer": {
     "description": "The complete solution to easily manage your tags and mentions on Telegram and other platforms.",
     "product": {

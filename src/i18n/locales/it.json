@@ -7,7 +7,8 @@
     "contact": "Contattaci",
     "login": "Accedi",
     "signup": "Registrati",
-    "cta": "Inizia ora"
+    "cta": "Inizia ora",
+    "selectLanguage": "Seleziona la lingua"
   },
   "hero": {
     "subtitle": "La soluzione definitiva per menzioni di gruppo su Telegram",
@@ -162,28 +163,18 @@
   },
   "faq": {
     "title": "Domande frequenti",
-    "questions": [
-      {
-        "question": "Come posso iniziare con TagEveryone?",
-        "answer": "Puoi iniziare con TagEveryone gratuitamente. Basta avviare il bot su Telegram e seguire le istruzioni per configurare il tuo primo gruppo. Se desideri funzionalità avanzate, puoi passare a un piano Premium in qualsiasi momento."
-      },
-      {
-        "question": "Come attivo il piano Premium dopo l'acquisto?",
-        "answer": "Dopo che avrai completato il pagamento, riceverai un'email con le istruzioni per attivare il tuo piano Premium su un gruppo a tua scelta. Segui le istruzioni per iniziare a utilizzare le funzionalità Premium."
-      },
-      {
-        "question": "Posso trasferire la sottoscrizione a un altro gruppo?",
-        "answer": "Sì, puoi trasferire la sottoscrizione a un altro gruppo in qualsiasi momento. Basta seguire le istruzioni nella dashboard per spostare il piano Premium su un altro gruppo."
-      },
-      {
-        "question": "Posso cambiare piano in qualsiasi momento?",
-        "answer": "Sì, puoi facilmente passare da un piano all'altro in qualsiasi momento. Se effettui l'upgrade, la differenza sarà calcolata proporzionalmente al tempo rimanente dell'abbonamento corrente."
-      },
-      {
-        "question": "Quali metodi di pagamento accettate?",
-        "answer": "Accettiamo tutte le principali carte di credito (Visa, Mastercard, American Express), PayPal, e bonifici bancari per le aziende. Utilizziamo Stripe come gateway di pagamento sicuro."
-      }
-    ]
+    "questions": {
+      "q1": "Come posso iniziare con TagEveryone?",
+      "a1": "Puoi iniziare con TagEveryone gratuitamente. Basta avviare il bot su Telegram e seguire le istruzioni per configurare il tuo primo gruppo. Se desideri funzionalità avanzate, puoi passare a un piano Premium in qualsiasi momento.",
+      "q2": "Come attivo il piano Premium dopo l'acquisto?",
+      "a2": "Dopo che avrai completato il pagamento, riceverai un'email con le istruzioni per attivare il tuo piano Premium su un gruppo a tua scelta. Segui le istruzioni per iniziare a utilizzare le funzionalità Premium.",
+      "q3": "Posso trasferire la sottoscrizione a un altro gruppo?",
+      "a3": "Sì, puoi trasferire la sottoscrizione a un altro gruppo in qualsiasi momento. Basta seguire le istruzioni nella dashboard per spostare il piano Premium su un altro gruppo.",
+      "q4": "Posso cambiare piano in qualsiasi momento?",
+      "a4": "Sì, puoi facilmente passare da un piano all'altro in qualsiasi momento. Se effettui l'upgrade, la differenza sarà calcolata proporzionalmente al tempo rimanente dell'abbonamento corrente.",
+      "q5": "Quali metodi di pagamento accettate?",
+      "a5": "Accettiamo tutte le principali carte di credito (Visa, Mastercard, American Express), PayPal, e bonifici bancari per le aziende. Utilizziamo Stripe come gateway di pagamento sicuro."
+    }
   },
   "footer": {
     "description": "La soluzione completa per gestire facilmente i tuoi tag e menzioni su Telegram e altre piattaforme.",
