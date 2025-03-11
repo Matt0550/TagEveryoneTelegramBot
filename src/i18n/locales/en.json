@@ -1,0 +1,222 @@
+{
+  "navbar": {
+    "home": "Home",
+    "features": "Features",
+    "pricing": "Pricing",
+    "faq": "FAQ",
+    "contact": "Contact Us",
+    "login": "Log In",
+    "signup": "Sign Up",
+    "cta": "Get Started"
+  },
+  "hero": {
+    "subtitle": "The ultimate solution for group mentions on Telegram",
+    "cta": "Try Now",
+    "secondaryCta": "Learn More",
+    "badgeNew": "NEW",
+    "botMessage": "I have mentioned all group members."
+  },
+  "statistics": {
+    "items": {
+      "users": {
+        "label": "Mentioned Users"
+      },
+      "groups": {
+        "label": "Active Groups"
+      },
+      "active_users": {
+        "label": "Active Users"
+      },
+      "support": {
+        "label": "Available Support"
+      }
+    }
+  },
+  "features": {
+    "title": "Compare Features",
+    "subtitle": "Discover what you can do with TagEveryone and the additional benefits of the Premium version.",
+    "free": {
+      "title": "Free Features",
+      "description": "Available for all users",
+      "items": {
+        "limited_mention": {
+          "title": "Limited Mentions",
+          "description": "Mention up to 100 users at a time up to 3 times per day."
+        },
+        "basic_commands": {
+          "title": "Basic Commands",
+          "description": "Access essential commands to tag users in groups."
+        },
+        "basic_webapp": {
+          "title": "Basic Web App",
+          "description": "Simple web interface to manage groups where the bot is active."
+        },
+        "community_support": {
+          "title": "Open Source",
+          "description": "Open-source project with community support and regular updates."
+        }
+      }
+    },
+    "premium": {
+      "title": "Premium Features",
+      "description": "Exclusively for subscribers",
+      "items": {
+        "unlimited_mention": {
+          "title": "Unlimited Mentions",
+          "description": "Mention all group users with a single command, without limitations."
+        },
+        "custom_lists": {
+          "title": "Custom Lists",
+          "description": "Create and manage custom user lists to mention them separately (e.g., VIP, Moderators)."
+        },
+        "reduced_cooldown": {
+          "title": "Reduced Cooldown",
+          "description": "Shorter waiting time between mentions to tag users again."
+        },
+        "no_activity_logs": {
+          "title": "No Activity Logs",
+          "description": "No logs of mention activities to ensure privacy."
+        },
+        "ad_free_experience": {
+          "title": "Ad-Free Experience",
+          "description": "No ads in bot messages for a cleaner user experience."
+        },
+        "dedicated_instance": {
+          "title": "Dedicated Instance",
+          "description": "Dedicated resources to ensure optimal performance and greater stability."
+        }
+      }
+    },
+    "badges": {
+      "soon": "Coming Soon",
+      "premium": "Premium"
+    },
+    "cta": {
+      "title": "Unlock the full potential of TagEveryone with our Premium plan.",
+      "primary": "Try Premium",
+      "secondary": "Compare Plans"
+    }
+  },
+  "pricing": {
+    "title": "Choose the best plan for you",
+    "subtitle": "Flexible plans for every need. Get more with TagEveryone Premium.",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "savingBadge": "-{discount}%",
+    "plans": {
+      "free": {
+        "name": "Basic",
+        "price": "Free",
+        "description": "Perfect for small groups",
+        "features": [
+          "Limited performance",
+          "Unlimited mentions",
+          "Unlimited groups",
+          "Activity logs",
+          "Advertisements"
+        ],
+        "button": "Start Free"
+      },
+      "premium": {
+        "name": "Premium",
+        "description": "For medium-sized groups",
+        "period": {
+          "monthly": "/ month / group",
+          "yearly": "/ year / group"
+        },
+        "features": [
+          "Everything in the Basic plan",
+          "Dedicated instance",
+          "Additional features (e.g., lists)",
+          "Reduced cooldown",
+          "No activity logs",
+          "Priority support",
+          "No advertisements"
+        ],
+        "button": "Get Started",
+        "recommended": "Recommended Plan"
+      },
+      "unlimited": {
+        "name": "Unlimited",
+        "description": "For ∞ groups and users",
+        "period": {
+          "monthly": "/ month",
+          "yearly": "/ year"
+        },
+        "features": [
+          "Everything in the Premium plan",
+          "Unlimited groups",
+          "Unlimited users"
+        ],
+        "button": "Contact Us"
+      }
+    },
+    "saving": "Save €{amount} per year",
+    "discountPercentage": "-{discount}% compared to monthly",
+    "cta": {
+      "title": "Still have questions?",
+      "subtitle": "Our team is ready to help you choose the best plan for your needs.",
+      "primary": "Contact Us",
+      "secondary": "FAQ"
+    }
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "questions": [
+      {
+        "question": "How can I get started with TagEveryone?",
+        "answer": "You can start with TagEveryone for free. Just launch the bot on Telegram and follow the instructions to set up your first group. If you want advanced features, you can upgrade to a Premium plan anytime."
+      },
+      {
+        "question": "How do I activate the Premium plan after purchase?",
+        "answer": "After completing the payment, you will receive an email with instructions on activating your Premium plan for a group of your choice. Follow the instructions to start using Premium features."
+      },
+      {
+        "question": "Can I transfer my subscription to another group?",
+        "answer": "Yes, you can transfer your subscription to another group anytime. Simply follow the instructions in the dashboard to move the Premium plan to another group."
+      },
+      {
+        "question": "Can I change plans anytime?",
+        "answer": "Yes, you can easily switch plans at any time. If you upgrade, the difference will be calculated proportionally based on the remaining subscription time."
+      },
+      {
+        "question": "What payment methods do you accept?",
+        "answer": "We accept all major credit cards (Visa, Mastercard, American Express), PayPal, and bank transfers for businesses. We use Stripe as a secure payment gateway."
+      }
+    ]
+  },
+
+  "footer": {
+    "description": "The complete solution to easily manage your tags and mentions on Telegram and other platforms.",
+    "product": {
+      "title": "Product",
+      "links": {
+        "features": "Features",
+        "pricing": "Pricing",
+        "api": "API",
+        "integrations": "Integrations"
+      }
+    },
+    "support": {
+      "title": "Support",
+      "links": {
+        "docs": "Documentation",
+        "guide": "Guide",
+        "faq": "FAQ",
+        "contact": "Contact"
+      }
+    },
+    "newsletter": {
+      "title": "Stay Updated",
+      "description": "Subscribe to receive updates on new features and special offers.",
+      "placeholder": "Your email",
+      "button": "Subscribe"
+    },
+    "copyright": "TagEveryone. All rights reserved.",
+    "legal": {
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "cookies": "Cookie Policy"
+    }
+  }
+}

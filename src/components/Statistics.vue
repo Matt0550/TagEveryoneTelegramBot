@@ -1,23 +1,31 @@
 <script setup lang="ts">
-const statistics = [
+
+interface Statistic {
+    key: string;
+    value: string;
+    icon: 'users' | 'groups' | 'chart' | 'support';
+}
+
+// Utilizziamo le chiavi per le traduzioni anziché il testo diretto
+const statistics: Statistic[] = [
     {
+        key: 'users',
         value: '10k+',
-        label: 'Utenti menzionati',
         icon: 'users'
     },
     {
+        key: 'groups',
         value: '680+',
-        label: 'Gruppi attivi',
         icon: 'groups'
     },
     {
+        key: 'active_users',
         value: '3k+',
-        label: 'Utenti attivi',
         icon: 'chart'
     },
     {
+        key: 'support',
         value: '24/7',
-        label: 'Supporto disponibile',
         icon: 'support'
     }
 ];
@@ -25,17 +33,17 @@ const statistics = [
 // Icone SVG inline per le statistiche
 const icons = {
     users: `<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-         </svg>`,
+         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+       </svg>`,
     groups: `<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-          </svg>`,
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>`,
     chart: `<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-         </svg>`,
+         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+       </svg>`,
     support: `<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
-           </svg>`
+           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+         </svg>`
 };
 </script>
 
@@ -48,7 +56,7 @@ const icons = {
                         class="flex flex-col items-center text-center p-5 transition-transform duration-300 hover:transform hover:scale-105">
                         <!-- Icon with glowing background -->
                         <div class="mb-4 rounded-full p-3 bg-indigo-900/30 stat-icon-glow">
-                            <div v-html="icons[stat.icon as keyof typeof icons]" class="text-indigo-400"></div>
+                            <div v-html="icons[stat.icon]" class="text-indigo-400"></div>
                         </div>
 
                         <!-- Value with highlight -->
@@ -57,8 +65,8 @@ const icons = {
                             {{ stat.value }}
                         </div>
 
-                        <!-- Label -->
-                        <p class="text-gray-300">{{ stat.label }}</p>
+                        <!-- Label tradotto -->
+                        <p class="text-gray-300">{{ $t(`statistics.items.${stat.key}.label`) }}</p>
                     </div>
                 </div>
             </div>

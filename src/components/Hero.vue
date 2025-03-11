@@ -11,28 +11,33 @@
                         <h1 class="text-5xl md:text-6xl font-extrabold leading-tight">
                             <span class="inline-block relative text-white">
                                 Tag <span class="text-indigo-300">Everyone</span>
-                                <span class="absolute -bottom-3 left-0 w-full h-1 bg-gradient-to-r from-indigo-400 to-purple-400"></span>
+                                <span
+                                    class="absolute -bottom-3 left-0 w-full h-1 bg-gradient-to-r from-indigo-400 to-purple-400"></span>
                             </span>
                             <span class="block mt-4 text-3xl md:text-4xl text-indigo-300 font-bold tracking-wide">
                                 Premium <span class="relative inline-block">
-                                    <span class="absolute -top-5 -right-8 bg-indigo-500 text-white text-xs px-2 py-0.5 rounded-md font-normal transform rotate-12">NEW</span>
+                                    <span
+                                        class="absolute -top-5 -right-8 bg-indigo-500 text-white text-xs px-2 py-0.5 rounded-md font-normal transform rotate-12">{{$t('hero.badgeNew')}}</span>
                                 </span>
                             </span>
                         </h1>
                     </div>
-                    
-                    <p class="text-xl mb-8 text-gray-300">La soluzione completa per gestire facilmente i tuoi tag e
-                        menzioni sui social media.</p>
-                    
+
+                    <p class="text-xl mb-8 text-gray-300">
+                        {{$t('hero.subtitle')}}
+                    </p>
+
                     <!-- Pulsanti con contrasto migliorato -->
                     <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                        <router-link to="/pricing"> <button
+                                class="hover:cursor-pointer bg-white text-indigo-900 px-8 py-3 rounded-lg font-bold shadow-lg hover:bg-gray-100 transition transform hover:-translate-y-1">
+                                {{$t('hero.cta')}}
+                            </button>
+                        </router-link>
+
                         <button
-                            class="bg-white text-indigo-900 px-8 py-3 rounded-lg font-bold shadow-lg hover:bg-gray-100 transition transform hover:-translate-y-1">
-                            Prova Gratis
-                        </button>
-                        <button
-                            class="border-2 border-white text-white px-8 py-3 rounded-lg font-bold hover:bg-white/20 transition transform hover:-translate-y-1">
-                            Scopri di più
+                            class="hover:cursor-pointer border-2 border-white text-white px-8 py-3 rounded-lg font-bold hover:bg-white/20 transition transform hover:-translate-y-1">
+                            {{$t('hero.secondaryCta')}}
                         </button>
                     </div>
                 </div>
@@ -73,9 +78,10 @@
                                     <div class="flex flex-col max-w-[80%] self-start">
                                         <div
                                             class="bg-gray-700 text-white px-3.5 py-2.5 rounded-2xl rounded-bl-sm text-sm">
-                                            Mentioned everyone in the group.
+                                            {{$t('hero.botMessage')}}
                                             <div class="text-xs mt-1 text-indigo-300">
-                                                @NovaByteX @ShadowCircuit7 @EchoVortex99 @GlitchPhantomX @QuantumNebula_42 @CyberHawkRex @PixelRogue777 @NeonSpecter_21
+                                                @NovaByteX @ShadowCircuit7 @EchoVortex99 @GlitchPhantomX
+                                                @QuantumNebula_42 @CyberHawkRex @PixelRogue777 @NeonSpecter_21
                                             </div>
                                         </div>
                                         <span class="text-xs text-gray-500 mt-1 self-start ml-1">12:42</span>
@@ -101,9 +107,11 @@
     0% {
         transform: rotate(12deg) scale(1);
     }
+
     50% {
         transform: rotate(12deg) scale(1.1);
     }
+
     100% {
         transform: rotate(12deg) scale(1);
     }
