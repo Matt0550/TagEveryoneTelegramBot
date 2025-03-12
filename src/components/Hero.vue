@@ -1,4 +1,8 @@
 <script setup lang="ts">
+// Scroll
+const scrollToFeatures = () => {
+    document.querySelector('#features')?.scrollIntoView({ behavior: 'smooth' });
+};
 </script>
 
 <template>
@@ -17,28 +21,30 @@
                             <span class="block mt-4 text-3xl md:text-4xl text-indigo-300 font-bold tracking-wide">
                                 Premium <span class="relative inline-block">
                                     <span
-                                        class="absolute -top-5 -right-8 bg-indigo-500 text-white text-xs px-2 py-0.5 rounded-md font-normal transform rotate-12">{{$t('hero.badgeNew')}}</span>
+                                        class="absolute -top-5 -right-8 bg-indigo-500 text-white text-xs px-2 py-0.5 rounded-md font-normal transform rotate-12">{{
+                                        $t('hero.badgeNew') }}</span>
                                 </span>
                             </span>
                         </h1>
                     </div>
 
                     <p class="text-xl mb-8 text-gray-300">
-                        {{$t('hero.subtitle')}}
+                        {{ $t('hero.subtitle') }}
                     </p>
 
                     <!-- Pulsanti con contrasto migliorato -->
                     <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
                         <router-link to="/pricing"> <button
                                 class="hover:cursor-pointer bg-white text-indigo-900 px-8 py-3 rounded-lg font-bold shadow-lg hover:bg-gray-100 transition transform hover:-translate-y-1">
-                                {{$t('hero.cta')}}
+                                {{ $t('hero.cta') }}
                             </button>
                         </router-link>
 
-                        <button
+                        <a href="#features"
                             class="hover:cursor-pointer border-2 border-white text-white px-8 py-3 rounded-lg font-bold hover:bg-white/20 transition transform hover:-translate-y-1">
-                            {{$t('hero.secondaryCta')}}
-                        </button>
+                            {{ $t('hero.secondaryCta') }}
+                        </a>
+
                     </div>
                 </div>
 
@@ -78,7 +84,7 @@
                                     <div class="flex flex-col max-w-[80%] self-start">
                                         <div
                                             class="bg-gray-700 text-white px-3.5 py-2.5 rounded-2xl rounded-bl-sm text-sm">
-                                            {{$t('hero.botMessage')}}
+                                            {{ $t('hero.botMessage') }}
                                             <div class="text-xs mt-1 text-indigo-300">
                                                 @NovaByteX @ShadowCircuit7 @EchoVortex99 @GlitchPhantomX
                                                 @QuantumNebula_42 @CyberHawkRex @PixelRogue777 @NeonSpecter_21

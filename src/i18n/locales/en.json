@@ -9,7 +9,6 @@
     "signup": "Sign Up",
     "cta": "Get Started",
     "selectLanguage": "Select Language"
-
   },
   "hero": {
     "subtitle": "The ultimate solution for group mentions on Telegram",
@@ -208,6 +207,120 @@
       "privacy": "Privacy Policy",
       "terms": "Terms of Service",
       "cookies": "Cookie Policy"
+    }
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "Do you have questions or need assistance? Contact us, and we will be happy to help you.",
+    "alternativesTitle": "Other Contact Methods",
+    "form": {
+      "title": "Send a Message",
+      "name": "Name",
+      "email": "Email",
+      "message": "Message",
+      "subject": "Subject",
+      "button": "Send Message",
+      "namePlaceholder": "Your name",
+      "emailPlaceholder": "Your email",
+      "subjectPlaceholder": "Select a subject",
+      "messagePlaceholder": "Your message",
+      "sending": "Sending...",
+      "send": "Send",
+      "success": "Your message has been sent successfully.",
+      "error": "An error occurred while sending your message. Please try again later.",
+      "emailInvalid": "Please enter a valid email address.",
+      "messageInvalid": "The message must contain at least 10 characters.",
+      "subjects": {
+        "general": "General Inquiry",
+        "support": "Technical Support",
+        "billing": "Billing",
+        "partnership": "Partnership",
+        "other": "Other"
+      }
+    },
+    "methods": {
+      "telegram": {
+        "title": "Telegram",
+        "description": "Contact us on Telegram for immediate assistance.",
+        "action": "Open Chat"
+      },
+      "email": {
+        "title": "Email",
+        "description": "Send an email to our team for questions and assistance.",
+        "action": "Send Email"
+      },
+      "social": {
+        "title": "Social Media",
+        "description": "Follow us on social media to stay updated on the latest news.",
+        "action": "Follow Us"
+      }
+    }
+  },
+  "giveaway": {
+    "limited": "Limited Offer",
+    "title": "Premium Giveaway: 10 Free Codes",
+    "subtitle": "Join our exclusive giveaway for a chance to win one of our premium codes for TagEveryone",
+    "endsIn": "ENDS IN",
+    "days": "Days",
+    "hours": "Hours",
+    "minutes": "Minutes",
+    "seconds": "Seconds",
+    "participants": "Participants so far",
+    "participateNow": "Participate Now",
+    "about": {
+      "title": "About the Giveaway",
+      "description": "We're giving away 10 premium codes as a thank you to our community. Lucky winners will receive access to TagEveryone premium features completely free!",
+      "prizes": "Available Prizes",
+      "howToEnter": "How to Enter"
+    },
+    "prizes": {
+      "1": {
+        "title": "Main Prize",
+        "description": "{count} winners will receive a one-year Premium subscription"
+      },
+      "2": {
+        "title": "Secondary Prize",
+        "description": "{count} winners will receive a one-month Premium subscription"
+      }
+    },
+    "rules": {
+      "follow": "Follow our official Telegram channel",
+      "subscribe": "Subscribe to our newsletter",
+      "share": "Share this giveaway on social media and tag @TagEveryone"
+    },
+    "participate": {
+      "title": "Enter the Giveaway",
+      "email": "Email Address",
+      "emailPlaceholder": "Your email",
+      "emailInvalid": "Please enter a valid email address",
+      "telegram": "Telegram Username",
+      "telegramPlaceholder": "Your Telegram username (e.g. @username)",
+      "telegramInvalid": "Please enter a valid Telegram username",
+      "newsletter": "I want to receive updates and special offers",
+      "termsAgreement": "I have read and agree to the",
+      "termsLink": "terms and conditions",
+      "submit": "Enter Giveaway",
+      "submitting": "Submitting...",
+      "enterAgain": "Enter again",
+      "success": {
+        "title": "Thanks for participating!",
+        "message": "Your giveaway entry has been recorded. Winners will be contacted directly and announced on our Telegram channel and via email."
+      },
+      "error": {
+        "title": "An error occurred",
+        "message": "We couldn't register your participation. Please try again later or contact us if the issue persists."
+      }
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "q1": "How will winners be selected?",
+      "a1": "Winners will be randomly selected from all valid participants at the end of the giveaway period.",
+      "q2": "When will winners be announced?",
+      "a2": "Winners will be announced within 7 days after the giveaway ends on our Telegram channel and via email.",
+      "q3": "Can I enter multiple times?",
+      "a3": "No, only one entry per person is allowed. Multiple entries will be disqualified.",
+      "q4": "How will I receive the prize if I win?",
+      "a4": "Winners will receive a premium activation code via email and direct message on Telegram."
     }
   }
 }

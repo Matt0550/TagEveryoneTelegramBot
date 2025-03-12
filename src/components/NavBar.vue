@@ -86,9 +86,9 @@ const closeLangDropdown = () => {
 // Array dei link di navigazione per evitare duplicazione
 const navLinks = [
   { key: 'home', to: '/', isRouter: true },
-  { key: 'features', to: '#features', isRouter: false },
+  { key: 'features', to: '/#features', isRouter: false },
   { key: 'pricing', to: '/pricing', isRouter: true },
-  { key: 'contact', to: '#contact', isRouter: false }
+  { key: 'contact', to: '/contact', isRouter: true }
 ];
 </script>
 
@@ -150,10 +150,13 @@ const navLinks = [
 
       <!-- CTA Button - solo desktop -->
       <div class="hidden md:flex items-center space-x-3">
-        <button
-          class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition hover:cursor-pointer">
-          {{ $t('navbar.cta') }}
-        </button>
+        <router-link to="/pricing">
+          <button
+            class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition hover:cursor-pointer">
+            {{ $t('navbar.cta') }}
+          </button>
+        </router-link>
+ 
       </div>
 
       <!-- Hamburger menu - solo mobile -->
@@ -187,10 +190,12 @@ const navLinks = [
           </template>
 
           <!-- CTA nel menu mobile -->
+           <router-link to="/pricing">
           <button @click="closeMobileMenu"
-            class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition mt-2 hover:cursor-pointer">
+            class="w-full bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition mt-2 hover:cursor-pointer">
             {{ $t('navbar.cta') }}
           </button>
+          </router-link>
 
           <!-- Language Switcher - Mobile -->
           <div class="pt-2 pb-1 border-t border-gray-800 mt-2">

@@ -208,5 +208,119 @@
       "terms": "Termini di Servizio",
       "cookies": "Cookie Policy"
     }
+  },
+  "contact": {
+    "title": "Contattaci",
+    "subtitle": "Hai domande o bisogno di assistenza? Contattaci e saremo lieti di aiutarti.",
+    "alternativesTitle": "Altre modalità di contatto",
+    "form": {
+      "title": "Invia un Messaggio",
+      "name": "Nome",
+      "email": "Email",
+      "message": "Messaggio",
+      "subject": "Argomento",
+      "button": "Invia Messaggio",
+      "namePlaceholder": "Il tuo nome",
+      "emailPlaceholder": "La tua email",
+      "subjectPlaceholder": "Seleziona l'argomento",
+      "messagePlaceholder": "Il tuo messaggio",
+      "sending": "Invio in corso...",
+      "send": "Invia",
+      "success": "Il tuo messaggio è stato inviato con successo.",
+      "error": "Si è verificato un errore durante l'invio del messaggio. Riprova più tardi.",
+      "emailInvalid": "Inserisci un indirizzo email valido.",
+      "messageInvalid": "Il messaggio deve contenere almeno 10 caratteri.",
+      "subjects": {
+        "general": "Domande Generale",
+        "support": "Supporto Tecnico",
+        "billing": "Fatturazione",
+        "partnership": "Partnership",
+        "other": "Altro"
+      }
+    },
+    "methods": {
+      "telegram": {
+        "title": "Telegram",
+        "description": "Contattaci su Telegram per assistenza immediata.",
+        "action": "Apri Chat"
+      },
+      "email": {
+        "title": "Email",
+        "description": "Invia un'email al nostro team per domande e assistenza.",
+        "action": "Invia Email"
+      },
+      "social": {
+        "title": "Social",
+        "description": "Seguici sui social media per rimanere aggiornato sulle ultime novità.",
+        "action": "Seguici"
+      }
+    }
+  },
+  "giveaway": {
+    "limited": "Offerta Limitata",
+    "title": "Giveaway Premium: 10 Codici in Regalo",
+    "subtitle": "Partecipa al nostro giveaway esclusivo per avere la possibilità di vincere uno dei nostri codici premium per TagEveryone",
+    "endsIn": "TERMINA FRA",
+    "days": "Giorni",
+    "hours": "Ore",
+    "minutes": "Minuti",
+    "seconds": "Secondi",
+    "participants": "Partecipanti finora",
+    "participateNow": "Partecipa ora",
+    "about": {
+      "title": "Informazioni sul Giveaway",
+      "description": "Stiamo regalando 10 codici premium per ringraziare la nostra comunità. I fortunati vincitori riceveranno accesso alle funzionalità premium di TagEveryone completamente gratis!",
+      "prizes": "Premi in palio",
+      "howToEnter": "Come partecipare"
+    },
+    "prizes": {
+      "1": {
+        "title": "Premio Principale",
+        "description": "{count} vincitori riceveranno un anno di abbonamento Premium"
+      },
+      "2": {
+        "title": "Premio Secondario",
+        "description": "{count} vincitori riceveranno un mese di abbonamento Premium"
+      }
+    },
+    "rules": {
+      "follow": "Segui il nostro canale Telegram ufficiale",
+      "subscribe": "Iscriviti alla nostra newsletter",
+      "share": "Condividi questo giveaway sui social media e tagga @TagEveryone"
+    },
+    "participate": {
+      "title": "Partecipa al Giveaway",
+      "email": "Indirizzo email",
+      "emailPlaceholder": "La tua email",
+      "emailInvalid": "Inserisci un indirizzo email valido",
+      "telegram": "Username Telegram",
+      "telegramPlaceholder": "Il tuo username Telegram (es. @username)",
+      "telegramInvalid": "Inserisci un username Telegram valido",
+      "newsletter": "Desidero ricevere aggiornamenti e offerte speciali",
+      "termsAgreement": "Ho letto e accetto i",
+      "termsLink": "termini e condizioni",
+      "submit": "Partecipa al giveaway",
+      "submitting": "Invio in corso...",
+      "enterAgain": "Partecipa di nuovo",
+      "success": {
+        "title": "Grazie per la partecipazione!",
+        "message": "La tua iscrizione al giveaway è stata registrata. I vincitori saranno contattati direttamente e annunciati sul nostro canale Telegram e via email."
+      },
+      "error": {
+        "title": "Si è verificato un errore",
+        "message": "Non siamo riusciti a registrare la tua partecipazione. Riprova più tardi o contattaci se il problema persiste."
+      }
+    },
+    "faq": {
+      "title": "Domande Frequenti",
+      "q1": "Come verranno scelti i vincitori?",
+      "a1": "I vincitori saranno selezionati in modo casuale tra tutti i partecipanti validi al termine del periodo del giveaway.",
+      "q2": "Quando saranno annunciati i vincitori?",
+      "a2": "I vincitori saranno annunciati entro 7 giorni dalla fine del giveaway sul nostro canale Telegram e via email.",
+      "q3": "Posso partecipare più volte?",
+      "a3": "No, è consentita una sola partecipazione per persona. Partecipazioni multiple verranno squalificate.",
+      "q4": "Come riceverò il premio se vinco?",
+      "a4": "I vincitori riceveranno un codice di attivazione premium via email e tramite messaggio diretto su Telegram."
+    }
   }
 }
