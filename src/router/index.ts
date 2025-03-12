@@ -30,7 +30,7 @@ const router = createRouter({
     
   ],
   // Aggiungi questa configurazione per il comportamento dello scroll
-  scrollBehavior(to, from, savedPosition) {
+  scrollBehavior(to, _from, savedPosition) {
     // Se l'utente utilizza il pulsante indietro/avanti e c'è una posizione salvata
     if (savedPosition) {
       return savedPosition;

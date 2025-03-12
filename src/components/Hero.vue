@@ -1,10 +1,3 @@
-<script setup lang="ts">
-// Scroll
-const scrollToFeatures = () => {
-    document.querySelector('#features')?.scrollIntoView({ behavior: 'smooth' });
-};
-</script>
-
 <template>
     <section class="bg-gradient-to-r from-purple-700 to-indigo-900 py-16">
         <div class="container mx-auto px-4">

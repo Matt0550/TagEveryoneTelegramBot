@@ -1,10 +1,5 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { useI18n } from 'vue-i18n';
-import NavBar from '../components/NavBar.vue';
-import Footer from '../components/Footer.vue';
-
-const { t } = useI18n();
 
 // Stato del form
 const email = ref('');
