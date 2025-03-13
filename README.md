@@ -5,6 +5,9 @@
 [![Discord][discord-shield]][discord-url]
 [![Docker Pulls][docker-shield]][docker-url]
 
+>[!NOTE]
+> **SOON** - Our **premium bot** and **new website** are coming soon! Get ready to discover new features, experiences, and much more. Stay tuned for more details! [Read more](https://github.com/TagEveryone/premium-bot-readme) 🚀
+
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
