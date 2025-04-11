@@ -35,7 +35,7 @@
 This bot allows you to **mention all users in a group**. Users who wish to receive these notifications will have to sign up using the `/in` command.
 
 ## Public bot on Telegram
-You can use the public bot on Telegram: [TagEveryone_TheBot](https://t.me/Tag_Everyone_TheBot)
+You can use the public bot on Telegram: [TagEveryone_TheBot](https://t.me/TagEveryone_TheBot)
 
 > [!NOTE]
 > The public bot is hosted on my server, so it may be slow or not available. You can host the bot yourself or use the Docker image. Consider supporting me on [Ko-fi](https://ko-fi.com/matt05) or [Buy me a coffee](https://www.buymeacoffee.com/Matt0550) to keep the bot online.
