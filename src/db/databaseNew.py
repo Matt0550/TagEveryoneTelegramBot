@@ -54,7 +54,7 @@ class Database:
         # Create a cursor
         c = conn.cursor()
         # Get all members id from "groups_users" table
-        c.execute("SELECT user_id FROM groups_users WHERE group_id=?", (group_id,))
+        c.execute("SELECT usr.user_id, usr.username, usr.first_name, usr.last_name FROM groups_users JOIN users usr ON groups_users.user_id = usr.user_id WHERE groups_users.group_id=?", (group_id,))
         # Fetch all the data
         data = c.fetchall()
         # Close the connection
@@ -121,6 +121,32 @@ class Database:
             c.execute("INSERT INTO users (user_id, first_name, last_name, username, created_at) VALUES (?, ?, ?, ?, ?)", (user_id, first_name, last_name, username, datetime.now()))
             # Commit the changes
             conn.commit()
+    
+    def updateUserUsername(self, user_id, username):
+        # Create a sqlite3 connection
+        conn = sqlite3.connect(dbPath, check_same_thread=False)
+        # Create a cursor
+        c = conn.cursor()
+
+        # Update user data
+        c.execute("UPDATE users SET username=?, updated_at=? WHERE user_id=?", (username, datetime.now(), user_id))
+        # Commit the changes
+        conn.commit()
+        # Close the connection
+        conn.close()
+
+    def updateUser(self, user_id, first_name, last_name, username):
+        # Create a sqlite3 connection
+        conn = sqlite3.connect(dbPath, check_same_thread=False)
+        # Create a cursor
+        c = conn.cursor()
+
+        # Update user data
+        c.execute("UPDATE users SET first_name=?, last_name=?, username=?, updated_at=? WHERE user_id=?", (first_name, last_name, username, datetime.now(), user_id))
+        # Commit the changes
+        conn.commit()
+        # Close the connection
+        conn.close()
 
     def getUser(self, user_id):
         # Create a sqlite3 connection
