@@ -664,7 +664,6 @@ async def chat_member_update(update: Update, context: ContextTypes.DEFAULT_TYPE)
     old_status = status_change.old_chat_member.status
     new_status = status_change.new_chat_member.status
     user = status_change.new_chat_member.user
-    print(old_status, new_status)
 
     if old_status == ChatMemberStatus.LEFT and new_status == ChatMemberStatus.MEMBER:
         # Check if user is in the list
