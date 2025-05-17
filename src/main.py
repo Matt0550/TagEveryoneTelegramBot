@@ -299,7 +299,7 @@ async def leave_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
             mentioned_user = None
 
             for entity, value in entities.items():
-                print(entity, value)
+
                 if entity.type == MessageEntity.TEXT_MENTION:
                     mentioned_user = entity.user
                 elif entity.type == MessageEntity.MENTION:
