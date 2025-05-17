@@ -679,7 +679,7 @@ async def chat_member_update(update: Update, context: ContextTypes.DEFAULT_TYPE)
                   
             await context.bot.send_message(chat_id=update.chat_member.chat.id, text=f"{user.full_name} was added to the list.")
 
-    elif new_status == ChatMemberStatus.LEFT:
+    elif new_status == ChatMemberStatus.LEFT or new_status == ChatMemberStatus.BANNED:
         # Check if user is in the list
         data = db.getUser(user.id)
         if data:
