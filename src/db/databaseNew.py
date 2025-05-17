@@ -162,6 +162,21 @@ class Database:
         conn.close()
         # Return the data
         return data
+    
+    def getUserByUsername(self, username):
+        # Create a sqlite3 connection
+        conn = sqlite3.connect(dbPath, check_same_thread=False)
+        # Create a cursor
+        c = conn.cursor()
+
+        # Get user data
+        c.execute("SELECT * FROM users WHERE username=?", (username,))
+        # Fetch all the data
+        data = c.fetchall()
+        # Close the connection
+        conn.close()
+        # Return the data
+        return data
 
     def getGroupsOfUser(self, user_id):
         # Create a sqlite3 connection

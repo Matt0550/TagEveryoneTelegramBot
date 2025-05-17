@@ -64,7 +64,7 @@ def cooldown(seconds):
         last_time = {}
 
         async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE):
-            if update.edited_message != None:
+            if update.edited_message != None or update.message == None:
                 # If the message is edited, return
                 return
             
@@ -223,18 +223,9 @@ async def join_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
             for entity, value in entities.items():
                 if entity.type == MessageEntity.TEXT_MENTION:
                     mentioned_user = entity.user
-                elif entity.type == MessageEntity.MENTION:
-                    username = value.lstrip("@")
-                    try:
-                        user_member = await update.message.chat.get_member(username)
-                        mentioned_user = user_member.user
-               
-                    except:
-                        await update.message.reply_text("Failed to find username by @username.")
-                        return
-
+                
             if not mentioned_user:
-                await update.message.reply_text("You need to mention a user!")
+                await update.message.reply_text("User not found. At the moment you can't add a user by username.")
                 return
             
             # Check if the user is already in the list
@@ -308,15 +299,22 @@ async def leave_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
             mentioned_user = None
 
             for entity, value in entities.items():
+                print(entity, value)
                 if entity.type == MessageEntity.TEXT_MENTION:
                     mentioned_user = entity.user
                 elif entity.type == MessageEntity.MENTION:
                     username = value.lstrip("@")
                     try:
-                        user_member = await update.message.chat.get_member(username)
-                        mentioned_user = user_member.user
-               
-                    except:
+                        user_db = db.getUserByUsername(username)
+
+                        if user_db:
+                            mentioned_user = await update.message.chat.get_member(int(user_db[0][1]))
+                            mentioned_user = mentioned_user.user
+                        else:
+                            await update.message.reply_text("User not found in the list")
+                            return
+                    except Exception as e:
+                        logger.error("[ERROR] " + str(e))
                         await update.message.reply_text("Failed to find username by @username.")
                         return
 
@@ -324,7 +322,6 @@ async def leave_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await update.message.reply_text("You need to mention a user!")
                 return
             
-
             # Check if the user is in the list
             data = db.getUser(mentioned_user.id)
             if not data:
