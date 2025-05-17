@@ -54,7 +54,7 @@ You can use the public bot on Telegram: [TagEveryone_TheBot](https://t.me/TagEve
 - `@everyone` or `@all` trigger `/everyone` command. (like Discord)
 - The user decides whether to subscribe to the list with `/in`
 - The user decides whether to exit to the list with `/out`
-- NEW: Manually remove/add users to the list with `/in @username` or `/out @username`
+- NEW: Manually remove/add users to the list with `/in @username` or `/out @username` (beta, only if the username is in the db and updated)
 - Telegram WebApp support
 - All is saved to SQLite3 database
 - Hosted or self-hosted
@@ -82,6 +82,7 @@ Instead of the command `/everyone` or `/all`, you can use `@everyone` or `@all`
 - [x] Automatically add all members' group to Everyone's list
 - [ ] Welcome message when the bot is added to a group
 - [x] Tag members only with user id (not username)
+- [ ] Remove user from list when reply_to message
 
 # Self-hosting
 ## Environment variables
