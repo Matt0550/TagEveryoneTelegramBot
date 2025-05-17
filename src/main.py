@@ -664,6 +664,7 @@ async def chat_member_update(update: Update, context: ContextTypes.DEFAULT_TYPE)
     old_status = status_change.old_chat_member.status
     new_status = status_change.new_chat_member.status
     user = status_change.new_chat_member.user
+    print(old_status, new_status)
 
     if old_status == ChatMemberStatus.LEFT and new_status == ChatMemberStatus.MEMBER:
         # Check if user is in the list
@@ -679,7 +680,7 @@ async def chat_member_update(update: Update, context: ContextTypes.DEFAULT_TYPE)
                   
             await context.bot.send_message(chat_id=update.chat_member.chat.id, text=f"{user.full_name} was added to the list.")
 
-    elif new_status == ChatMemberStatus.LEFT:
+    elif new_status == ChatMemberStatus.LEFT or new_status == ChatMemberStatus.BANNED:
         # Check if user is in the list
         data = db.getUser(user.id)
         if data:
