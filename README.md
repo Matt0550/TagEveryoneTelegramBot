@@ -33,9 +33,10 @@
 # Tag Everyone Telegram Bot
 
 This bot allows you to **mention all users in a group**. Users who wish to receive these notifications will have to sign up using the `/in` command.
+**NEW: Now all new users will be automatically added to the list when they join the group.**
 
 ## Public bot on Telegram
-You can use the public bot on Telegram: [TagEveryone_TheBot](https://t.me/Tag_Everyone_TheBot)
+You can use the public bot on Telegram: [TagEveryone_TheBot](https://t.me/TagEveryone_TheBot)
 
 > [!NOTE]
 > The public bot is hosted on my server, so it may be slow or not available. You can host the bot yourself or use the Docker image. Consider supporting me on [Ko-fi](https://ko-fi.com/matt05) or [Buy me a coffee](https://www.buymeacoffee.com/Matt0550) to keep the bot online.
@@ -53,6 +54,7 @@ You can use the public bot on Telegram: [TagEveryone_TheBot](https://t.me/Tag_Ev
 - `@everyone` or `@all` trigger `/everyone` command. (like Discord)
 - The user decides whether to subscribe to the list with `/in`
 - The user decides whether to exit to the list with `/out`
+- NEW: Manually remove/add users to the list with `/in @username` or `/out @username`
 - Telegram WebApp support
 - All is saved to SQLite3 database
 - Hosted or self-hosted
@@ -77,8 +79,9 @@ Instead of the command `/everyone` or `/all`, you can use `@everyone` or `@all`
 - [ ] REST API
 - [x] WebApp
 - [ ] Ignore tag requests if time enlapsed is > 2min
-- [ ] Automatically add all members' group to Everyone's list
+- [x] Automatically add all members' group to Everyone's list
 - [ ] Welcome message when the bot is added to a group
+- [x] Tag members only with user id (not username)
 
 # Self-hosting
 ## Environment variables

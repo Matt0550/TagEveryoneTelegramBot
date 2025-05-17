@@ -5,9 +5,9 @@
 #       Github: @Matt0550       #
 #################################
 
-from telegram import Update, Chat
-from telegram.constants import ParseMode
-from telegram.ext import Application, ContextTypes, MessageHandler, filters, CommandHandler
+from telegram import Update, Chat, MessageEntity
+from telegram.constants import ParseMode, ChatMemberStatus
+from telegram.ext import Application, ContextTypes, MessageHandler, filters, CommandHandler, ChatMemberHandler
 from db.databaseNew import Database
 import json
 import datetime
@@ -64,11 +64,17 @@ def cooldown(seconds):
         last_time = {}
 
         async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE):
-            if update.message.text == None:
+            if update.edited_message != None:
+                # If the message is edited, return
                 return
+            
             if any(comm in update.message.text.lower() for comm in everyoneCommands) or update.message.text.startswith("/"):
                 # Get the user id
                 user_id = update.message.from_user.id
+                if user_id == OWNER_ID:
+                    # If the user is the owner, execute the function
+                    await func(update, context)
+                    return
                 # Get the current time
                 now = datetime.datetime.now()
                 # Check if the user has used the command before
@@ -185,15 +191,12 @@ async def join_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         # Get the user id and group id from the message
         user_id = update.message.from_user.id
+        group_id = update.message.chat.id
+
         user_first_name = update.message.from_user.first_name
         user_last_name = update.message.from_user.last_name
         user_username = update.message.from_user.username
-        if user_username == None:
-            await update.message.reply_text("You must have an username to use this bot. Please set an username in your Telegram settings")
-            return
 
-        # Remove from group id "-" and convert to int
-        group_id = update.message.chat.id
         group_name = update.message.chat.title
         chat = await context.application.bot.get_chat(group_id)
         group_description = chat.description
@@ -201,6 +204,67 @@ async def join_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
         group_type = update.message.chat.type
         group_members = await update.message.chat.get_member_count()
 
+        # Optional command args if user has tagged a username
+        args = context.args
+
+        if args:
+            # Check if the user who sent the command is an admin inside the group
+            admin_member = await update.message.chat.get_member(user_id)
+
+            if admin_member.status != admin_member.ADMINISTRATOR and admin_member.status != admin_member.OWNER:
+                await update.message.reply_text(
+                    "You must be a group admin or owner to use this command")
+                return
+            
+            entities = update.message.parse_entities(types=[MessageEntity.TEXT_MENTION, MessageEntity.MENTION])
+
+            mentioned_user = None
+
+            for entity, value in entities.items():
+                if entity.type == MessageEntity.TEXT_MENTION:
+                    mentioned_user = entity.user
+                elif entity.type == MessageEntity.MENTION:
+                    username = value.lstrip("@")
+                    try:
+                        user_member = await update.message.chat.get_member(username)
+                        mentioned_user = user_member.user
+               
+                    except:
+                        await update.message.reply_text("Failed to find username by @username.")
+                        return
+
+            if not mentioned_user:
+                await update.message.reply_text("You need to mention a user!")
+                return
+            
+            # Check if the user is already in the list
+            data = db.getUser(mentioned_user.id)
+            if data:
+                await update.message.reply_text("User already in the list")
+                return
+            # Insert data into database
+            db.insertData(group_id, group_name, group_description, group_username, group_type,
+                        group_members, mentioned_user.id, mentioned_user.first_name, mentioned_user.last_name, mentioned_user.username)
+            logger.info("[DATABAE] Inserted data into database: %s, %s" %
+                        (group_id, mentioned_user.id))
+            await update.message.reply_text(
+                "User manually added to the list")
+            db.logEvent(mentioned_user.id, group_id, "join_list",
+                        "User added to the list")
+            return
+        
+        # Check if the user is already in the list
+        data = db.getUser(user_id)
+        if data:
+            await update.message.reply_text("You are already in the list")
+            return
+
+        #if user_username == None:
+        #    await update.message.reply_text("You must have an username to use this bot. Please set an username in your Telegram settings")
+        #    return
+
+        # Remove from group id "-" and convert to int
+        
         # Insert data into database
         db.insertData(group_id, group_name, group_description, group_username, group_type,
                       group_members, user_id, user_first_name, user_last_name, user_username)
@@ -225,20 +289,71 @@ async def leave_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         # Get the user id and group id from the message
         user_id = update.message.from_user.id
-
-        # Remove from group id "-" and convert to int
         group_id = update.message.chat.id
-        # Delete data from database
-        db.deleteData(group_id, user_id)
 
-        logger.info("[DATABAE] Deleted data from database: %s, %s" %
-                    (group_id, user_id))
+        # Optional command args if user has tagged a username
+        args = context.args
 
-        await update.message.reply_text(
-            "You have been removed from the list. To add yourself to the list type /in\n\nThanks for using this bot.\nBuy me a coffee: https://buymeacoffee.com/Matt0550\nSource code: https://github.com/Matt0550/TagEveryoneTelegramBot", disable_web_page_preview=True)
+        if args:
+            # Check if the user who sent the command is an admin inside the group
+            admin_member = await update.message.chat.get_member(user_id)
 
-        db.logEvent(user_id, group_id, "leave_list",
-                    "User removed from the list")
+            if admin_member.status != admin_member.ADMINISTRATOR and admin_member.status != admin_member.OWNER:
+                await update.message.reply_text(
+                    "You must be a group admin or owner to use this command")
+                return
+            
+            entities = update.message.parse_entities(types=[MessageEntity.TEXT_MENTION, MessageEntity.MENTION])
+
+            mentioned_user = None
+
+            for entity, value in entities.items():
+                if entity.type == MessageEntity.TEXT_MENTION:
+                    mentioned_user = entity.user
+                elif entity.type == MessageEntity.MENTION:
+                    username = value.lstrip("@")
+                    try:
+                        user_member = await update.message.chat.get_member(username)
+                        mentioned_user = user_member.user
+               
+                    except:
+                        await update.message.reply_text("Failed to find username by @username.")
+                        return
+
+            if not mentioned_user:
+                await update.message.reply_text("You need to mention a user!")
+                return
+            
+
+            # Check if the user is in the list
+            data = db.getUser(mentioned_user.id)
+            if not data:
+                await update.message.reply_text("User not found in the list")
+                return
+            # Remove from the list
+            db.deleteData(group_id, mentioned_user.id)
+            logger.info("[DATABAE] Deleted data from database: %s, %s" %
+                        (group_id, user_id))
+            
+            await update.message.reply_text(
+                "User manually removed from the list")
+            
+            db.logEvent(mentioned_user.id, group_id, "leave_list",
+                        "User removed from the list")
+            
+        else:
+            # Delete data from database
+            db.deleteData(group_id, user_id)
+
+            logger.info("[DATABAE] Deleted data from database: %s, %s" %
+                        (group_id, user_id))
+
+            await update.message.reply_text(
+                "You have been removed from the list. To add yourself to the list type /in\n\nThanks for using this bot.\nBuy me a coffee: https://buymeacoffee.com/Matt0550\nSource code: https://github.com/Matt0550/TagEveryoneTelegramBot", disable_web_page_preview=True)
+
+            db.logEvent(user_id, group_id, "leave_list",
+                        "User removed from the list")
+        
     except Exception as e:
         logger.error("[ERROR] " + str(e))
         # Print error with code markup
@@ -270,34 +385,74 @@ async def everyoneMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text("No one is in the list")
         else:
             try:
-                members = []
-                # Iterate tuple
-                for i in data:
-                    # Append to members list the username of the member
-                    try:
-                        member = await update.message.chat.get_member(int(i[0]))
-                        if member.user.username != None:
-                            members.append(
-                                "@" + member.user.username)
- 
-                    except Exception as e:
-                        logger.info("[USER] " + str(e) + " - " + str(i))
-                        continue
+                mentions = []
+                for user in data:
+                    member = await update.message.chat.get_member(int(user[0]))
+                    # update with recent username
+                    if member.user.username != None:
+                        db.updateUserUsername(user[0], member.user.username)
+                    
+                    username = member.user.username if member.user.username != None else user[1]
+                    
+                    # do not tag the user who sent the command
+                    if int(user[0]) == update.effective_user.id:
+                        mentions.append("You")
+                    elif username != None:
+                        # If user has username, use it
+                        mentions.append(f"<a href='tg://user?id={user[0]}'>@{username}</a>")
+                    elif user[2] != None:
+                        # Else, use first name, last name or ID. in each case use markdown to tag with id
+                        text = f"{user[2]}"
+                        if user[3] != None:
+                            text += f" {user[3]}"
+                        mentions.append(f"<a href='tg://user?id={user[0]}'>{text}</a>")
+                    else:
+                        # If user has no username or name, use their ID
+                        mentions.append(f"<a href='tg://user?id={user[0]}'>{user[0]}</a>")
 
-                # If the members are more than 50 send the message in multiple messages
-                if len(members) > 50:
-                    # Create a list of lists with 50 members each
-                    members = [members[i:i + 50]
-                               for i in range(0, len(members), 50)]
-                    # Iterate the list of lists
-                    for i in members:
-                        # Send message with list of members
-                        await update.message.reply_text("\n".join(
-                            i) + donation_text, disable_web_page_preview=True)
-                else:
-                    # Send message with list of members
-                    await update.message.reply_text("\n".join(
-                        members) + donation_text, disable_web_page_preview=True)
+                # Send mentions in batches of 50
+                batch_size = 50
+                for i in range(0, len(mentions), batch_size):
+                    batch = mentions[i:i + batch_size]
+                    user_mentions = "\n".join(batch)
+                    
+                    # Check if message is not empty and send it
+                    if user_mentions:
+                        await update.message.reply_text(
+                            user_mentions + donation_text,
+                            disable_web_page_preview=True,
+                            parse_mode=ParseMode.HTML,
+                        )
+
+                # members = []
+                # # Iterate tuple
+                # for i in data:
+                #     print(i)
+                #     # Append to members list the username of the member
+                #     try:
+                #         member = await update.message.chat.get_member(int(i[0]))
+                #         if member.user.username != None:
+                #             members.append(
+                #                 "@" + member.user.username)
+ 
+                #     except Exception as e:
+                #         logger.info("[USER] " + str(e) + " - " + str(i))
+                #         continue
+
+                # # If the members are more than 50 send the message in multiple messages
+                # if len(members) > 50:
+                #     # Create a list of lists with 50 members each
+                #     members = [members[i:i + 50]
+                #                for i in range(0, len(members), 50)]
+                #     # Iterate the list of lists
+                #     for i in members:
+                #         # Send message with list of members
+                #         await update.message.reply_text("\n".join(
+                #             i) + donation_text, disable_web_page_preview=True)
+                # else:
+                #     # Send message with list of members
+                #     await update.message.reply_text("\n".join(
+                #         members) + donation_text, disable_web_page_preview=True)
 
                 db.logEvent(update.message.from_user.id, group_id,
                             "everyone", "Message sent to all in the list")
@@ -383,9 +538,11 @@ async def getList(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     # Append to members list the username of the member
                     try:
                         member = await update.message.chat.get_member(int(i[0]))
-                        members.append(member.user.username)
+                        username = member.user.username if member.user.username != None else member.user.full_name
+                        members.append(username)
+                    
                     except Exception as e:
-                        logger.warn("[USER] " + str(e) + " - " + str(i))
+                        logger.warning("[USER] " + str(e) + " - " + str(i))
                         continue
                 # Send message with list of members
                 await update.message.reply_text("\n".join(
@@ -502,6 +659,36 @@ async def checkGroups(update: Update, context: ContextTypes.DEFAULT_TYPE):
     db.logEvent(update.message.from_user.id, update.message.chat.id,
                 "checkGroups", "Checked all groups")
 
+async def chat_member_update(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    status_change = update.chat_member
+    old_status = status_change.old_chat_member.status
+    new_status = status_change.new_chat_member.status
+    user = status_change.new_chat_member.user
+
+    if old_status == ChatMemberStatus.LEFT and new_status == ChatMemberStatus.MEMBER:
+        # Check if user is in the list
+        data = db.getUser(user.id)
+        if not data:
+            chat = await context.application.bot.get_chat(update.chat_member.chat.id)
+
+            # Insert data into database
+            db.insertData(update.chat_member.chat.id, chat.title, chat.description, chat.username, chat.type,
+                        await chat.get_member_count(), user.id, user.first_name, user.last_name, user.username)
+            logger.info("[DATABAE] Inserted data into database: %s, %s" %
+                        (update.chat_member.chat.id, user.id))
+                  
+            await context.bot.send_message(chat_id=update.chat_member.chat.id, text=f"{user.full_name} was added to the list.")
+
+    elif new_status == ChatMemberStatus.LEFT:
+        # Check if user is in the list
+        data = db.getUser(user.id)
+        if data:
+            # Delete data from database
+            db.deleteData(update.chat_member.chat.id, user.id)
+            logger.info("[DATABAE] Deleted data from database: %s, %s" %
+                        (update.chat_member.chat.id, user.id))
+            
+            await context.bot.send_message(chat_id=update.chat_member.chat.id, text=f"{user.full_name} has been removed from the list.")
 
 def main() -> None:
     application = Application.builder().token(TOKEN).build()
@@ -519,6 +706,8 @@ def main() -> None:
     application.add_handler(CommandHandler('checkGroups', checkGroups))
 
     application.add_handler(MessageHandler(filters.TEXT, everyone))
+    
+    application.add_handler(ChatMemberHandler(chat_member_update, ChatMemberHandler.CHAT_MEMBER))
 
     if REPORT_ERRORS_OWNER == True or REPORT_ERRORS_OWNER == "1" or REPORT_ERRORS_OWNER.lower() == "true":
         application.add_error_handler(error_handler)
