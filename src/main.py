@@ -17,7 +17,7 @@ import os
 import traceback
 import html
 import random
-
+import re
 
 # Enable logging
 logging.basicConfig(
@@ -173,10 +173,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(
             "Welcome to Tag Everyone Bot\n\nFor more information type /help\n\nTo get started add this bot to a group and type /start in the group")
     else:
-        # Check if bot is admin in the group
-        if update.message.chat.get_member(context.application.bot.id).status == "administrator":
-            await update.message.reply_text(
-                "Bot is now ready to use.\nFor more information type /help")
+        member_status = await update.message.chat.get_member(context.application.bot.id)
+        if member_status.status == "administrator":
+            await update.message.reply_text("Bot is now ready to use.\nFor more information type /help")
         else:
             await update.message.reply_text(
                 "The bot must be admin to use this command in a group")
@@ -384,9 +383,9 @@ async def everyoneMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             try:
                 mentions = []
+                logger.info("[DATABASE] Found %s users in the list for group %s" % (len(data), group_id))
                 for user in data:
                     try:
-                        logger.info("[USER] Looking for user: %s" % user[0])
                         member = await update.message.chat.get_member(int(user[0]))
                         # update with recent username
                         if member.user.username != None:
@@ -557,11 +556,11 @@ async def getList(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     
                     except Exception as e:
                         logger.warning("[USER] " + str(e) + " - " + str(i))
-
+                        error_message_lower = str(e).lower()
                         # If member not found, delete from database
-                        if "Member not found".lower() in str(e).lower():
+                        if "member not found" in error_message_lower or "participant_id_invalid" in error_message_lower:
                             db.deleteData(group_id, i[0])
-                            logger.info("[DATABASE] Deleted user from database: %s" % i[0])
+                            logger.info("[DATABASE] Deleted user %s from database for group %s due to: %s" % (i[0], group_id, e))
                             continue
 
                         continue
@@ -598,8 +597,8 @@ async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 update.message.chat.id, "status", "Status sent")
 
 
-@cooldown(60)
 @isOwner
+@cooldown(15)
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     total_groups = db.getTotalGroups()
     total_members = db.getTotalUsers()
@@ -626,7 +625,7 @@ async def announce(update: Update, context: ContextTypes.DEFAULT_TYPE):
         try:
             # Update group info in db
             # Send message to group id
-            group_id = update.message.chat.id
+            group_id = group[1]
             group_name = update.message.chat.title
             chat = await context.application.bot.get_chat(group_id)
             group_description = chat.description
@@ -736,8 +735,15 @@ def main() -> None:
     application.add_handler(CommandHandler('announce', announce))
     application.add_handler(CommandHandler('checkGroups', checkGroups))
 
-    application.add_handler(MessageHandler(filters.TEXT, everyone))
+    #application.add_handler(MessageHandler(filters.TEXT, everyone))
+
+    mention_triggers = [cmd for cmd in everyoneCommands if cmd.startswith('@')]
     
+    if mention_triggers:
+        # Costruzione pattern senza \b, ma delimitato da spazi o inizio/fine stringa
+        regex_pattern_for_mentions = r"(?i)(^|\s)(" + "|".join(re.escape(cmd) for cmd in mention_triggers) + r")($|\s)"
+        application.add_handler(MessageHandler(filters.TEXT & filters.Regex(regex_pattern_for_mentions), everyone))
+        
     application.add_handler(ChatMemberHandler(chat_member_update, ChatMemberHandler.CHAT_MEMBER))
 
     if REPORT_ERRORS_OWNER == True or REPORT_ERRORS_OWNER == "1" or REPORT_ERRORS_OWNER.lower() == "true":
