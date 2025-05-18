@@ -21,11 +21,12 @@ import random
 
 # Enable logging
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)",
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d - %(funcName)s)",
     level=logging.INFO,
 )
 # set higher logging level for httpx to avoid all GET and POST requests being logged
 logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("werkzeug").setLevel(logging.WARNING)
 
 logger = logging.getLogger(__name__)
 
@@ -384,13 +385,28 @@ async def everyoneMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
             try:
                 mentions = []
                 for user in data:
-                    member = await update.message.chat.get_member(int(user[0]))
-                    # update with recent username
-                    if member.user.username != None:
-                        db.updateUserUsername(user[0], member.user.username)
-                    
-                    username = member.user.username if member.user.username != None else user[1]
-                    
+                    try:
+                        logger.info("[USER] Looking for user: %s" % user[0])
+                        member = await update.message.chat.get_member(int(user[0]))
+                        # update with recent username
+                        if member.user.username != None:
+                            db.updateUserUsername(user[0], member.user.username)
+                        
+                        username = member.user.username if member.user.username != None else user[1]
+                    except Exception as e:
+                        logger.info("[USER] " + str(e) + " - below user")
+                        logger.info(user)
+                        username = None
+
+                        # If member not found, delete from database
+                        error_message_lower = str(e).lower()
+
+                        if "member not found" in error_message_lower or "participant_id_invalid" in error_message_lower:
+                            db.deleteData(group_id, user[0])
+                            logger.info("[DATABASE] Deleted user %s from database for group %s due to: %s" % (user[0], group_id, e))
+                            continue
+                        continue
+
                     # do not tag the user who sent the command
                     if int(user[0]) == update.effective_user.id:
                         mentions.append("You")
@@ -473,7 +489,7 @@ async def everyoneMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def everyone(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         # Check if is edited message
-        if update.edited_message != None:
+        if update.edited_message != None or update.message == None:
             return
         
         if update.message.text != None:
@@ -535,11 +551,19 @@ async def getList(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     # Append to members list the username of the member
                     try:
                         member = await update.message.chat.get_member(int(i[0]))
+
                         username = member.user.username if member.user.username != None else member.user.full_name
                         members.append(username)
                     
                     except Exception as e:
                         logger.warning("[USER] " + str(e) + " - " + str(i))
+
+                        # If member not found, delete from database
+                        if "Member not found".lower() in str(e).lower():
+                            db.deleteData(group_id, i[0])
+                            logger.info("[DATABASE] Deleted user from database: %s" % i[0])
+                            continue
+
                         continue
                 # Send message with list of members
                 await update.message.reply_text("\n".join(
@@ -575,6 +599,7 @@ async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 @cooldown(60)
+@isOwner
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     total_groups = db.getTotalGroups()
     total_members = db.getTotalUsers()
@@ -629,6 +654,7 @@ async def checkGroups(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Get all groups from database
     groups = db.getAllGroups()
     working_groups = []
+    args = context.args
     # Iterate all groups
     for group in groups:
         try:
@@ -647,7 +673,12 @@ async def checkGroups(update: Update, context: ContextTypes.DEFAULT_TYPE):
             logger.info("[MESSAGE] Checked group: %s" % group[1])
 
         except Exception as e:
-            db.deleteGroup(group[1])
+            # If args true delete group from database
+            if args and args[0] == "delete":
+                # Delete group from database
+                db.deleteGroup(group[1])
+                logger.info("[DATABASE] Deleted group from database: %s" % group[1])
+            
             logger.error("[ERROR] " + str(e))
             continue
 
@@ -662,6 +693,9 @@ async def chat_member_update(update: Update, context: ContextTypes.DEFAULT_TYPE)
     new_status = status_change.new_chat_member.status
     user = status_change.new_chat_member.user
 
+    logger.info("[CHAT_MEMBER] User %s changed status from %s to %s" %
+                (user.id, old_status, new_status))
+    
     if old_status == ChatMemberStatus.LEFT and new_status == ChatMemberStatus.MEMBER:
         # Check if user is in the list
         data = db.getUser(user.id)
