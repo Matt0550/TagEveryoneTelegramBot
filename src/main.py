@@ -171,14 +171,25 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Check if bot is in a group
     if not update.message.chat.type == "group" or not update.message.chat.type == "supergroup":
         await update.message.reply_text(
-            "Welcome to Tag Everyone Bot\n\nFor more information type /help\n\nTo get started add this bot to a group and type /start in the group")
+            "Welcome to Tag Everyone Bot\n\nFor more information type /help\n\nTo get started add this bot as ADMIN to a group and type /in to get started.")
     else:
         member_status = await update.message.chat.get_member(context.application.bot.id)
         if member_status.status == "administrator":
             await update.message.reply_text("Bot is now ready to use.\nFor more information type /help")
         else:
-            await update.message.reply_text(
-                "The bot must be admin to use this command in a group")
+            try:
+                await update.message.reply_text(
+                    "The bot must be admin to use this command in a group")
+            except Exception as e:
+                # try to send a message in private chat
+                try:
+                    await context.application.bot.send_message(
+                        chat_id=update.message.from_user.id,
+                        text="The bot must be admin to use this command in a group. Please add the bot as admin and try again."
+                    )
+                except Exception as e:
+                    logger.error("[ERROR] " + str(e))
+                    return
 
     db.logEvent(update.message.from_user.id, update.message.chat.id,
                 "start", "User started the bot")
@@ -600,15 +611,110 @@ async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
 @isOwner
 @cooldown(15)
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    total_groups = db.getTotalGroups()
-    total_members = db.getTotalUsers()
+    try:
+        # Statistiche di base
+        total_groups = db.getTotalGroups()
+        total_members = db.getTotalUsers()
+        
+        # Statistiche temporali
+        hourly_logs = db.getHourlyLogs()
+        daily_logs = db.getDailyLogs()
+        weekly_logs = db.getWeeklyLogs()
+        
+        # Calcola l'uptime
+        uptime = datetime.datetime.now() - start_time
+        uptime_str = str(uptime).split(".")[0]
+        
+        # Analizza i log per ottenere statistiche sui comandi
+        hourly_actions = {}
+        daily_actions = {}
+        weekly_actions = {}
+        
+        for log in hourly_logs:
+            action = log[3]  # action column
+            hourly_actions[action] = hourly_actions.get(action, 0) + 1
+            
+        for log in daily_logs:
+            action = log[3]  # action column
+            daily_actions[action] = daily_actions.get(action, 0) + 1
+            
+        for log in weekly_logs:
+            action = log[3]  # action column
+            weekly_actions[action] = weekly_actions.get(action, 0) + 1
+        
+        # Costruisci il messaggio delle statistiche
+        stats_message = f"""📊 **Bot Statistics**
+        
+🏢 **Database Info:**
+• Active Groups: {total_groups}
+• Active Members: {total_members}
+• Avg Members/Group: {round(total_members/total_groups, 2) if total_groups > 0 else 0}
 
-    await update.message.reply_text("Total active groups: %s\nTotal active members: %s" % (total_groups, total_members) +
-                                    "\n\nThanks for using this bot.\nBuy me a coffee: https://buymeacoffee.com/Matt0550\nSource code: https://github.com/Matt0550/TagEveryoneTelegramBot", disable_web_page_preview=True)
+⏰ **Uptime:** {uptime_str}
 
-    db.logEvent(update.message.from_user.id,
-                update.message.chat.id, "stats", "Stats sent")
+📈 **Activity (Last Hour):**
+• Total Events: {len(hourly_logs)}"""
 
+        # Aggiungi le azioni più comuni dell'ultima ora
+        if hourly_actions:
+            top_hourly = sorted(hourly_actions.items(), key=lambda x: x[1], reverse=True)[:3]
+            for action, count in top_hourly:
+                stats_message += f"\n• {action}: {count}"
+
+        stats_message += f"""
+
+📅 **Activity (Last 24h):**
+• Total Events: {len(daily_logs)}"""
+
+        # Aggiungi le azioni più comuni delle ultime 24 ore
+        if daily_actions:
+            top_daily = sorted(daily_actions.items(), key=lambda x: x[1], reverse=True)[:5]
+            for action, count in top_daily:
+                stats_message += f"\n• {action}: {count}"
+
+        stats_message += f"""
+
+📊 **Activity (Last 7 days):**
+• Total Events: {len(weekly_logs)}"""
+
+        # Aggiungi le azioni più comuni della settimana
+        if weekly_actions:
+            top_weekly = sorted(weekly_actions.items(), key=lambda x: x[1], reverse=True)[:5]
+            for action, count in top_weekly:
+                stats_message += f"\n• {action}: {count}"
+
+        stats_message += """
+
+🔗 **Links:**
+• [Buy me a coffee](https://buymeacoffee.com/Matt0550)
+• [Source code](https://github.com/Matt0550/TagEveryoneTelegramBot)"""
+
+        await update.message.reply_text(
+            stats_message, 
+            parse_mode=ParseMode.MARKDOWN,
+            disable_web_page_preview=True
+        )
+
+        db.logEvent(update.message.from_user.id,
+                    update.message.chat.id, "stats", "Advanced stats sent")
+                    
+    except Exception as e:
+        logger.error(f"[ERROR] Error in stats command: {e}")
+        # Fallback alle statistiche di base in caso di errore
+        total_groups = db.getTotalGroups()
+        total_members = db.getTotalUsers()
+        
+        await update.message.reply_text(
+            f"📊 **Basic Stats**\n\n"
+            f"• Active Groups: {total_groups}\n"
+            f"• Active Members: {total_members}\n\n"
+            f"*Error loading detailed stats: {str(e)[:100]}...*",
+            parse_mode=ParseMode.MARKDOWN_V2,
+            disable_web_page_preview=True
+        )
+        
+        db.logEvent(update.message.from_user.id,
+                    update.message.chat.id, "stats_error", f"Stats error: {str(e)}")
 
 @isOwner
 @cooldown(15)
@@ -646,17 +752,30 @@ async def announce(update: Update, context: ContextTypes.DEFAULT_TYPE):
     db.logEvent(update.message.from_user.id, update.message.chat.id,
                 "announce", "Message sent to all groups")
 
-
 @isOwner
 @cooldown(15)
 async def checkGroups(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    import asyncio
+    
     # Get all groups from database
     groups = db.getAllGroups()
     working_groups = []
+    failed_groups = []
     args = context.args
-    # Iterate all groups
-    for group in groups:
+    
+    # Send initial message
+    status_msg = await update.message.reply_text(f"🔍 Checking {len(groups)} groups... This may take a while.")
+    
+    # Iterate all groups with timeout
+    for i, group in enumerate(groups, 1):
         try:
+            # Update status every 10 groups
+            if i % 10 == 0:
+                try:
+                    await status_msg.edit_text(f"🔍 Checking groups... ({i}/{len(groups)})\n✅ Working: {len(working_groups)}\n❌ Failed: {len(failed_groups)}")
+                except Exception:
+                    pass  # Ignore edit errors
+            
             chat = await context.bot.get_chat(group[1])
 
             group_id = chat.id
@@ -669,22 +788,44 @@ async def checkGroups(update: Update, context: ContextTypes.DEFAULT_TYPE):
             db.updateGroupInfo(group_id, group_name, group_description,
                                group_username, group_type, group_members)
             working_groups.append(group[1])
-            logger.info("[MESSAGE] Checked group: %s" % group[1])
+            logger.info("[MESSAGE] Checked group: %s (%s)" % (group[1], group_name))
 
         except Exception as e:
-            # If args true delete group from database
-            if args and args[0] == "delete":
-                # Delete group from database
-                db.deleteGroup(group[1])
-                logger.info("[DATABASE] Deleted group from database: %s" % group[1])
+            failed_groups.append((group[1], str(e)))
+            error_message = str(e).lower()
             
-            logger.error("[ERROR] " + str(e))
-            continue
+            # If args contains "delete", delete group from database
+            if args and len(args) > 0 and args[0] == "delete":
+                # Delete group from database for specific errors
+                if any(error in error_message for error in ["chat not found", "forbidden", "bad request"]):
+                    db.deleteGroup(group[1])
+                    logger.info("[DATABASE] Deleted group from database: %s (Error: %s)" % (group[1], e))
+                else:
+                    logger.warning("[ERROR] Group %s failed but not deleted (Error: %s)" % (group[1], e))
+            else:
+                logger.error("[ERROR] Failed to check group %s: %s" % (group[1], e))
+        
+        # Add delay to avoid rate limiting (1 request per second)
+        if i < len(groups):  # Don't sleep after the last group
+            await asyncio.sleep(.3)
 
-    await update.message.reply_text("Working groups: %s\n\nNot working groups: %s" % (len(working_groups), len(groups) - len(working_groups)))
+    # Final status update
+    try:
+        result_message = f"✅ Check completed!\n\n📊 Results:\n✅ Working groups: {len(working_groups)}\n❌ Failed groups: {len(failed_groups)}\n📈 Total groups: {len(groups)}"
+        
+        if failed_groups and len(failed_groups) <= 10:  # Show details only for few failures
+            result_message += "\n\n❌ Failed groups details:\n"
+            for group_id, error in failed_groups[:5]:  # Show max 5 failures
+                result_message += f"• {group_id}: {error[:50]}...\n"
+        
+        await status_msg.edit_text(result_message)
+    except Exception:
+        # If edit fails, send new message
+        await update.message.reply_text(f"Working groups: {len(working_groups)}\n\nNot working groups: {len(failed_groups)}")
 
     db.logEvent(update.message.from_user.id, update.message.chat.id,
-                "checkGroups", "Checked all groups")
+                "checkGroups", f"Checked {len(groups)} groups: {len(working_groups)} working, {len(failed_groups)} failed")
+    
 
 async def chat_member_update(update: Update, context: ContextTypes.DEFAULT_TYPE):
     status_change = update.chat_member
@@ -707,7 +848,7 @@ async def chat_member_update(update: Update, context: ContextTypes.DEFAULT_TYPE)
             logger.info("[DATABAE] Inserted data into database: %s, %s" %
                         (update.chat_member.chat.id, user.id))
                   
-            await context.bot.send_message(chat_id=update.chat_member.chat.id, text=f"{user.full_name} was added to the list.")
+            # await context.bot.send_message(chat_id=update.chat_member.chat.id, text=f"{user.full_name} was added to the list.")
 
     elif new_status == ChatMemberStatus.LEFT or new_status == ChatMemberStatus.BANNED:
         # Check if user is in the list
@@ -718,7 +859,8 @@ async def chat_member_update(update: Update, context: ContextTypes.DEFAULT_TYPE)
             logger.info("[DATABAE] Deleted data from database: %s, %s" %
                         (update.chat_member.chat.id, user.id))
             
-            await context.bot.send_message(chat_id=update.chat_member.chat.id, text=f"{user.full_name} has been removed from the list.")
+            # await context.bot.send_message(chat_id=update.chat_member.chat.id, text=f"{user.full_name} has been removed from the list.")
+            
 
 def main() -> None:
     application = Application.builder().token(TOKEN).build()
