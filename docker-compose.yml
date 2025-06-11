@@ -2,7 +2,7 @@ version: '3'
 
 services:
   tageveryone_telegrambot:
-    image: matt0550/tageveryone_telegrambot
+    image: 
     environment:
       - token=TG_TOKEN
       - owner_id=TG_OWNER_ID
