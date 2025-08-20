@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
-ARG PYTHON_VERSION=3.9.2
-FROM python:${PYTHON_VERSION}-slim AS base
+ARG PYTHON_VERSION=3.11-slim
+FROM python:${PYTHON_VERSION} AS base
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
@@ -16,7 +16,6 @@ ARG APP_GID=1000
 RUN groupadd -g ${APP_GID} ${APP_USER} && \
     useradd -u ${APP_UID} -g ${APP_GID} -M -s /usr/sbin/nologin ${APP_USER}
 
-# Update package list and install required packages
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     gosu \
@@ -30,19 +29,14 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 COPY . .
 
-# Converti init.sh in stile Unix
 RUN dos2unix /home/scripts/init.sh
 
-# Debug: Verifica la struttura delle directory nel container
 RUN ls -R /home
 
-# Modifica i permessi del file direttamente
 RUN chmod +x /home/scripts/init.sh
 
-# Debug: Verifica i permessi del file init.sh
 RUN ls -l /home/scripts/init.sh
 
-# Cambia i permessi di tutta la directory di lavoro
 RUN chown -R ${APP_USER}:${APP_USER} /home
 
 VOLUME [ "/home/src/db/input" ]
