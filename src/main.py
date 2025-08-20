@@ -680,11 +680,11 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
             action = log[3]  # action column
             weekly_actions[action] = weekly_actions.get(action, 0) + 1
         
-        # Helper function to escape markdown characters
-        def escape_markdown(text):
+        # Improved helper function to escape markdown characters for MarkdownV2
+        def escape_markdown_v2(text):
             if text is None:
                 return "Unknown"
-            # Escape characters that could break markdown
+            # All special characters that need escaping in MarkdownV2
             escape_chars = ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!']
             escaped = str(text)
             for char in escape_chars:
@@ -694,12 +694,13 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Costruisci il messaggio delle statistiche con controllo lunghezza
         avg_members = round(total_members/total_groups, 2) if total_groups > 0 else 0
         
+        # Use simpler formatting to avoid parsing issues
         stats_message = f"📊 *Bot Statistics*\n\n"
         stats_message += f"🏢 *Database Info:*\n"
         stats_message += f"• Active Groups: {total_groups}\n"
         stats_message += f"• Active Members: {total_members}\n"
         stats_message += f"• Avg Members/Group: {avg_members}\n\n"
-        stats_message += f"⏰ *Uptime:* {escape_markdown(uptime_str)}\n\n"
+        stats_message += f"⏰ *Uptime:* {escape_markdown_v2(uptime_str)}\n\n"
         stats_message += f"📈 *Activity \\(Last Hour\\):*\n"
         stats_message += f"• Total Events: {len(hourly_logs)}\n"
 
@@ -707,7 +708,7 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if hourly_actions:
             top_hourly = sorted(hourly_actions.items(), key=lambda x: x[1], reverse=True)[:3]
             for action, count in top_hourly:
-                safe_action = escape_markdown(action)
+                safe_action = escape_markdown_v2(action)
                 stats_message += f"• {safe_action}: {count}\n"
 
         stats_message += f"\n📅 *Activity \\(Last 24h\\):*\n"
@@ -715,9 +716,9 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         # Aggiungi le azioni più comuni delle ultime 24 ore
         if daily_actions:
-            top_daily = sorted(daily_actions.items(), key=lambda x: x[1], reverse=True)[:4]  # Ridotto da 5 a 4
+            top_daily = sorted(daily_actions.items(), key=lambda x: x[1], reverse=True)[:4]
             for action, count in top_daily:
-                safe_action = escape_markdown(action)
+                safe_action = escape_markdown_v2(action)
                 stats_message += f"• {safe_action}: {count}\n"
 
         stats_message += f"\n📊 *Activity \\(Last 7 days\\):*\n"
@@ -725,41 +726,75 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         # Aggiungi le azioni più comuni della settimana
         if weekly_actions:
-            top_weekly = sorted(weekly_actions.items(), key=lambda x: x[1], reverse=True)[:4]  # Ridotto da 5 a 4
+            top_weekly = sorted(weekly_actions.items(), key=lambda x: x[1], reverse=True)[:4]
             for action, count in top_weekly:
-                safe_action = escape_markdown(action)
+                safe_action = escape_markdown_v2(action)
                 stats_message += f"• {safe_action}: {count}\n"
 
         stats_message += "\n🔗 *Links:*\n"
         stats_message += "• [Buy me a coffee](https://buymeacoffee.com/Matt0550)\n"
         stats_message += "• [Source code](https://github.com/Matt0550/TagEveryoneTelegramBot)"
 
-        # Controlla la lunghezza del messaggio (limite Telegram: 4096 caratteri)
-        if len(stats_message) > 4000:  # Margine di sicurezza
-            # Invia messaggio abbreviato
-            short_stats = f"� *Bot Statistics*\n\n"
-            short_stats += f"🏢 *Database Info:*\n"
-            short_stats += f"• Active Groups: {total_groups}\n"
-            short_stats += f"• Active Members: {total_members}\n"
-            short_stats += f"• Avg Members/Group: {avg_members}\n\n"
-            short_stats += f"⏰ *Uptime:* {escape_markdown(uptime_str)}\n\n"
-            short_stats += f"📈 *Recent Activity:*\n"
-            short_stats += f"• Last Hour: {len(hourly_logs)} events\n"
-            short_stats += f"• Last 24h: {len(daily_logs)} events\n"
-            short_stats += f"• Last 7 days: {len(weekly_logs)} events\n\n"
-            short_stats += "�🔗 *Links:*\n"
-            short_stats += "• [Buy me a coffee](https://buymeacoffee.com/Matt0550)\n"
-            short_stats += "• [Source code](https://github.com/Matt0550/TagEveryoneTelegramBot)"
+        # Try to send with MarkdownV2 first, fallback to HTML if it fails
+        try:
+            if len(stats_message) > 4000:
+                # Send shortened message
+                short_stats = f"📊 *Bot Statistics*\n\n"
+                short_stats += f"🏢 *Database Info:*\n"
+                short_stats += f"• Active Groups: {total_groups}\n"
+                short_stats += f"• Active Members: {total_members}\n"
+                short_stats += f"• Avg Members/Group: {avg_members}\n\n"
+                short_stats += f"⏰ *Uptime:* {escape_markdown_v2(uptime_str)}\n\n"
+                short_stats += f"📈 *Recent Activity:*\n"
+                short_stats += f"• Last Hour: {len(hourly_logs)} events\n"
+                short_stats += f"• Last 24h: {len(daily_logs)} events\n"
+                short_stats += f"• Last 7 days: {len(weekly_logs)} events\n\n"
+                short_stats += "🔗 *Links:*\n"
+                short_stats += "• [Buy me a coffee](https://buymeacoffee.com/Matt0550)\n"
+                short_stats += "• [Source code](https://github.com/Matt0550/TagEveryoneTelegramBot)"
+                
+                await update.message.reply_text(
+                    short_stats, 
+                    parse_mode=ParseMode.MARKDOWN_V2,
+                    disable_web_page_preview=True
+                )
+            else:
+                await update.message.reply_text(
+                    stats_message, 
+                    parse_mode=ParseMode.MARKDOWN_V2,
+                    disable_web_page_preview=True
+                )
+        except Exception as markdown_error:
+            logger.warning(f"MarkdownV2 parsing failed, trying HTML: {markdown_error}")
+            
+            # Fallback to HTML formatting
+            html_stats = f"📊 <b>Bot Statistics</b>\n\n"
+            html_stats += f"🏢 <b>Database Info:</b>\n"
+            html_stats += f"• Active Groups: {total_groups}\n"
+            html_stats += f"• Active Members: {total_members}\n"
+            html_stats += f"• Avg Members/Group: {avg_members}\n\n"
+            html_stats += f"⏰ <b>Uptime:</b> {html.escape(uptime_str)}\n\n"
+            html_stats += f"📈 <b>Recent Activity:</b>\n"
+            html_stats += f"• Last Hour: {len(hourly_logs)} events\n"
+            html_stats += f"• Last 24h: {len(daily_logs)} events\n"
+            html_stats += f"• Last 7 days: {len(weekly_logs)} events\n\n"
+            
+            # Add top actions for HTML
+            if daily_actions:
+                html_stats += f"🔥 <b>Top Actions (24h):</b>\n"
+                top_daily = sorted(daily_actions.items(), key=lambda x: x[1], reverse=True)[:3]
+                for action, count in top_daily:
+                    safe_action = html.escape(str(action))
+                    html_stats += f"• {safe_action}: {count}\n"
+                html_stats += "\n"
+            
+            html_stats += "🔗 <b>Links:</b>\n"
+            html_stats += '• <a href="https://buymeacoffee.com/Matt0550">Buy me a coffee</a>\n'
+            html_stats += '• <a href="https://github.com/Matt0550/TagEveryoneTelegramBot">Source code</a>'
             
             await update.message.reply_text(
-                short_stats, 
-                parse_mode=ParseMode.MARKDOWN_V2,
-                disable_web_page_preview=True
-            )
-        else:
-            await update.message.reply_text(
-                stats_message, 
-                parse_mode=ParseMode.MARKDOWN_V2,
+                html_stats, 
+                parse_mode=ParseMode.HTML,
                 disable_web_page_preview=True
             )
 
@@ -777,23 +812,22 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
             uptime = datetime.datetime.now() - start_time
             uptime_str = str(uptime).split(".")[0]
             
-            fallback_stats = f"📊 *Basic Stats*\n\n"
+            # Use plain text for ultimate fallback
+            fallback_stats = f"📊 Bot Statistics\n\n"
             fallback_stats += f"• Active Groups: {total_groups}\n"
             fallback_stats += f"• Active Members: {total_members}\n"
             fallback_stats += f"• Uptime: {uptime_str}\n\n"
-            fallback_stats += f"_Error loading detailed stats_\n"
-            fallback_stats += f"Error: {str(e)[:150]}\\.\\.\\."
+            fallback_stats += f"Error loading detailed stats:\n{str(e)[:100]}..."
             
             await update.message.reply_text(
                 fallback_stats,
-                parse_mode=ParseMode.MARKDOWN_V2,
                 disable_web_page_preview=True
             )
         except Exception as fallback_error:
             logger.error(f"[ERROR] Even fallback stats failed: {fallback_error}")
             # Ultimo tentativo senza formatting
             await update.message.reply_text(
-                f"Stats Error: Unable to generate statistics.\nOriginal error: {str(e)[:200]}",
+                f"Stats Error: Unable to generate statistics.\nOriginal error: {str(e)[:150]}",
                 disable_web_page_preview=True
             )
         
