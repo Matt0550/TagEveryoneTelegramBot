@@ -138,28 +138,66 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
     # Log the error before we do anything else, so we can see it even if something breaks.
     logger.error("Exception while handling an update:", exc_info=context.error)
 
-    # traceback.format_exception returns the usual python message about an exception, but as a
-    # list of strings rather than a single string, so we have to join them together.
-    tb_list = traceback.format_exception(
-        None, context.error, context.error.__traceback__)
-    tb_string = "".join(tb_list)
+    try:
+        # traceback.format_exception returns the usual python message about an exception, but as a
+        # list of strings rather than a single string, so we have to join them together.
+        tb_list = traceback.format_exception(
+            None, context.error, context.error.__traceback__)
+        tb_string = "".join(tb_list)
 
-    # Build the message with some markup and additional information about what happened.
-    # You might need to add some logic to deal with messages longer than the 4096 character limit.
-    update_str = update.to_dict() if isinstance(update, Update) else str(update)
-    message = (
-        "An exception was raised while handling an update\n"
-        f"<pre>update = {html.escape(json.dumps(update_str, indent=2, ensure_ascii=False))}"
-        "</pre>\n\n"
-        f"<pre>context.chat_data = {html.escape(str(context.chat_data))}</pre>\n\n"
-        f"<pre>context.user_data = {html.escape(str(context.user_data))}</pre>\n\n"
-        f"<pre>{html.escape(tb_string)}</pre>"
-    )
+        # Build the message with some markup and additional information about what happened.
+        # You might need to add some logic to deal with messages longer than the 4096 character limit.
+        update_str = update.to_dict() if isinstance(update, Update) else str(update)
+        
+        # Limit the size of the error message to prevent Telegram API errors
+        max_update_str_length = 1000
+        max_tb_length = 2000
+        
+        if len(json.dumps(update_str, indent=2, ensure_ascii=False)) > max_update_str_length:
+            update_str = {"truncated": "Update object too large to display"}
+            
+        if len(tb_string) > max_tb_length:
+            tb_string = tb_string[:max_tb_length] + "\n... [TRUNCATED]"
 
-    # Finally, send the message
-    await context.bot.send_message(
-        chat_id=OWNER_ID, text=message, parse_mode=ParseMode.HTML
-    )
+        message = (
+            "An exception was raised while handling an update\n"
+            f"<pre>update = {html.escape(json.dumps(update_str, indent=2, ensure_ascii=False))}"
+            "</pre>\n\n"
+            f"<pre>context.chat_data = {html.escape(str(context.chat_data)[:500])}</pre>\n\n"
+            f"<pre>context.user_data = {html.escape(str(context.user_data)[:500])}</pre>\n\n"
+            f"<pre>{html.escape(tb_string)}</pre>"
+        )
+
+        # Ensure message is not too long for Telegram (4096 char limit)
+        if len(message) > 4000:
+            # Send a simplified error message
+            simplified_message = (
+                f"🚨 Bot Error Occurred\n\n"
+                f"<b>Error Type:</b> {type(context.error).__name__}\n"
+                f"<b>Error Message:</b> {html.escape(str(context.error)[:500])}\n\n"
+                f"<b>Traceback (shortened):</b>\n"
+                f"<pre>{html.escape(tb_string[:1500])}</pre>"
+            )
+            message = simplified_message
+
+        # Finally, send the message
+        await context.bot.send_message(
+            chat_id=OWNER_ID, text=message, parse_mode=ParseMode.HTML
+        )
+        
+    except Exception as error_in_handler:
+        # If even the error handler fails, log it and send a basic message
+        logger.error(f"Error in error_handler: {error_in_handler}")
+        try:
+            # Last resort: send a very basic error notification
+            basic_message = f"🚨 Bot Error (Handler Failed)\nOriginal Error: {str(context.error)[:200]}\nHandler Error: {str(error_in_handler)[:200]}"
+            await context.bot.send_message(
+                chat_id=OWNER_ID, 
+                text=basic_message
+            )
+        except Exception:
+            # If even this fails, just log it
+            logger.error("Complete failure in error reporting system")
 
 
 @cooldown(15)
@@ -642,58 +680,88 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
             action = log[3]  # action column
             weekly_actions[action] = weekly_actions.get(action, 0) + 1
         
-        # Costruisci il messaggio delle statistiche
-        stats_message = f"""📊 **Bot Statistics**
+        # Helper function to escape markdown characters
+        def escape_markdown(text):
+            if text is None:
+                return "Unknown"
+            # Escape characters that could break markdown
+            escape_chars = ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!']
+            escaped = str(text)
+            for char in escape_chars:
+                escaped = escaped.replace(char, f'\\{char}')
+            return escaped
+
+        # Costruisci il messaggio delle statistiche con controllo lunghezza
+        avg_members = round(total_members/total_groups, 2) if total_groups > 0 else 0
         
-🏢 **Database Info:**
-• Active Groups: {total_groups}
-• Active Members: {total_members}
-• Avg Members/Group: {round(total_members/total_groups, 2) if total_groups > 0 else 0}
-
-⏰ **Uptime:** {uptime_str}
-
-📈 **Activity (Last Hour):**
-• Total Events: {len(hourly_logs)}"""
+        stats_message = f"📊 *Bot Statistics*\n\n"
+        stats_message += f"🏢 *Database Info:*\n"
+        stats_message += f"• Active Groups: {total_groups}\n"
+        stats_message += f"• Active Members: {total_members}\n"
+        stats_message += f"• Avg Members/Group: {avg_members}\n\n"
+        stats_message += f"⏰ *Uptime:* {escape_markdown(uptime_str)}\n\n"
+        stats_message += f"📈 *Activity \\(Last Hour\\):*\n"
+        stats_message += f"• Total Events: {len(hourly_logs)}\n"
 
         # Aggiungi le azioni più comuni dell'ultima ora
         if hourly_actions:
             top_hourly = sorted(hourly_actions.items(), key=lambda x: x[1], reverse=True)[:3]
             for action, count in top_hourly:
-                stats_message += f"\n• {action}: {count}"
+                safe_action = escape_markdown(action)
+                stats_message += f"• {safe_action}: {count}\n"
 
-        stats_message += f"""
-
-📅 **Activity (Last 24h):**
-• Total Events: {len(daily_logs)}"""
+        stats_message += f"\n📅 *Activity \\(Last 24h\\):*\n"
+        stats_message += f"• Total Events: {len(daily_logs)}\n"
 
         # Aggiungi le azioni più comuni delle ultime 24 ore
         if daily_actions:
-            top_daily = sorted(daily_actions.items(), key=lambda x: x[1], reverse=True)[:5]
+            top_daily = sorted(daily_actions.items(), key=lambda x: x[1], reverse=True)[:4]  # Ridotto da 5 a 4
             for action, count in top_daily:
-                stats_message += f"\n• {action}: {count}"
+                safe_action = escape_markdown(action)
+                stats_message += f"• {safe_action}: {count}\n"
 
-        stats_message += f"""
-
-📊 **Activity (Last 7 days):**
-• Total Events: {len(weekly_logs)}"""
+        stats_message += f"\n📊 *Activity \\(Last 7 days\\):*\n"
+        stats_message += f"• Total Events: {len(weekly_logs)}\n"
 
         # Aggiungi le azioni più comuni della settimana
         if weekly_actions:
-            top_weekly = sorted(weekly_actions.items(), key=lambda x: x[1], reverse=True)[:5]
+            top_weekly = sorted(weekly_actions.items(), key=lambda x: x[1], reverse=True)[:4]  # Ridotto da 5 a 4
             for action, count in top_weekly:
-                stats_message += f"\n• {action}: {count}"
+                safe_action = escape_markdown(action)
+                stats_message += f"• {safe_action}: {count}\n"
 
-        stats_message += """
+        stats_message += "\n🔗 *Links:*\n"
+        stats_message += "• [Buy me a coffee](https://buymeacoffee.com/Matt0550)\n"
+        stats_message += "• [Source code](https://github.com/Matt0550/TagEveryoneTelegramBot)"
 
-🔗 **Links:**
-• [Buy me a coffee](https://buymeacoffee.com/Matt0550)
-• [Source code](https://github.com/Matt0550/TagEveryoneTelegramBot)"""
-
-        await update.message.reply_text(
-            stats_message, 
-            parse_mode=ParseMode.MARKDOWN,
-            disable_web_page_preview=True
-        )
+        # Controlla la lunghezza del messaggio (limite Telegram: 4096 caratteri)
+        if len(stats_message) > 4000:  # Margine di sicurezza
+            # Invia messaggio abbreviato
+            short_stats = f"� *Bot Statistics*\n\n"
+            short_stats += f"🏢 *Database Info:*\n"
+            short_stats += f"• Active Groups: {total_groups}\n"
+            short_stats += f"• Active Members: {total_members}\n"
+            short_stats += f"• Avg Members/Group: {avg_members}\n\n"
+            short_stats += f"⏰ *Uptime:* {escape_markdown(uptime_str)}\n\n"
+            short_stats += f"📈 *Recent Activity:*\n"
+            short_stats += f"• Last Hour: {len(hourly_logs)} events\n"
+            short_stats += f"• Last 24h: {len(daily_logs)} events\n"
+            short_stats += f"• Last 7 days: {len(weekly_logs)} events\n\n"
+            short_stats += "�🔗 *Links:*\n"
+            short_stats += "• [Buy me a coffee](https://buymeacoffee.com/Matt0550)\n"
+            short_stats += "• [Source code](https://github.com/Matt0550/TagEveryoneTelegramBot)"
+            
+            await update.message.reply_text(
+                short_stats, 
+                parse_mode=ParseMode.MARKDOWN_V2,
+                disable_web_page_preview=True
+            )
+        else:
+            await update.message.reply_text(
+                stats_message, 
+                parse_mode=ParseMode.MARKDOWN_V2,
+                disable_web_page_preview=True
+            )
 
         db.logEvent(update.message.from_user.id,
                     update.message.chat.id, "stats", "Advanced stats sent")
@@ -701,17 +769,33 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         logger.error(f"[ERROR] Error in stats command: {e}")
         # Fallback alle statistiche di base in caso di errore
-        total_groups = db.getTotalGroups()
-        total_members = db.getTotalUsers()
-        
-        await update.message.reply_text(
-            f"📊 **Basic Stats**\n\n"
-            f"• Active Groups: {total_groups}\n"
-            f"• Active Members: {total_members}\n\n"
-            f"*Error loading detailed stats: {str(e)[:100]}...*",
-            parse_mode=ParseMode.MARKDOWN_V2,
-            disable_web_page_preview=True
-        )
+        try:
+            total_groups = db.getTotalGroups() if hasattr(db, 'getTotalGroups') else 0
+            total_members = db.getTotalUsers() if hasattr(db, 'getTotalUsers') else 0
+            
+            # Calcola uptime semplice
+            uptime = datetime.datetime.now() - start_time
+            uptime_str = str(uptime).split(".")[0]
+            
+            fallback_stats = f"📊 *Basic Stats*\n\n"
+            fallback_stats += f"• Active Groups: {total_groups}\n"
+            fallback_stats += f"• Active Members: {total_members}\n"
+            fallback_stats += f"• Uptime: {uptime_str}\n\n"
+            fallback_stats += f"_Error loading detailed stats_\n"
+            fallback_stats += f"Error: {str(e)[:150]}\\.\\.\\."
+            
+            await update.message.reply_text(
+                fallback_stats,
+                parse_mode=ParseMode.MARKDOWN_V2,
+                disable_web_page_preview=True
+            )
+        except Exception as fallback_error:
+            logger.error(f"[ERROR] Even fallback stats failed: {fallback_error}")
+            # Ultimo tentativo senza formatting
+            await update.message.reply_text(
+                f"Stats Error: Unable to generate statistics.\nOriginal error: {str(e)[:200]}",
+                disable_web_page_preview=True
+            )
         
         db.logEvent(update.message.from_user.id,
                     update.message.chat.id, "stats_error", f"Stats error: {str(e)}")
