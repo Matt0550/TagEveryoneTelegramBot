@@ -10,6 +10,7 @@ services:
       - webserver_debug=False
       - report_errors_owner=True # Report errors to the owner.
       - secret_key=SECRET_KEY    # Random string
+      - sentry_dsn=SECRET_SENTRY_DSN
       - PUID=1000     # UID of the user inside the container, make sure it has access to the database file
       - PGID=1000     # GID of the user inside the container, make sure it has access to the database file
     ports:

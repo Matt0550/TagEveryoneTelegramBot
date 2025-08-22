@@ -1,4 +1,5 @@
 import datetime
+import sentry_sdk
 import sys
 import flask
 import os
@@ -20,6 +21,17 @@ WEBSERVER_DEBUG = os.getenv('webserver_debug', False)
 
 # Convert webserver debug flag to boolean
 WEBSERVER_DEBUG = str(WEBSERVER_DEBUG).lower() in ["true", "1"]
+# and just run main.py
+SENTRY_DSN = os.getenv('sentry_dsn', None)
+
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        # Add data like request headers and IP for users,
+        # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
+        send_default_pii=True,
+    )
+    print("Sentry initialized")
 
 if not SECRET_KEY:
     print("Error: No secret key provided. Check your environment variables.")
@@ -127,6 +139,16 @@ def getInGroups():
         flask.abort(401)
 
     userId = getUserFromQuery(init_data)
+    if SENTRY_DSN and userId:
+        sentry_sdk.set_user({
+            "id": userId.get("id"),
+            "username": userId.get("username"),
+            "full_name": f"{userId.get('first_name', '')} {userId.get('last_name', '')}".strip()
+        })
+        sentry_sdk.set_context("telegram_webapp", {
+            "user_agent": flask.request.headers.get('User-Agent')
+        })
+
     groupsIn = db.getGroupsOfUser(userId["id"])
     groupsIn = [{'group_id': group[1], 'name': group[2], 'members': group[6]} for group in groupsIn]
 
@@ -139,8 +161,19 @@ def getAdminPanel():
     hash_str = body['hash']
     init_data = body['init_data']
 
-    if not validate(hash_str, init_data) or str(getUserFromQuery(init_data)["id"]) != str(OWNER_ID):
+    user = getUserFromQuery(init_data)
+    if not validate(hash_str, init_data) or str(user["id"]) != str(OWNER_ID):
         flask.abort(401)
+
+    if SENTRY_DSN and user:
+        sentry_sdk.set_user({
+            "id": user.get("id"),
+            "username": user.get("username"),
+            "full_name": f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
+        })
+        sentry_sdk.set_context("telegram_webapp", {
+            "user_agent": flask.request.headers.get('User-Agent')
+        })
 
     logs = db.getWeeklyLogs()
     logs = [{'user_id': log[1], 'group_id': log[2], 'action': log[3], 'description': log[4], 'datetime': log[5]} for log
@@ -159,6 +192,16 @@ def leaveInListGroup():
         flask.abort(401)
 
     userId = getUserFromQuery(init_data)
+    if SENTRY_DSN and userId:
+        sentry_sdk.set_user({
+            "id": userId.get("id"),
+            "username": userId.get("username"),
+            "full_name": f"{userId.get('first_name', '')} {userId.get('last_name', '')}".strip()
+        })
+        sentry_sdk.set_context("telegram_webapp", {
+            "user_agent": flask.request.headers.get('User-Agent')
+        })
+
     groupId = body['group_id']
     try:
         db.deleteData(groupId, userId["id"])

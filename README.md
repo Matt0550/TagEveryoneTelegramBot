@@ -61,6 +61,7 @@ News channel: https://t.me/tageveryone_news
 - All is saved to SQLite3 database
 - Hosted or self-hosted
 - Docker support
+- NEW: Sentry error tracking support
 
 
 ## Commands
@@ -96,6 +97,7 @@ Instead of the command `/everyone` or `/all`, you can use `@everyone` or `@all`
 | webserver_debug | Enable Flask debug | False |
 | report_errors_owner | Report errors to the owner | False |
 | secret_key | Flask secret key. Generate a random | - |
+| sentry_dsn | Sentry DSN for error tracking | - |
 | APP_HOST | Flask host | localhost/0.0.0.0 |
 | APP_PORT | Flask port | 5000 |
 
@@ -120,6 +122,7 @@ services:
       - enable_webapp_server=True
       - webserver_debug=False
       - report_errors_owner=False
+      - sentry_dsn=SECRET_SENTRY_DSN
       - secret_key=SECRET_KEY
     volumes:
       - /path/to/database-new.db:/src/db/database-new.db
@@ -138,6 +141,7 @@ docker run -d \
   -e enable_webapp_server=True \
   -e webserver_debug=False \
   -e report_errors_owner=False \
+  -e sentry_dsn=SECRET_SENTRY_DSN \
   -e secret_key=SECRET_KEY \
   -v /path/to/database-new.db:/src/db/database-new.db \
   -p 5000:5000 \
