@@ -9,7 +9,7 @@ import sentry_sdk
 from telegram import Update, Chat, MessageEntity
 from telegram.constants import ParseMode, ChatMemberStatus
 from telegram.ext import Application, ContextTypes, MessageHandler, filters, CommandHandler, ChatMemberHandler
-from db.databaseNew import Database
+from db.databaseNew import Database, UserAlreadyExistsInGroup
 import json
 import datetime
 import dotenv
@@ -51,10 +51,6 @@ if SENTRY_DSN:
         # Add data like request headers and IP for users,
         # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
         send_default_pii=True,
-        # ignore User already exists in group from database
-        ignore_errors=[
-            "User already exists in group"
-        ]
     )
     logger.info("Sentry initialized")
 
@@ -327,9 +323,14 @@ async def join_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if data:
                 await update.message.reply_text("User already in the list")
                 return
-            # Insert data into database
-            db.insertData(group_id, group_name, group_description, group_username, group_type,
-                        group_members, mentioned_user.id, mentioned_user.first_name, mentioned_user.last_name, mentioned_user.username)
+           
+            try:
+                db.insertData(group_id, group_name, group_description, group_username, group_type,
+                            group_members, mentioned_user.id, mentioned_user.first_name, mentioned_user.last_name, mentioned_user.username)
+            except UserAlreadyExistsInGroup:
+                await update.message.reply_text("User already in the list")
+                return
+            
             logger.info("[DATABAE] Inserted data into database: %s, %s" %
                         (group_id, mentioned_user.id))
             await update.message.reply_text(
@@ -337,7 +338,7 @@ async def join_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
             db.logEvent(mentioned_user.id, group_id, "join_list",
                         "User added to the list")
             return
-        
+    
         #if user_username == None:
         #    await update.message.reply_text("You must have an username to use this bot. Please set an username in your Telegram settings")
         #    return
@@ -345,8 +346,12 @@ async def join_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Remove from group id "-" and convert to int
         
         # Insert data into database
-        db.insertData(group_id, group_name, group_description, group_username, group_type,
-                      group_members, user_id, user_first_name, user_last_name, user_username)
+        try:
+            db.insertData(group_id, group_name, group_description, group_username, group_type,
+                        group_members, user_id, user_first_name, user_last_name, user_username)
+        except UserAlreadyExistsInGroup:
+            await update.message.reply_text("User already in the list")
+            return
 
         logger.info("[DATABAE] Inserted data into database: %s, %s" %
                     (group_id, user_id))
@@ -1010,11 +1015,15 @@ async def chat_member_update(update: Update, context: ContextTypes.DEFAULT_TYPE)
             chat = await context.application.bot.get_chat(update.chat_member.chat.id)
 
             # Insert data into database
-            db.insertData(update.chat_member.chat.id, chat.title, chat.description, chat.username, chat.type,
-                        await chat.get_member_count(), user.id, user.first_name, user.last_name, user.username)
-            logger.info("[DATABAE] Inserted data into database: %s, %s" %
-                        (update.chat_member.chat.id, user.id))
-                  
+            try:
+                db.insertData(update.chat_member.chat.id, chat.title, chat.description, chat.username, chat.type,
+                            await chat.get_member_count(), user.id, user.first_name, user.last_name, user.username)
+                logger.info("[DATABAE] Inserted data into database: %s, %s" %
+                            (update.chat_member.chat.id, user.id))
+            except UserAlreadyExistsInGroup:
+                # User already exists, silently ignore
+                logger.info("[DATABASE] User %s already exists in group %s" % (user.id, update.chat_member.chat.id))
+                pass
             # await context.bot.send_message(chat_id=update.chat_member.chat.id, text=f"{user.full_name} was added to the list.")
 
     elif new_status == ChatMemberStatus.LEFT or new_status == ChatMemberStatus.BANNED:
