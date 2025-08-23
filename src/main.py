@@ -319,7 +319,6 @@ async def join_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await update.message.reply_text("User not found. At the moment you can't add a user by username.")
                 return
             
-            # Check if the user is already in the list
             data = db.getUser(mentioned_user.id)
             if data:
                 await update.message.reply_text("User already in the list")
@@ -335,12 +334,6 @@ async def join_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         "User added to the list")
             return
         
-        # Check if the user is already in the list
-        data = db.getUser(user_id)
-        if data:
-            await update.message.reply_text("You are already in the list")
-            return
-
         #if user_username == None:
         #    await update.message.reply_text("You must have an username to use this bot. Please set an username in your Telegram settings")
         #    return
