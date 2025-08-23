@@ -4,6 +4,7 @@
 #   https://matteosillitti.it   #
 #       Github: @Matt0550       #
 #################################
+import sentry_sdk
 
 from telegram import Update, Chat, MessageEntity
 from telegram.constants import ParseMode, ChatMemberStatus
@@ -18,6 +19,7 @@ import traceback
 import html
 import random
 import re
+
 
 # Enable logging
 logging.basicConfig(
@@ -37,11 +39,20 @@ dotenv.load_dotenv()
 OWNER_ID = os.environ['owner_id']  # or insert owner id to OWNER_ID
 TOKEN = os.environ['token']        # and insert token to TOKEN
 # and just run main.py
+SENTRY_DSN = os.getenv('sentry_dsn', None)
 
 # set WEB_SERVER_REPLIT to 1 if you want to host the bot on replit
 ENABLE_WEBAPP_SERVER = os.environ['enable_webapp_server']
 REPORT_ERRORS_OWNER = os.environ['report_errors_owner']
 
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        # Add data like request headers and IP for users,
+        # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
+        send_default_pii=True,
+    )
+    logger.info("Sentry initialized")
 
 # Create an istance of database
 db = Database()
@@ -59,12 +70,41 @@ start_time = datetime.datetime.now()  # For the uptime command
 # Create a decorator to apply cooldown to a function (in seconds) for user who used the command
 
 
+def set_sentry_context(func):
+    """Decorator to set Sentry user context."""
+    async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE, *args, **kwargs):
+        if SENTRY_DSN:
+            user_info = None
+            chat_info = None
+
+            if update.effective_user:
+                user_info = {
+                    "id": update.effective_user.id,
+                    "username": update.effective_user.username,
+                    "full_name": update.effective_user.full_name,
+                }
+            
+            if update.effective_chat:
+                chat_info = {
+                    "id": update.effective_chat.id,
+                    "title": update.effective_chat.title,
+                    "type": update.effective_chat.type,
+                }
+
+            sentry_sdk.set_user(user_info)
+            sentry_sdk.set_context("chat", chat_info)
+
+        return await func(update, context, *args, **kwargs)
+    return wrapper
+
+
 def cooldown(seconds):
     def decorator(func):
         # Create a dictionary to store the last time the user used the command
         last_time = {}
 
         async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE):
+            
             if update.edited_message != None or update.message == None:
                 # If the message is edited, return
                 return
@@ -200,6 +240,7 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
             logger.error("Complete failure in error reporting system")
 
 
+@set_sentry_context
 @cooldown(15)
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Log user
@@ -233,6 +274,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "start", "User started the bot")
 
     
+@set_sentry_context
 @cooldown(15)
 @group
 # Function to add a member to the list
@@ -277,7 +319,6 @@ async def join_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await update.message.reply_text("User not found. At the moment you can't add a user by username.")
                 return
             
-            # Check if the user is already in the list
             data = db.getUser(mentioned_user.id)
             if data:
                 await update.message.reply_text("User already in the list")
@@ -293,12 +334,6 @@ async def join_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         "User added to the list")
             return
         
-        # Check if the user is already in the list
-        data = db.getUser(user_id)
-        if data:
-            await update.message.reply_text("You are already in the list")
-            return
-
         #if user_username == None:
         #    await update.message.reply_text("You must have an username to use this bot. Please set an username in your Telegram settings")
         #    return
@@ -322,6 +357,7 @@ async def join_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("Error:\n`%s`" % e, parse_mode="Markdown")
 
 
+@set_sentry_context
 @cooldown(15)
 @group
 # Function to remove a member from the list
@@ -408,6 +444,7 @@ async def leave_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
         db.logEvent(user_id, group_id, "error", str(e))
 
 
+@set_sentry_context
 @cooldown(15)
 @group
 async def everyoneMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -534,6 +571,7 @@ async def everyoneMessage(update: Update, context: ContextTypes.DEFAULT_TYPE):
         db.logEvent(update.message.from_user.id, group_id, "error", str(e))
 
 
+@set_sentry_context
 async def everyone(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         # Check if is edited message
@@ -553,6 +591,7 @@ async def everyone(update: Update, context: ContextTypes.DEFAULT_TYPE):
         logger.error("[ERROR] " + str(e))
 
 
+@set_sentry_context
 @cooldown(15)
 async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("""
@@ -579,6 +618,7 @@ Buy me a coffee: https://buymeacoffee.com/Matt0550
 """)
 
 
+@set_sentry_context
 @cooldown(15)
 async def getList(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
@@ -633,6 +673,7 @@ async def getList(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("Error:\n`%s`" % e, parse_mode="Markdown")
 
 
+@set_sentry_context
 @cooldown(15)
 async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Get the bot uptime widout microseconds
@@ -646,6 +687,7 @@ async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 update.message.chat.id, "status", "Status sent")
 
 
+@set_sentry_context
 @isOwner
 @cooldown(15)
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -834,6 +876,7 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
         db.logEvent(update.message.from_user.id,
                     update.message.chat.id, "stats_error", f"Stats error: {str(e)}")
 
+@set_sentry_context
 @isOwner
 @cooldown(15)
 async def announce(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -870,6 +913,7 @@ async def announce(update: Update, context: ContextTypes.DEFAULT_TYPE):
     db.logEvent(update.message.from_user.id, update.message.chat.id,
                 "announce", "Message sent to all groups")
 
+@set_sentry_context
 @isOwner
 @cooldown(15)
 async def checkGroups(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -945,6 +989,7 @@ async def checkGroups(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "checkGroups", f"Checked {len(groups)} groups: {len(working_groups)} working, {len(failed_groups)} failed")
     
 
+@set_sentry_context
 async def chat_member_update(update: Update, context: ContextTypes.DEFAULT_TYPE):
     status_change = update.chat_member
     old_status = status_change.old_chat_member.status
