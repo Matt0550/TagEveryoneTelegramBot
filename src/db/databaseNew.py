@@ -16,6 +16,10 @@ if not os.path.exists(dbPath):
         print("Error: Could not create database file.")
         exit(1)
 
+# Custom exception for user already exists in group
+class UserAlreadyExistsInGroup(Exception):
+    pass
+
 # DB
 # CREATE TABLE "groups" (
 # 	"id"	INTEGER NOT NULL,
@@ -93,7 +97,7 @@ class Database:
         data = c.fetchall()
         # If data already exists, append to members id new member id
         if data:
-            raise Exception("User already exists in group")
+            raise UserAlreadyExistsInGroup("User already exists in group")
         else:
             # Insert user id into "groups_users" table
             c.execute("INSERT INTO groups_users (group_id, user_id, datetime) VALUES (?, ?, ?)", (group_id, member_id, datetime.now()))
