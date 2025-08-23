@@ -51,6 +51,10 @@ if SENTRY_DSN:
         # Add data like request headers and IP for users,
         # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
         send_default_pii=True,
+        # ignore User already exists in group from database
+        ignore_errors=[
+            "User already exists in group"
+        ]
     )
     logger.info("Sentry initialized")
 
