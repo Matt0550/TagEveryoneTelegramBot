@@ -1,19 +1,13 @@
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
-[![Discord][discord-shield]][discord-url]
-[![Docker Pulls][docker-shield]][docker-url]
-
->[!NOTE]
-> **SOON** - Our **premium bot** and **new website** are coming soon! Get ready to discover new features, experiences, and much more. Stay tuned for more details! [Read more](https://github.com/TagEveryone/premium-bot-readme) 🚀
 
 <!-- PROJECT LOGO -->
+<a href="https://github.com/Matt0550/TagEveryoneTelegramBot">
+  <img src="src/gui/static/images/Banner OG.png">
+</a>
 <br />
 <div align="center">
-  <a href="https://github.com/Matt0550/TagEveryoneTelegramBot">
+  <!-- <a href="https://github.com/Matt0550/TagEveryoneTelegramBot">
     <img src="src/gui/static/images/logo.png" alt="Logo" width="100" height="100" style="border-radius: 15px;">
-  </a>
+  </a> -->
 
   <h3 align="center">Tag Everyone Telegram BOT</h3>
 
@@ -21,12 +15,19 @@
     A Telegram bot to tag everyone in a group
     <br />
     <br />
-    <a href="https://t.me/TagEveryone_TheBot">View Demo</a>
+    <a href="https://matt05.it/tag_everyone">Try It Now</a>
     ·
     <a href="https://github.com/Matt0550/TagEveryoneTelegramBot/issues">Report Bug</a>
     ·
     <a href="https://github.com/Matt0550/TagEveryoneTelegramBot/issues">Request Feature</a>
   </p>
+
+  [![Forks][forks-shield]][forks-url]
+  [![Stargazers][stars-shield]][stars-url]
+  [![Issues][issues-shield]][issues-url]
+  [![MIT License][license-shield]][license-url]
+  [![Discord][discord-shield]][discord-url]
+  [![Docker Pulls][docker-shield]][docker-url]
 </div>
 
 
@@ -36,7 +37,7 @@ This bot allows you to **mention all users in a group**. Users who wish to recei
 **NEW: Now all new users will be automatically added to the list when they join the group.**
 
 ## Public bot on Telegram
-You can use the public bot on Telegram: [TagEveryone_TheBot](https://t.me/TagEveryone_TheBot)
+You can use the public bot on Telegram: [@TagEveryone_TheBot](https://matt05.it/tag_everyone)
 
 News channel: https://t.me/tageveryone_news
 
@@ -219,17 +220,17 @@ Mail: <a href="mailto:mail@matteosillitti.com">mail@matteosillitti.com</a>
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://paypal.me/sillittimatteo)
 
-[contributors-shield]: https://img.shields.io/github/contributors/Matt0550/TagEveryoneTelegramBot.svg?style=for-the-badge
+[contributors-shield]: https://img.shields.io/github/contributors/Matt0550/TagEveryoneTelegramBot.svg
 [contributors-url]: https://github.com/Matt0550/TagEveryoneTelegramBot/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/Matt0550/TagEveryoneTelegramBot.svg?style=for-the-badge
+[forks-shield]: https://img.shields.io/github/forks/Matt0550/TagEveryoneTelegramBot.svg
 [forks-url]: https://github.com/Matt0550/TagEveryoneTelegramBot/network/members
-[stars-shield]: https://img.shields.io/github/stars/Matt0550/TagEveryoneTelegramBot.svg?style=for-the-badge
+[stars-shield]: https://img.shields.io/github/stars/Matt0550/TagEveryoneTelegramBot.svg?
 [stars-url]: https://github.com/Matt0550/TagEveryoneTelegramBot/stargazers
-[issues-shield]: https://img.shields.io/github/issues/Matt0550/TagEveryoneTelegramBot.svg?style=for-the-badge
+[issues-shield]: https://img.shields.io/github/issues/Matt0550/TagEveryoneTelegramBot.svg
 [issues-url]: https://github.com/Matt0550/TagEveryoneTelegramBot/issues
-[license-shield]: https://img.shields.io/github/license/Matt0550/TagEveryoneTelegramBot.svg?style=for-the-badge
+[license-shield]: https://img.shields.io/github/license/Matt0550/TagEveryoneTelegramBot.svg
 [license-url]: https://github.com/Matt0550/TagEveryoneTelegramBot/blob/master/LICENSE
-[discord-shield]: https://img.shields.io/discord/828990499507404820?style=for-the-badge
+[discord-shield]: https://img.shields.io/discord/828990499507404820
 [discord-url]: https://discord.gg/5WrVyQKWAr
-[docker-shield]: https://img.shields.io/docker/pulls/matt0550/tageveryone_telegrambot?style=for-the-badge
+[docker-shield]: https://img.shields.io/docker/pulls/matt0550/tageveryone_telegrambot
 [docker-url]: https://hub.docker.com/r/matt0550/tageveryone_telegrambot
