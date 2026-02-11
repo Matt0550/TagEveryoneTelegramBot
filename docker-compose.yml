@@ -11,10 +11,14 @@ services:
       - report_errors_owner=True # Report errors to the owner.
       - secret_key=SECRET_KEY    # Random string
       - sentry_dsn=SECRET_SENTRY_DSN
+      - webhook_mode=True
+      - webhook_url_base=https://url-to-your-webhook.com/
+      - webhook_port=8443
       - PUID=1000     # UID of the user inside the container, make sure it has access to the database file
       - PGID=1000     # GID of the user inside the container, make sure it has access to the database file
     ports:
       - 5040:5000
+      - 443:8443 # For the webhook mode, if enabled
     volumes:
       - /volume1/docker/tg/:/home/src/db/input/
     restart: unless-stopped

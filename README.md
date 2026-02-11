@@ -31,7 +31,7 @@
 </div>
 
 
-> [!INFO]
+> [!NOTE]
 > A new version is on the way! Complete rewrite of the codebase with new features and improvements. Stay tuned! Donate to support the development and keep the bot online: [Ko-fi](https://ko-fi.com/matt05) or [Buy me a coffee](https://www.buymeacoffee.com/Matt0550)
 
 # Tag Everyone Telegram Bot
@@ -145,6 +145,7 @@ services:
       - /path/to/database-new.db:/src/db/database-new.db
     ports:
       - 5000:5000
+      - 443:443
     restart: unless-stopped
 ```
 
