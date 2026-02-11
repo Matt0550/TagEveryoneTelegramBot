@@ -1,19 +1,13 @@
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
-[![Discord][discord-shield]][discord-url]
-[![Docker Pulls][docker-shield]][docker-url]
-
->[!NOTE]
-> **SOON** - Our **premium bot** and **new website** are coming soon! Get ready to discover new features, experiences, and much more. Stay tuned for more details! [Read more](https://github.com/TagEveryone/premium-bot-readme) 🚀
 
 <!-- PROJECT LOGO -->
+<a href="https://github.com/Matt0550/TagEveryoneTelegramBot">
+  <img src="src/gui/static/images/Banner OG.png">
+</a>
 <br />
 <div align="center">
-  <a href="https://github.com/Matt0550/TagEveryoneTelegramBot">
+  <!-- <a href="https://github.com/Matt0550/TagEveryoneTelegramBot">
     <img src="src/gui/static/images/logo.png" alt="Logo" width="100" height="100" style="border-radius: 15px;">
-  </a>
+  </a> -->
 
   <h3 align="center">Tag Everyone Telegram BOT</h3>
 
@@ -21,14 +15,24 @@
     A Telegram bot to tag everyone in a group
     <br />
     <br />
-    <a href="https://t.me/TagEveryone_TheBot">View Demo</a>
+    <a href="https://matt05.it/tag_everyone">Try It Now</a>
     ·
     <a href="https://github.com/Matt0550/TagEveryoneTelegramBot/issues">Report Bug</a>
     ·
     <a href="https://github.com/Matt0550/TagEveryoneTelegramBot/issues">Request Feature</a>
   </p>
+
+  [![Forks][forks-shield]][forks-url]
+  [![Stargazers][stars-shield]][stars-url]
+  [![Issues][issues-shield]][issues-url]
+  [![MIT License][license-shield]][license-url]
+  [![Discord][discord-shield]][discord-url]
+  [![Docker Pulls][docker-shield]][docker-url]
 </div>
 
+
+> [!INFO]
+> A new version is on the way! Complete rewrite of the codebase with new features and improvements. Stay tuned! Donate to support the development and keep the bot online: [Ko-fi](https://ko-fi.com/matt05) or [Buy me a coffee](https://www.buymeacoffee.com/Matt0550)
 
 # Tag Everyone Telegram Bot
 
@@ -36,7 +40,7 @@ This bot allows you to **mention all users in a group**. Users who wish to recei
 **NEW: Now all new users will be automatically added to the list when they join the group.**
 
 ## Public bot on Telegram
-You can use the public bot on Telegram: [TagEveryone_TheBot](https://t.me/TagEveryone_TheBot)
+You can use the public bot on Telegram: [@TagEveryone_TheBot](https://matt05.it/tag_everyone)
 
 News channel: https://t.me/tageveryone_news
 
@@ -57,6 +61,7 @@ News channel: https://t.me/tageveryone_news
 - The user decides whether to subscribe to the list with `/in`
 - The user decides whether to exit to the list with `/out`
 - NEW: Manually remove/add users to the list with `/in @username` or `/out @username` (beta, only if the username is in the db and updated)
+- NEW: Webhook mode support
 - Telegram WebApp support
 - All is saved to SQLite3 database
 - Hosted or self-hosted
@@ -86,6 +91,7 @@ Instead of the command `/everyone` or `/all`, you can use `@everyone` or `@all`
 - [ ] Welcome message when the bot is added to a group
 - [x] Tag members only with user id (not username)
 - [ ] Remove user from list when reply_to message
+- [ ] MySQL support
 
 # Self-hosting
 ## Environment variables
@@ -98,6 +104,14 @@ Instead of the command `/everyone` or `/all`, you can use `@everyone` or `@all`
 | report_errors_owner | Report errors to the owner | False |
 | secret_key | Flask secret key. Generate a random | - |
 | sentry_dsn | Sentry DSN for error tracking | - |
+| webhook_mode | Enable Telegram webhook mode | False |
+| webhook_listen_address | IP-Address to listen on for webhook mode | 127.0.0.1 |
+| webhook_port | Port to listen on for webhook mode | 80 |
+| webhook_url_path | Path inside url for webhook mode | '' |
+| webhook_url_base | Explicitly specify the webhook url for webhook mode | None |
+| webhook_ssl_cert_path | SSL certificate path for webhook mode | None |
+| webhook_ssl_key_path | SSL key path for webhook mode | None |
+| webhook_secret_token | A secret token to be sent in a header “X-Telegram-Bot-Api-Secret-Token” in every webhook request for webhook mode | None |
 | APP_HOST | Flask host | localhost/0.0.0.0 |
 | APP_PORT | Flask port | 5000 |
 
@@ -124,6 +138,9 @@ services:
       - report_errors_owner=False
       - sentry_dsn=SECRET_SENTRY_DSN
       - secret_key=SECRET_KEY
+      - webhook_mode=True
+      - webhook_url_base=https://your-webhook-url/
+      - webhook_port=443
     volumes:
       - /path/to/database-new.db:/src/db/database-new.db
     ports:
@@ -143,6 +160,9 @@ docker run -d \
   -e report_errors_owner=False \
   -e sentry_dsn=SECRET_SENTRY_DSN \
   -e secret_key=SECRET_KEY \
+  -e webhook_mode=True \
+  -e webhook_url_base=https://your-webhook-url/ \
+  -e webhook_port=443 \
   -v /path/to/database-new.db:/src/db/database-new.db \
   -p 5000:5000 \
   --name tageveryone_telegrambot \
@@ -188,6 +208,13 @@ The WebApp is available at `http://<ip>:<port>` by default.
 
 To show the WebApp on the Telegram bot, you have to setup a reverse proxy to the WebApp. You can use Nginx or Caddy. Then configure the webapp URL in the bot settings in the Telegram BotFather.
 
+## Set up the Webhook Mode
+To enable the Webhook mode, you have to set the `webhook_mode` environment variable to `True` and configure the webhook settings (webhook_url_base, webhook_port, webhook_url_path, webhook_ssl_cert_path, webhook_ssl_key_path, webhook_secret_token) according to your needs. Then you have to set the webhook URL in the Telegram Bot. To do this, you can use the following URL:
+
+```POST https://api.telegram.org/bot<token>/setWebhook?url=<webhook_url_base><webhook_url_path>&secret_token=<webhook_secret_token>```
+
+
+
 
 ## Help - feedback
 You can contact me on:
@@ -219,17 +246,17 @@ Mail: <a href="mailto:mail@matteosillitti.com">mail@matteosillitti.com</a>
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://paypal.me/sillittimatteo)
 
-[contributors-shield]: https://img.shields.io/github/contributors/Matt0550/TagEveryoneTelegramBot.svg?style=for-the-badge
+[contributors-shield]: https://img.shields.io/github/contributors/Matt0550/TagEveryoneTelegramBot.svg
 [contributors-url]: https://github.com/Matt0550/TagEveryoneTelegramBot/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/Matt0550/TagEveryoneTelegramBot.svg?style=for-the-badge
+[forks-shield]: https://img.shields.io/github/forks/Matt0550/TagEveryoneTelegramBot.svg
 [forks-url]: https://github.com/Matt0550/TagEveryoneTelegramBot/network/members
-[stars-shield]: https://img.shields.io/github/stars/Matt0550/TagEveryoneTelegramBot.svg?style=for-the-badge
+[stars-shield]: https://img.shields.io/github/stars/Matt0550/TagEveryoneTelegramBot.svg?
 [stars-url]: https://github.com/Matt0550/TagEveryoneTelegramBot/stargazers
-[issues-shield]: https://img.shields.io/github/issues/Matt0550/TagEveryoneTelegramBot.svg?style=for-the-badge
+[issues-shield]: https://img.shields.io/github/issues/Matt0550/TagEveryoneTelegramBot.svg
 [issues-url]: https://github.com/Matt0550/TagEveryoneTelegramBot/issues
-[license-shield]: https://img.shields.io/github/license/Matt0550/TagEveryoneTelegramBot.svg?style=for-the-badge
+[license-shield]: https://img.shields.io/github/license/Matt0550/TagEveryoneTelegramBot.svg
 [license-url]: https://github.com/Matt0550/TagEveryoneTelegramBot/blob/master/LICENSE
-[discord-shield]: https://img.shields.io/discord/828990499507404820?style=for-the-badge
+[discord-shield]: https://img.shields.io/discord/828990499507404820
 [discord-url]: https://discord.gg/5WrVyQKWAr
-[docker-shield]: https://img.shields.io/docker/pulls/matt0550/tageveryone_telegrambot?style=for-the-badge
+[docker-shield]: https://img.shields.io/docker/pulls/matt0550/tageveryone_telegrambot
 [docker-url]: https://hub.docker.com/r/matt0550/tageveryone_telegrambot
