@@ -45,6 +45,16 @@ SENTRY_DSN = os.getenv('sentry_dsn', None)
 ENABLE_WEBAPP_SERVER = os.environ['enable_webapp_server']
 REPORT_ERRORS_OWNER = os.environ['report_errors_owner']
 
+# Telegram webhook mode
+WEBHOOK_MODE = os.getenv('webhook_mode', 'false').lower() == 'true'
+WEBHOOK_LISTEN_ADDRESS = os.getenv('webhook_listen_address', '127.0.0.1') # IP-Address to listen on. Defaults to 127.0.0.1
+WEBHOOK_PORT = int(os.getenv('webhook_port', 80)) #  Port the bot should be listening on. Must be one of telegram.constants.SUPPORTED_WEBHOOK_PORTS unless the bot is running behind a proxy. Defaults to 80.
+WEBHOOK_URL_PATH = os.getenv('webhook_url_path', '') #  Path inside url. Defaults to `` ‘’ ``
+WEBHOOK_URL = os.getenv('webhook_url_base', None)  #  Explicitly specify the webhook url. Useful behind NAT, reverse proxy, etc. Default is derived from listen, port, url_path, cert, and key.
+WEBHOOK_SSL_CERT_PATH = os.getenv('webhook_ssl_cert_path', None)  #  SSL certificate for webhook. The file should be in the same directory as the main.py file. If not set, it will be generated automatically if WEBHOOK_MODE is true and the bot is running on a public server.
+WEBHOOK_SSL_KEY_PATH = os.getenv('webhook_ssl_key_path', None)  #  SSL key for webhook. The file should be in the same directory as the main.py file. If not set, it will be generated automatically if WEBHOOK_MODE is true and the bot is running on a public server.
+WEBHOOK_SECRET_TOKEN = os.getenv('webhook_secret_token', None)  #  A secret token to be sent in a header “X-Telegram-Bot-Api-Secret-Token” in every webhook request. Must be 256 characters long and contain only letters, digits, hyphens and underscores. See https://core.telegram.org/bots/api#setwebhook for more details.
+
 if SENTRY_DSN:
     sentry_sdk.init(
         dsn=SENTRY_DSN,
@@ -1067,7 +1077,22 @@ def main() -> None:
     if REPORT_ERRORS_OWNER == True or REPORT_ERRORS_OWNER == "1" or REPORT_ERRORS_OWNER.lower() == "true":
         application.add_error_handler(error_handler)
 
-    application.run_polling(allowed_updates=Update.ALL_TYPES)
+    if WEBHOOK_MODE:
+        print("Bot is running in webhook mode...")
+        print(f"Listening on {WEBHOOK_LISTEN_ADDRESS}:{WEBHOOK_PORT} with URL path '{WEBHOOK_URL_PATH}'")
+        # Start the webhook
+        application.run_webhook(
+            listen=WEBHOOK_LISTEN_ADDRESS,
+            port=WEBHOOK_PORT,
+            url_path=WEBHOOK_URL_PATH,
+            webhook_url=WEBHOOK_URL,
+            cert=WEBHOOK_SSL_CERT_PATH,
+            key=WEBHOOK_SSL_KEY_PATH,
+            secret_token=WEBHOOK_SECRET_TOKEN
+        )
+    else:
+        print("Bot is running in polling mode...")
+        application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 
 if __name__ == '__main__':

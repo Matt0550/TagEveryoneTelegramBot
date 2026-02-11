@@ -31,6 +31,9 @@
 </div>
 
 
+> [!INFO]
+> A new version is on the way! Complete rewrite of the codebase with new features and improvements. Stay tuned! Donate to support the development and keep the bot online: [Ko-fi](https://ko-fi.com/matt05) or [Buy me a coffee](https://www.buymeacoffee.com/Matt0550)
+
 # Tag Everyone Telegram Bot
 
 This bot allows you to **mention all users in a group**. Users who wish to receive these notifications will have to sign up using the `/in` command.
@@ -58,6 +61,7 @@ News channel: https://t.me/tageveryone_news
 - The user decides whether to subscribe to the list with `/in`
 - The user decides whether to exit to the list with `/out`
 - NEW: Manually remove/add users to the list with `/in @username` or `/out @username` (beta, only if the username is in the db and updated)
+- NEW: Webhook mode support
 - Telegram WebApp support
 - All is saved to SQLite3 database
 - Hosted or self-hosted
@@ -87,6 +91,7 @@ Instead of the command `/everyone` or `/all`, you can use `@everyone` or `@all`
 - [ ] Welcome message when the bot is added to a group
 - [x] Tag members only with user id (not username)
 - [ ] Remove user from list when reply_to message
+- [ ] MySQL support
 
 # Self-hosting
 ## Environment variables
@@ -99,6 +104,14 @@ Instead of the command `/everyone` or `/all`, you can use `@everyone` or `@all`
 | report_errors_owner | Report errors to the owner | False |
 | secret_key | Flask secret key. Generate a random | - |
 | sentry_dsn | Sentry DSN for error tracking | - |
+| webhook_mode | Enable Telegram webhook mode | False |
+| webhook_listen_address | IP-Address to listen on for webhook mode | 127.0.0.1 |
+| webhook_port | Port to listen on for webhook mode | 80 |
+| webhook_url_path | Path inside url for webhook mode | '' |
+| webhook_url_base | Explicitly specify the webhook url for webhook mode | None |
+| webhook_ssl_cert_path | SSL certificate path for webhook mode | None |
+| webhook_ssl_key_path | SSL key path for webhook mode | None |
+| webhook_secret_token | A secret token to be sent in a header “X-Telegram-Bot-Api-Secret-Token” in every webhook request for webhook mode | None |
 | APP_HOST | Flask host | localhost/0.0.0.0 |
 | APP_PORT | Flask port | 5000 |
 
@@ -125,6 +138,9 @@ services:
       - report_errors_owner=False
       - sentry_dsn=SECRET_SENTRY_DSN
       - secret_key=SECRET_KEY
+      - webhook_mode=True
+      - webhook_url_base=https://your-webhook-url/
+      - webhook_port=443
     volumes:
       - /path/to/database-new.db:/src/db/database-new.db
     ports:
@@ -144,6 +160,9 @@ docker run -d \
   -e report_errors_owner=False \
   -e sentry_dsn=SECRET_SENTRY_DSN \
   -e secret_key=SECRET_KEY \
+  -e webhook_mode=True \
+  -e webhook_url_base=https://your-webhook-url/ \
+  -e webhook_port=443 \
   -v /path/to/database-new.db:/src/db/database-new.db \
   -p 5000:5000 \
   --name tageveryone_telegrambot \
@@ -188,6 +207,13 @@ If you want to enable the WebApp, you have to set the `enable_webapp_server` env
 The WebApp is available at `http://<ip>:<port>` by default.
 
 To show the WebApp on the Telegram bot, you have to setup a reverse proxy to the WebApp. You can use Nginx or Caddy. Then configure the webapp URL in the bot settings in the Telegram BotFather.
+
+## Set up the Webhook Mode
+To enable the Webhook mode, you have to set the `webhook_mode` environment variable to `True` and configure the webhook settings (webhook_url_base, webhook_port, webhook_url_path, webhook_ssl_cert_path, webhook_ssl_key_path, webhook_secret_token) according to your needs. Then you have to set the webhook URL in the Telegram Bot. To do this, you can use the following URL:
+
+```POST https://api.telegram.org/bot<token>/setWebhook?url=<webhook_url_base><webhook_url_path>&secret_token=<webhook_secret_token>```
+
+
 
 
 ## Help - feedback
