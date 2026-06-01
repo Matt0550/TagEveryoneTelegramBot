@@ -36,6 +36,9 @@
 This bot allows you to **mention all users in a group**. Users who wish to receive these notifications will have to sign up using the `/in` command.
 **NEW: Now all new users will be automatically added to the list when they join the group.**
 
+> [!NOTE]
+> This is the V2 of the bot, rewritten from scratch using SQLAlchemy and Pydantic. The V1 is still available [here](https://github.com/Matt0550/TagEveryoneTelegramBot/tree/bot-production). RIGHT NOW THIS DOCUMENTATION IS OUTDATED. 
+
 ## Public bot on Telegram
 You can use the public bot on Telegram: [@TagEveryone_TheBot](https://matt05.it/tag_everyone)
 

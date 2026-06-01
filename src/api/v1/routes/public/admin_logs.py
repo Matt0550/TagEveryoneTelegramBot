@@ -1,0 +1,36 @@
+from api.dependencies import get_log_service
+from typing import Annotated
+from fastapi import APIRouter, Depends
+
+from api.dependencies import LogServiceDep
+from api.utils.telegram_auth import verify_admin, TelegramUser
+from api.decorators.set_sentry_context import set_sentry_context
+
+from models import GenericResponse
+from models_all.log import LogResponse, LogsResponse
+from utils.pagination import PaginationParams
+
+router = APIRouter()
+
+
+@router.get(
+    "/logs",
+    summary="Get weekly logs (Admin only)",
+    tags=["logs"],
+    response_model=GenericResponse[LogsResponse],
+)
+@set_sentry_context
+def get_admin_logs(
+    params: Annotated[PaginationParams, Depends()],
+    log_service: Annotated[LogServiceDep, Depends(get_log_service)],
+    user: TelegramUser = Depends(verify_admin),
+):
+    logs, total = log_service.get_weekly_logs(params)
+
+    formatted_logs = [LogResponse.model_validate(log) for log in logs]
+
+    response_data = LogsResponse(
+        items=formatted_logs, count=total
+    )
+
+    return GenericResponse(message=response_data, status_code=200)

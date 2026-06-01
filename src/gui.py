@@ -1,10 +1,8 @@
-import datetime
 import sentry_sdk
 import sys
 import flask
 import os
 from dotenv import load_dotenv
-from flask import Flask
 from flask_cors import CORS
 from db.databaseNew import Database
 import hmac
@@ -48,7 +46,7 @@ else:
 PORT = os.getenv('APP_PORT', 5000)
 
 # Initialize Flask application
-app = flask.Flask(__name__, template_folder='./gui/templates', static_folder='./gui/static')
+app = flask.Flask(__name__, template_folder='./gui/dist', static_folder='./gui/dist/assets', static_url_path='/assets')
 app.secret_key = SECRET_KEY
 
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -213,7 +211,7 @@ def leaveInListGroup():
 
 @app.route('/')
 def dashboard():
-    return flask.render_template('./dashboard/index.html')
+    return flask.render_template('index.html')
 
 
 @app.route('/status')
@@ -224,7 +222,7 @@ def status():
 def mainGUI():
     try:
         port = int(PORT)
-        app.run(host=HOST, port=PORT, debug=WEBSERVER_DEBUG)
+        app.run(host=HOST, port=port, debug=WEBSERVER_DEBUG)
     except ValueError:
         print("Error: Invalid port number provided. Check your environment variables.")
         sys.exit(1)
