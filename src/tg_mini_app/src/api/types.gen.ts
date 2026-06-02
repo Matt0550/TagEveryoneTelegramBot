@@ -5,6 +5,16 @@ export type ClientOptions = {
 };
 
 /**
+ * Body_Public API-login_tma
+ */
+export type BodyPublicApiLoginTma = {
+    /**
+     * Init Data
+     */
+    init_data: string;
+};
+
+/**
  * GenericResponse[LogsResponse]
  */
 export type GenericResponseLogsResponse = {
@@ -286,6 +296,69 @@ export type PublicApiGetAdminLogsResponses = {
 };
 
 export type PublicApiGetAdminLogsResponse = PublicApiGetAdminLogsResponses[keyof PublicApiGetAdminLogsResponses];
+
+export type PublicApiLoginTmaData = {
+    body: BodyPublicApiLoginTma;
+    path?: never;
+    query?: never;
+    url: '/api/v1/public/auth/telegram-tma';
+};
+
+export type PublicApiLoginTmaErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type PublicApiLoginTmaError = PublicApiLoginTmaErrors[keyof PublicApiLoginTmaErrors];
+
+export type PublicApiLoginTmaResponses = {
+    /**
+     * Response Public Api-Login Tma
+     *
+     * Successful Response
+     */
+    200: {
+        [key: string]: unknown;
+    };
+};
+
+export type PublicApiLoginTmaResponse = PublicApiLoginTmaResponses[keyof PublicApiLoginTmaResponses];
+
+export type PublicApiLoginTglData = {
+    /**
+     * Login Data
+     */
+    body: {
+        [key: string]: unknown;
+    };
+    path?: never;
+    query?: never;
+    url: '/api/v1/public/auth/telegram-tgl';
+};
+
+export type PublicApiLoginTglErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type PublicApiLoginTglError = PublicApiLoginTglErrors[keyof PublicApiLoginTglErrors];
+
+export type PublicApiLoginTglResponses = {
+    /**
+     * Response Public Api-Login Tgl
+     *
+     * Successful Response
+     */
+    200: {
+        [key: string]: unknown;
+    };
+};
+
+export type PublicApiLoginTglResponse = PublicApiLoginTglResponses[keyof PublicApiLoginTglResponses];
 
 export type SystemSystemStatusData = {
     body?: never;

@@ -6,14 +6,14 @@ from models import ModelBase
 
 class LogShared(ModelBase):
     user_id: int | None = Field(default=None)
-    group_id: str | None = Field(default=None)
+    group_id: int | None = Field(default=None)
     action: str | None = Field(default=None)
     description: str | None = Field(default=None)
 
 
 class Log(LogShared, table=True):
     __tablename__ = "logs"  # type: ignore
-    
+
     id: int = Field(default=None, primary_key=True)
     datetime: dt.datetime = Field(
         sa_column=Column(

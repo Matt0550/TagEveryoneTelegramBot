@@ -1,15 +1,14 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue'
 import { Card, CardContent } from '@/components/ui/card'
 
+import { toast } from 'vue-sonner'
 import { adminService } from '@/services/adminService'
-import { useBackButton, usePopup, useHapticFeedback } from 'vue-tg/latest'
+import { useHapticFeedback } from 'vue-tg/latest'
+import { useI18n } from 'vue-i18n'
 
-const router = useRouter()
-const { showAlert } = usePopup()
 const { notificationOccurred } = useHapticFeedback()
-const backButton = useBackButton()
+const { t } = useI18n()
 
 const logs = ref<any[]>([])
 const isLoading = ref(true)
@@ -18,68 +17,57 @@ const loadAdminPanel = async () => {
   isLoading.value = true
   try {
     const data = await adminService.getWeeklyLogs()
-    logs.value = data?.logs || []
+    logs.value = data?.items || []
   } catch (e: any) {
     notificationOccurred('error')
-    showAlert(`Error: ${e.message || 'Unknown error'}`)
+    toast.error(e.message || t('errors.unknown'))
   } finally {
     isLoading.value = false
   }
 }
 
-const goBack = () => {
-  router.back()
-}
-
-let offClick: { off: () => void }
-
 onMounted(() => {
-  backButton.show()
-  offClick = backButton.onClick(goBack)
   loadAdminPanel()
-})
-
-onUnmounted(() => {
-  if (offClick) offClick.off()
-  backButton.hide()
 })
 </script>
 
 <template>
-  <div v-if="isLoading" class="flex items-center justify-center h-64">
+  <div>
+    <div v-if="isLoading" class="flex items-center justify-center h-64">
     <div class="animate-pulse flex flex-col items-center gap-4">
-      <div class="w-12 h-12 border-4 border-zinc-700 border-t-zinc-300 rounded-full animate-spin"></div>
-      <p class="text-zinc-400">Loading Admin Panel...</p>
+      <div class="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+      <p class="text-muted-foreground">{{ t('views.admin.loading') }}</p>
     </div>
   </div>
 
   <div v-else class="max-w-2xl mx-auto space-y-6">
     <div class="text-center space-y-2">
-      <h1 class="text-3xl font-bold tracking-tight">Logs</h1>
-      <p class="text-zinc-400">Logs of the last 7 days</p>
-      <p class="text-sm font-medium text-zinc-500">{{ logs.length }} logs found</p>
+      <h1 class="text-3xl font-bold tracking-tight">{{ t('views.admin.title') }}</h1>
+      <p class="text-muted-foreground">{{ t('views.admin.subtitle') }}</p>
+      <p class="text-sm font-medium text-muted-foreground">{{ t('views.admin.logsFound', { count: logs.length }) }}</p>
     </div>
 
     <div v-if="logs.length === 0"
-      class="flex flex-col items-center justify-center py-12 text-center bg-zinc-900/50 rounded-lg border border-zinc-800">
-      <h2 class="text-xl font-semibold">No logs</h2>
-      <p class="text-zinc-400 mt-2">No activity recorded.</p>
+      class="flex flex-col items-center justify-center py-12 text-center bg-muted/50 rounded-lg border border-border">
+      <h2 class="text-xl font-semibold">{{ t('errors.noLogs') }}</h2>
+      <p class="text-muted-foreground mt-2">{{ t('errors.noLogsDesc') }}</p>
     </div>
 
     <div v-else class="space-y-3">
-      <Card v-for="(log, index) in logs" :key="index" class="bg-zinc-900 border-zinc-800">
+      <Card v-for="(log, index) in logs" :key="index" class="shadow-sm">
         <CardContent class="p-4 space-y-2">
           <div class="flex items-center justify-between">
-            <span class="font-bold text-lg text-zinc-100">{{ log.action }}</span>
-            <span class="text-xs text-zinc-500">{{ log.datetime }}</span>
+            <span class="font-bold text-lg text-foreground">{{ log.action }}</span>
+            <span class="text-xs text-muted-foreground">{{ log.datetime }}</span>
           </div>
-          <p class="text-zinc-300">{{ log.description }}</p>
-          <div class="flex gap-4 text-xs text-zinc-500">
-            <span>User ID: {{ log.user_id }}</span>
-            <span>Chat ID: {{ log.group_id }}</span>
+          <p class="text-muted-foreground">{{ log.description }}</p>
+          <div class="flex gap-4 text-xs text-muted-foreground">
+            <span>{{ t('views.admin.userId') }}: {{ log.user_id }}</span>
+            <span>{{ t('views.admin.chatId') }}: {{ log.group_id }}</span>
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   </div>
 </template>

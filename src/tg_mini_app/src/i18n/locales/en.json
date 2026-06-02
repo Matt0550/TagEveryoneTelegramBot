@@ -1,0 +1,36 @@
+{
+  "actions": {
+    "adminPanel": "Admin Panel",
+    "leaveList": "Leave list",
+    "logOut": "Log out",
+    "language": "Language",
+    "english": "English",
+    "italian": "Italian"
+  },
+  "errors": {
+    "unknown": "Unknown error",
+    "noGroups": "No groups",
+    "noGroupsDesc": "You are not included in any tag list. To join a group, use the /in command.",
+    "noLogs": "No logs",
+    "noLogsDesc": "No activity recorded."
+  },
+  "views": {
+    "groups": {
+      "title": "Groups",
+      "subtitle": "Groups you are part of in the tag list",
+      "members": "{count} members",
+      "leaveGroupTitle": "Leave Group",
+      "leaveGroupDesc": "Are you sure you want to leave this list? You can rejoin at any time with /in command.",
+      "leaveGroupSuccess": "Successfully left group",
+      "loading": "Loading..."
+    },
+    "admin": {
+      "title": "Logs",
+      "subtitle": "Logs of the last 7 days",
+      "logsFound": "{count} logs found",
+      "loading": "Loading Admin Panel...",
+      "userId": "User ID",
+      "chatId": "Chat ID"
+    }
+  }
+}

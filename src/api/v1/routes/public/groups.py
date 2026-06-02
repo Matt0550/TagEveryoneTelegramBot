@@ -25,7 +25,6 @@ def get_user_groups(
     group_service: Annotated[GroupServiceDep, Depends(get_group_service)],
     user: TelegramUser = Depends(verify_telegram_webapp),
 ) -> GroupsResponse:
-    print(user)
     groups, total = group_service.get_groups_of_user(user.id, params)
 
     formatted_groups = [GroupResponse.model_validate(g) for g in groups]

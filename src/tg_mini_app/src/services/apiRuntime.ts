@@ -14,7 +14,7 @@ export const getCookie = (name: string) => {
 
 const API_BASE = import.meta.env.VITE_API_URL || ''
 
-export async function authenticateWithTma(initData: string): Promise<string | null> {
+export async function authenticateWithTma(initData: string): Promise<{token: string, user: any} | null> {
     try {
         const response = await fetch(`${API_BASE}/api/v1/public/auth/telegram-tma`, {
             method: 'POST',
@@ -23,13 +23,16 @@ export async function authenticateWithTma(initData: string): Promise<string | nu
         })
         if (!response.ok) return null
         const data = await response.json()
-        return data?.message?.access_token || data?.access_token
+        const token = data?.message?.access_token || data?.access_token
+        const user = data?.message?.user || data?.user
+        if (token) return { token, user }
+        return null
     } catch {
         return null
     }
 }
 
-export async function authenticateWithTgl(loginData: any): Promise<string | null> {
+export async function authenticateWithTgl(loginData: any): Promise<{token: string, user: any} | null> {
     try {
         const response = await fetch(`${API_BASE}/api/v1/public/auth/telegram-tgl`, {
             method: 'POST',
@@ -38,7 +41,10 @@ export async function authenticateWithTgl(loginData: any): Promise<string | null
         })
         if (!response.ok) return null
         const data = await response.json()
-        return data?.message?.access_token || data?.access_token
+        const token = data?.message?.access_token || data?.access_token
+        const user = data?.message?.user || data?.user
+        if (token) return { token, user }
+        return null
     } catch {
         return null
     }

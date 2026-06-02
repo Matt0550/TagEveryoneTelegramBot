@@ -1,0 +1,36 @@
+{
+  "actions": {
+    "adminPanel": "Pannello di Controllo",
+    "leaveList": "Abbandona lista",
+    "logOut": "Esci",
+    "language": "Lingua",
+    "english": "Inglese",
+    "italian": "Italiano"
+  },
+  "errors": {
+    "unknown": "Errore sconosciuto",
+    "noGroups": "Nessun gruppo",
+    "noGroupsDesc": "Non sei incluso in nessuna lista tag. Per unirti a un gruppo, usa il comando /in.",
+    "noLogs": "Nessun log",
+    "noLogsDesc": "Nessuna attività registrata."
+  },
+  "views": {
+    "groups": {
+      "title": "Gruppi",
+      "subtitle": "Gruppi in cui sei presente nella lista tag",
+      "members": "{count} membri",
+      "leaveGroupTitle": "Abbandona Gruppo",
+      "leaveGroupDesc": "Sei sicuro di voler abbandonare questa lista? Puoi rientrare in qualsiasi momento con il comando /in.",
+      "leaveGroupSuccess": "Hai abbandonato il gruppo con successo",
+      "loading": "Caricamento..."
+    },
+    "admin": {
+      "title": "Log",
+      "subtitle": "Log degli ultimi 7 giorni",
+      "logsFound": "{count} log trovati",
+      "loading": "Caricamento Pannello di Controllo...",
+      "userId": "ID Utente",
+      "chatId": "ID Chat"
+    }
+  }
+}

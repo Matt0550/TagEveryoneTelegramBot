@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { PublicApiGetAdminLogsData, PublicApiGetAdminLogsErrors, PublicApiGetAdminLogsResponses, PublicApiGetUserGroupsData, PublicApiGetUserGroupsErrors, PublicApiGetUserGroupsResponses, PublicApiLeaveGroupData, PublicApiLeaveGroupErrors, PublicApiLeaveGroupResponses, SystemSystemStatusData, SystemSystemStatusResponses } from './types.gen';
+import type { PublicApiGetAdminLogsData, PublicApiGetAdminLogsErrors, PublicApiGetAdminLogsResponses, PublicApiGetUserGroupsData, PublicApiGetUserGroupsErrors, PublicApiGetUserGroupsResponses, PublicApiLeaveGroupData, PublicApiLeaveGroupErrors, PublicApiLeaveGroupResponses, PublicApiLoginTglData, PublicApiLoginTglErrors, PublicApiLoginTglResponses, PublicApiLoginTmaData, PublicApiLoginTmaErrors, PublicApiLoginTmaResponses, SystemSystemStatusData, SystemSystemStatusResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -43,6 +43,30 @@ export const publicApiGetAdminLogs = <ThrowOnError extends boolean = false>(opti
     security: [{ name: 'Authorization', type: 'apiKey' }],
     url: '/api/v1/public/admin/logs',
     ...options
+});
+
+/**
+ * Login Tma
+ */
+export const publicApiLoginTma = <ThrowOnError extends boolean = false>(options: Options<PublicApiLoginTmaData, ThrowOnError>) => (options.client ?? client).post<PublicApiLoginTmaResponses, PublicApiLoginTmaErrors, ThrowOnError>({
+    url: '/api/v1/public/auth/telegram-tma',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Login Tgl
+ */
+export const publicApiLoginTgl = <ThrowOnError extends boolean = false>(options: Options<PublicApiLoginTglData, ThrowOnError>) => (options.client ?? client).post<PublicApiLoginTglResponses, PublicApiLoginTglErrors, ThrowOnError>({
+    url: '/api/v1/public/auth/telegram-tgl',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
 });
 
 /**
