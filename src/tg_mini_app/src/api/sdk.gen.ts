@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { PublicApiGetAdminLogsData, PublicApiGetAdminLogsErrors, PublicApiGetAdminLogsResponses, PublicApiGetUserGroupsData, PublicApiGetUserGroupsErrors, PublicApiGetUserGroupsResponses, PublicApiLeaveGroupData, PublicApiLeaveGroupErrors, PublicApiLeaveGroupResponses, PublicApiLoginTglData, PublicApiLoginTglErrors, PublicApiLoginTglResponses, PublicApiLoginTmaData, PublicApiLoginTmaErrors, PublicApiLoginTmaResponses, SystemSystemStatusData, SystemSystemStatusResponses } from './types.gen';
+import type { PublicApiCreateListData, PublicApiCreateListErrors, PublicApiCreateListResponses, PublicApiDeleteListData, PublicApiDeleteListErrors, PublicApiDeleteListResponses, PublicApiGetAdminLogsData, PublicApiGetAdminLogsErrors, PublicApiGetAdminLogsResponses, PublicApiGetListsData, PublicApiGetListsErrors, PublicApiGetListsResponses, PublicApiGetUserGroupsData, PublicApiGetUserGroupsErrors, PublicApiGetUserGroupsResponses, PublicApiLeaveGroupData, PublicApiLeaveGroupErrors, PublicApiLeaveGroupResponses, PublicApiLoginTglData, PublicApiLoginTglErrors, PublicApiLoginTglResponses, PublicApiLoginTmaData, PublicApiLoginTmaErrors, PublicApiLoginTmaResponses, PublicApiSubscribeToListData, PublicApiSubscribeToListErrors, PublicApiSubscribeToListResponses, PublicApiUnsubscribeFromListData, PublicApiUnsubscribeFromListErrors, PublicApiUnsubscribeFromListResponses, PublicApiUpdateListData, PublicApiUpdateListErrors, PublicApiUpdateListResponses, SystemSystemStatusData, SystemSystemStatusResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -67,6 +67,68 @@ export const publicApiLoginTgl = <ThrowOnError extends boolean = false>(options:
         'Content-Type': 'application/json',
         ...options.headers
     }
+});
+
+/**
+ * Get all lists for a group
+ */
+export const publicApiGetLists = <ThrowOnError extends boolean = false>(options: Options<PublicApiGetListsData, ThrowOnError>) => (options.client ?? client).get<PublicApiGetListsResponses, PublicApiGetListsErrors, ThrowOnError>({
+    security: [{ name: 'Authorization', type: 'apiKey' }],
+    url: '/api/v1/public/groups/{group_id}/lists',
+    ...options
+});
+
+/**
+ * Create a new list
+ */
+export const publicApiCreateList = <ThrowOnError extends boolean = false>(options: Options<PublicApiCreateListData, ThrowOnError>) => (options.client ?? client).post<PublicApiCreateListResponses, PublicApiCreateListErrors, ThrowOnError>({
+    security: [{ name: 'Authorization', type: 'apiKey' }],
+    url: '/api/v1/public/groups/{group_id}/lists',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Delete a list
+ */
+export const publicApiDeleteList = <ThrowOnError extends boolean = false>(options: Options<PublicApiDeleteListData, ThrowOnError>) => (options.client ?? client).delete<PublicApiDeleteListResponses, PublicApiDeleteListErrors, ThrowOnError>({
+    security: [{ name: 'Authorization', type: 'apiKey' }],
+    url: '/api/v1/public/groups/{group_id}/lists/{list_id}',
+    ...options
+});
+
+/**
+ * Update a list
+ */
+export const publicApiUpdateList = <ThrowOnError extends boolean = false>(options: Options<PublicApiUpdateListData, ThrowOnError>) => (options.client ?? client).put<PublicApiUpdateListResponses, PublicApiUpdateListErrors, ThrowOnError>({
+    security: [{ name: 'Authorization', type: 'apiKey' }],
+    url: '/api/v1/public/groups/{group_id}/lists/{list_id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Subscribe to a list
+ */
+export const publicApiSubscribeToList = <ThrowOnError extends boolean = false>(options: Options<PublicApiSubscribeToListData, ThrowOnError>) => (options.client ?? client).post<PublicApiSubscribeToListResponses, PublicApiSubscribeToListErrors, ThrowOnError>({
+    security: [{ name: 'Authorization', type: 'apiKey' }],
+    url: '/api/v1/public/groups/{group_id}/lists/{list_id}/subscribe',
+    ...options
+});
+
+/**
+ * Unsubscribe from a list
+ */
+export const publicApiUnsubscribeFromList = <ThrowOnError extends boolean = false>(options: Options<PublicApiUnsubscribeFromListData, ThrowOnError>) => (options.client ?? client).post<PublicApiUnsubscribeFromListResponses, PublicApiUnsubscribeFromListErrors, ThrowOnError>({
+    security: [{ name: 'Authorization', type: 'apiKey' }],
+    url: '/api/v1/public/groups/{group_id}/lists/{list_id}/unsubscribe',
+    ...options
 });
 
 /**

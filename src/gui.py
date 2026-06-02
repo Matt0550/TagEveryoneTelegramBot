@@ -1,13 +1,15 @@
-import sentry_sdk
-import sys
-import flask
+import hashlib
+import hmac
 import os
+import sys
+from urllib.parse import unquote
+
+import flask
+import sentry_sdk
 from dotenv import load_dotenv
 from flask_cors import CORS
+
 from db.databaseNew import Database
-import hmac
-import hashlib
-from urllib.parse import unquote
 
 load_dotenv()
 
@@ -230,7 +232,7 @@ def mainGUI():
         print(f"Error: {e}")
         sys.exit(1)
 
-   
+
 
 if __name__ == '__main__':
     print("Tag Everyone Telegram Bot")

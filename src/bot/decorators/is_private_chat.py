@@ -1,6 +1,6 @@
-from telegram import Update
+from telegram import Chat, Update
 from telegram.ext import ContextTypes
-from telegram import Chat
+
 
 def isPrivateChat(func):
     async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE):

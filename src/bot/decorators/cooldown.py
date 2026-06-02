@@ -1,7 +1,10 @@
 from datetime import datetime, timedelta
+
 from telegram import Update
 from telegram.ext import ContextTypes
+
 from utils.config import settings
+
 
 def cooldown(seconds):
     def decorator(func):
@@ -13,10 +16,10 @@ def cooldown(seconds):
         async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if update.edited_message is not None or update.message is None:
                 return
-            
+
             if update.message.text is None:
                 return
-            
+
             # Check if the message contains specific commands or starts with "/"
             should_apply_cooldown = False
             if settings.EVERYONE_COMMANDS_TEXTS:
@@ -25,7 +28,7 @@ def cooldown(seconds):
             else:
                 # If no commands specified, apply to all messages
                 should_apply_cooldown = True
-            
+
             if should_apply_cooldown:
                 # Get the user id
                 tg_user_id = update.message.from_user.id
@@ -40,8 +43,8 @@ def cooldown(seconds):
                     # Check if the user has used the command in the last seconds
                     if now - last_time[tg_user_id] < timedelta(seconds=seconds):
                         # If the user has used the command in the last seconds, send a message to the user
-                        await update.message.reply_text("You can use this command again in %s seconds" % str(
-                            seconds - (now - last_time[tg_user_id]).seconds))
+                        await update.message.reply_text("You can use this command again in {} seconds".format(str(
+                            seconds - (now - last_time[tg_user_id]).seconds)))
                         # Return to avoid the function to be executed
                         return
                 # Update the last time the user used the command

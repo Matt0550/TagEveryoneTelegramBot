@@ -1,8 +1,10 @@
 
+import sentry_sdk
 from telegram import Update
 from telegram.ext import ContextTypes
-import sentry_sdk
+
 from utils.config import settings
+
 
 def set_sentry_context(func):
     """Decorator to set Sentry user context."""
@@ -17,7 +19,7 @@ def set_sentry_context(func):
                     "username": update.effective_user.username,
                     "full_name": update.effective_user.full_name,
                 }
-            
+
             if update.effective_chat:
                 chat_info = {
                     "id": update.effective_chat.id,

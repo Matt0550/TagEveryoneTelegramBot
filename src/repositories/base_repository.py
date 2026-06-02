@@ -1,28 +1,40 @@
-from sqlmodel import Session, select, func, SQLModel
-from typing import Generic, TypeVar, Type, Optional, Sequence, Any, Dict, Tuple
+from collections.abc import Sequence
+from typing import Any, TypeVar
+
+from sqlmodel import Session, SQLModel, func, select
+
 from utils.pagination import PaginationParams
 
 T = TypeVar("T", bound=SQLModel)
 
-class BaseRepository(Generic[T]):
-    def __init__(self, model: Type[T]):
+
+class BaseRepository[T: SQLModel]:
+    def __init__(self, model: type[T]):
         self.model = model
 
-    def get_by_id(self, db: Session, id: Any) -> Optional[T]:
-        return db.get(self.model, id)
+    def get_by_id(self, db: Session, id: Any) -> T | None:
+        obj = db.get(self.model, id)
+        if obj and hasattr(obj, "active") and not obj.active:
+            return None
+        return obj
 
-    def get_all(self, db: Session, params: PaginationParams, filters: Dict[str, Any] = None) -> Tuple[Sequence[T], int]:
+    def get_all(
+        self, db: Session, params: PaginationParams, filters: dict[str, Any] = None
+    ) -> tuple[Sequence[T], int]:
         statement = select(self.model)
-        
+
+        if hasattr(self.model, "active"):
+            statement = statement.where(self.model.active == True)
+
         if filters:
             for key, value in filters.items():
                 if hasattr(self.model, key) and value is not None:
                     statement = statement.where(getattr(self.model, key) == value)
-        
+
         # Total count
         count_statement = select(func.count()).select_from(statement.subquery())
         total = db.exec(count_statement).one()
-        
+
         # Sorting
         if params.sort_by and hasattr(self.model, params.sort_by):
             column = getattr(self.model, params.sort_by)
@@ -30,11 +42,11 @@ class BaseRepository(Generic[T]):
                 statement = statement.order_by(column.desc())
             else:
                 statement = statement.order_by(column.asc())
-                
+
         # Pagination
         offset = (params.page - 1) * params.page_size
         statement = statement.offset(offset).limit(params.page_size)
-        
+
         items = db.exec(statement).all()
         return items, total
 
@@ -44,7 +56,7 @@ class BaseRepository(Generic[T]):
         db.refresh(obj_in)
         return obj_in
 
-    def update(self, db: Session, db_obj: T, obj_in: Dict[str, Any]) -> T:
+    def update(self, db: Session, db_obj: T, obj_in: dict[str, Any]) -> T:
         for key, value in obj_in.items():
             setattr(db_obj, key, value)
         db.add(db_obj)
@@ -55,7 +67,12 @@ class BaseRepository(Generic[T]):
     def delete(self, db: Session, id: Any) -> bool:
         obj = db.get(self.model, id)
         if obj:
-            db.delete(obj)
+            if hasattr(obj, "active"):
+                obj.active = False
+                obj.deleted_at = func.now()
+                db.add(obj)
+            else:
+                db.delete(obj)
             db.commit()
             return True
         return False

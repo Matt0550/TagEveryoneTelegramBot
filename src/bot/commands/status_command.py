@@ -1,10 +1,12 @@
 import datetime
-from telegram import Update
-from telegram.ext import ContextTypes
+
 from decorators.cooldown import cooldown
 from decorators.set_sentry_context import set_sentry_context
+from telegram import Update
+from telegram.ext import ContextTypes
+
 from services.log_service import LogService
-from utils.session_manager import Session
+from utils.session_manager import Session, engine
 
 start_time = datetime.datetime.now()
 
@@ -12,7 +14,7 @@ start_time = datetime.datetime.now()
 @set_sentry_context
 @cooldown(15)
 async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    session = Session()
+    session = Session(engine)
     try:
         uptime = datetime.datetime.now() - start_time
         uptime = str(uptime).split(".")[0]
@@ -30,4 +32,4 @@ async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "Status sent",
         )
     finally:
-        Session.remove()
+        session.close()

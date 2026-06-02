@@ -1,14 +1,17 @@
 import datetime
-from telegram import Update
-from telegram.ext import ContextTypes
-from telegram.constants import ParseMode
+
 from decorators.cooldown import cooldown
-from decorators.set_sentry_context import set_sentry_context
 from decorators.is_owner import is_owner
+from decorators.set_sentry_context import set_sentry_context
+from telegram import Update
+from telegram.constants import ParseMode
+from telegram.ext import ContextTypes
+
 from services.group_service import GroupService
 from services.log_service import LogService
-from utils.session_manager import Session
 from utils.logger_base import logger
+from utils.session_manager import Session, engine
+
 from .status_command import start_time
 
 
@@ -16,7 +19,7 @@ from .status_command import start_time
 @is_owner
 @cooldown(15)
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    session = Session()
+    session = Session(engine)
     try:
         total_groups = GroupService.get_total_groups(session)
         total_members = GroupService.get_total_users(session)
@@ -151,4 +154,4 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
         logger.error(f"[ERROR] Error in stats command: {e}")
         await update.message.reply_text(f"Error generating statistics: {e}")
     finally:
-        Session.remove()
+        session.close()

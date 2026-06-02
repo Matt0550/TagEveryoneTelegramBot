@@ -1,28 +1,28 @@
-import hmac
 import hashlib
-import jwt
+import hmac
+import json
+from datetime import UTC, datetime, timedelta
 from urllib.parse import unquote
-from fastapi import HTTPException, Depends
-from typing import Optional
+
+import jwt
+from fastapi import Depends, HTTPException
 from fastapi.security import APIKeyHeader
-from datetime import datetime, timedelta, UTC
+from pydantic import BaseModel
+
 from utils.config import settings
 
 
-import json
-from pydantic import BaseModel
-
 class TelegramUser(BaseModel):
     id: int
-    is_bot: Optional[bool] = None
+    is_bot: bool | None = None
     first_name: str
-    last_name: Optional[str] = None
-    username: Optional[str] = None
-    language_code: Optional[str] = None
-    is_premium: Optional[bool] = None
-    added_to_attachment_menu: Optional[bool] = None
-    allows_write_to_pm: Optional[bool] = None
-    photo_url: Optional[str] = None
+    last_name: str | None = None
+    username: str | None = None
+    language_code: str | None = None
+    is_premium: bool | None = None
+    added_to_attachment_menu: bool | None = None
+    allows_write_to_pm: bool | None = None
+    photo_url: str | None = None
 
 
 def validate_telegram_data(init_data: str, c_str: str = "WebAppData") -> bool:
@@ -61,7 +61,7 @@ def validate_telegram_login(data: dict) -> bool:
             return False
 
         hash_str = data.pop("hash")
-        
+
         # Convert all values to strings for sorting and joining
         sorted_data = sorted(data.items(), key=lambda x: x[0])
         data_check_string = "\n".join([f"{k}={v}" for k, v in sorted_data])
@@ -74,7 +74,7 @@ def validate_telegram_login(data: dict) -> bool:
         return False
 
 
-def get_user_from_init_data(init_data: str) -> Optional[dict]:
+def get_user_from_init_data(init_data: str) -> dict | None:
     """
     Extracts the user dictionary from the init_data string safely.
     """
@@ -91,7 +91,7 @@ def get_user_from_init_data(init_data: str) -> Optional[dict]:
         return None
 
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(UTC) + expires_delta
@@ -125,7 +125,7 @@ async def verify_telegram_webapp(authorization: str = Depends(api_key_header)) -
 
     token = authorization[7:]
     secret = settings.SECRET_KEY or settings.BOT_TOKEN
-    
+
     try:
         payload = jwt.decode(token, secret, algorithms=["HS256"])
         return TelegramUser(**payload)

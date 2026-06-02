@@ -1,6 +1,6 @@
-from telegram import Update
+from telegram import Chat, Update
 from telegram.ext import ContextTypes
-from telegram import Chat
+
 from utils.config import settings
 
 

@@ -1,10 +1,11 @@
-from pydantic import BaseModel
-from typing import Any, TypeVar, Generic
+from typing import Any, TypeVar
+
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 
 # * FASTAPI MODELS
-
 from sqlmodel import SQLModel
+
 
 class ModelBase(SQLModel):
     pass
@@ -12,7 +13,7 @@ class ModelBase(SQLModel):
 T = TypeVar("T")
 
 
-class GenericResponse(BaseModel, Generic[T]):
+class GenericResponse[T](BaseModel):
     message: T
     success: bool = True
     status_code: int

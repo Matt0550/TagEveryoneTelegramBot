@@ -2,10 +2,12 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 from sqlmodel import Column, DateTime, Field, Relationship, func
+
 from models import ModelBase
 
 if TYPE_CHECKING:
-    from models_all.group_user import GroupUser
+    from models_all.group_admin_exclusion import GroupAdminExclusion
+    from models_all.list_user import ListUser
 
 class UserShared(ModelBase):
     user_id: int = Field(sa_column_kwargs={"unique": True})
@@ -28,8 +30,13 @@ class User(UserShared, table=True):
         sa_column=Column(DateTime(timezone=True), onupdate=func.now(), nullable=True),
         default=None,
     )
-    
-    group_memberships: list["GroupUser"] = Relationship(back_populates="user")
+    deleted_at: datetime | None = Field(
+        sa_column=Column(DateTime(timezone=True), nullable=True), default=None
+    )
+    active: bool = Field(default=True, nullable=False)
+
+    list_memberships: list[ListUser] = Relationship(back_populates="user")
+    admin_exclusions: list[GroupAdminExclusion] = Relationship(back_populates="user")
 
 
 class UserCreate(UserShared):
@@ -44,6 +51,7 @@ class UserResponse(UserShared):
     id: int
     created_at: datetime
     updated_at: datetime | None
+    active: bool
 
 
 class UsersResponse(ModelBase):

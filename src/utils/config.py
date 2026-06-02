@@ -1,5 +1,6 @@
-from typing import Literal, Optional
 import os
+from typing import Literal
+
 from dotenv import load_dotenv
 from pydantic import (
     computed_field,
@@ -62,12 +63,12 @@ class Settings(BaseSettings):
     OWNER_ID: str = ""
     REPORT_ERRORS_OWNER: bool = True
     EVERYONE_COMMANDS: list[str] = ["/everyone", "/all", "@everyone", "@all"]
-    SENTRY_DSN: Optional[str] = None
+    SENTRY_DSN: str | None = None
 
     # * MARK: WEBAPP CONFIG
     APP_HOST: str = "0.0.0.0"
     APP_PORT: int = 5000
-    SECRET_KEY: Optional[str] = None
+    SECRET_KEY: str | None = None
     WEBSERVER_DEBUG: bool = False
     ENABLE_WEBAPP_SERVER: bool = False
 

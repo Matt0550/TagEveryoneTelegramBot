@@ -1,13 +1,15 @@
-from fastapi import APIRouter, HTTPException, Body
-from typing import Dict, Any
 import time
+from typing import Any
 from urllib.parse import unquote
+
+from fastapi import APIRouter, Body, HTTPException
+
 from api.utils.telegram_auth import (
+    TelegramUser,
+    create_access_token,
+    get_user_from_init_data,
     validate_telegram_data,
     validate_telegram_login,
-    get_user_from_init_data,
-    create_access_token,
-    TelegramUser,
 )
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -40,7 +42,7 @@ async def login_tma(init_data: str = Body(..., embed=True)) -> dict:
 
 
 @router.post("/telegram-tgl")
-async def login_tgl(login_data: Dict[str, Any] = Body(...)) -> dict:
+async def login_tgl(login_data: dict[str, Any] = Body(...)) -> dict:
     if not validate_telegram_login(login_data.copy()):
         raise HTTPException(
             status_code=401, detail="Unauthorized: Invalid Telegram Login Data"

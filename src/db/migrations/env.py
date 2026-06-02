@@ -1,16 +1,17 @@
-from logging.config import fileConfig
-import sys
 import os
+import sys
+from logging.config import fileConfig
 
 # Add src to sys.path so we can import from it
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..")))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
 from alembic import context
-from src.utils.config import settings
+from sqlalchemy import engine_from_config, pool
 from sqlmodel import SQLModel
+import models_all
+
+from utils.config import settings
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

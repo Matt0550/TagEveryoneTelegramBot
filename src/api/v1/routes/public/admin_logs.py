@@ -1,11 +1,10 @@
-from api.dependencies import get_log_service
 from typing import Annotated
+
 from fastapi import APIRouter, Depends
 
-from api.dependencies import LogServiceDep
-from api.utils.telegram_auth import verify_admin, TelegramUser
 from api.decorators.set_sentry_context import set_sentry_context
-
+from api.dependencies import LogServiceDep, get_log_service
+from api.utils.telegram_auth import TelegramUser, verify_admin
 from models import GenericResponse
 from models_all.log import LogResponse, LogsResponse
 from utils.pagination import PaginationParams

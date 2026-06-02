@@ -1,7 +1,10 @@
 import inspect
 from functools import wraps
+
 import sentry_sdk
+
 from utils.config import settings
+
 
 def set_sentry_context(func):
     """

@@ -1,4 +1,5 @@
 from sqlmodel import Session, create_engine
+
 from utils.config import settings
 
 # Database engine with connection pool

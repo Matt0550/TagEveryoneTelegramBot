@@ -1,5 +1,5 @@
-import sqlite3
 import os
+import sqlite3
 from datetime import datetime
 
 dbPath = os.path.join(os.path.dirname(__file__), './input/database-new.db')
@@ -7,7 +7,7 @@ dbPath = os.path.join(os.path.dirname(__file__), './input/database-new.db')
 if not os.path.exists(dbPath):
     # Copy database-new_structure.db to database-new.db
     try:
-        with open(os.path.join(os.path.dirname(__file__), './database-new_structure.db'), 'r') as f:
+        with open(os.path.join(os.path.dirname(__file__), './database-new_structure.db')) as f:
             with open(dbPath, 'w') as f2:
                 f2.write(f.read())
     except Exception as e:
@@ -63,8 +63,8 @@ class Database:
         # Close the connection
         conn.close()
         # Return the data
-        return data 
-    
+        return data
+
     # Function to insert data into database
     def insertData(self, group_id, group_name, group_description, group_username, group_type, group_members, member_id, first_name, last_name, username):
         # Create a sqlite3 connection
@@ -124,7 +124,7 @@ class Database:
             c.execute("INSERT INTO users (user_id, first_name, last_name, username, created_at) VALUES (?, ?, ?, ?, ?)", (user_id, first_name, last_name, username, datetime.now()))
             # Commit the changes
             conn.commit()
-    
+
     def updateUserUsername(self, user_id, username):
         # Create a sqlite3 connection
         conn = sqlite3.connect(dbPath, check_same_thread=False)
@@ -165,7 +165,7 @@ class Database:
         conn.close()
         # Return the data
         return data
-    
+
     def getUserByUsername(self, username):
         # Create a sqlite3 connection
         conn = sqlite3.connect(dbPath, check_same_thread=False)

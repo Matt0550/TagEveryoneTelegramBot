@@ -1,17 +1,18 @@
-from telegram import Update
-from telegram.ext import ContextTypes
-from utils.logger_base import logger
 from decorators.cooldown import cooldown
 from decorators.set_sentry_context import set_sentry_context
-from services.user_service import UserService
+from telegram import Update
+from telegram.ext import ContextTypes
+
 from services.log_service import LogService
-from utils.session_manager import Session
+from services.user_service import UserService
+from utils.logger_base import logger
+from utils.session_manager import Session, engine
 
 
 @set_sentry_context
 @cooldown(15)
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    session = Session()
+    session = Session(engine)
     try:
         user_id = update.message.from_user.id
         first_name = update.message.from_user.first_name
@@ -19,12 +20,15 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         username = update.message.from_user.username
         chat_id = update.message.chat.id
 
+        from models_all.user import UserCreate
         UserService.get_or_create_user(
             session,
-            user_id,
-            first_name=first_name,
-            last_name=last_name,
-            username=username,
+            UserCreate(
+                user_id=user_id,
+                first_name=first_name,
+                last_name=last_name,
+                username=username,
+            )
         )
 
         if update.message.chat.type not in ["group", "supergroup"]:
@@ -60,4 +64,4 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         logger.error(f"[ERROR] {e}")
     finally:
-        Session.remove()
+        session.close()

@@ -1,25 +1,24 @@
-import sentry_sdk
-from telegram import Update
-from telegram.ext import (
-    Application,
-    ContextTypes,
-    MessageHandler,
-    filters,
-    CommandHandler,
-)
-import traceback
 import html
 import json
 import os
 import sys
+import traceback
+
+import sentry_sdk
+from telegram import Update
+from telegram.ext import (
+    Application,
+    CommandHandler,
+    ContextTypes,
+    MessageHandler,
+    filters,
+)
 
 # Add the src directory to the sys.path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from utils.logger_base import logger
-
-
 from utils.config import settings
+from utils.logger_base import logger
 
 # Initialize Sentry
 if settings.SENTRY_DSN:
@@ -29,15 +28,17 @@ if settings.SENTRY_DSN:
     )
     logger.info("Sentry initialized")
 
-from commands.start_command import start
-from commands.help_command import help as help_cmd
-from commands.status_command import status
-from commands.stats_command import stats
-from commands.in_command import join_list
-from commands.out_command import leave_list
-from commands.everyone_command import everyone, everyoneMessage
-from commands.list_command import getList
 from commands.announce_command import announce, checkGroups
+from commands.createlist_command import createlist
+from commands.deletelist_command import deletelist
+from commands.everyone_command import everyone
+from commands.help_command import help as help_cmd
+from commands.in_command import join_list
+from commands.list_command import getList
+from commands.out_command import leave_list
+from commands.start_command import start
+from commands.stats_command import stats
+from commands.status_command import status
 
 
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -100,20 +101,24 @@ def main():
     application.add_handler(CommandHandler("help", help_cmd))
     application.add_handler(CommandHandler("in", join_list))
     application.add_handler(CommandHandler("out", leave_list))
-    application.add_handler(CommandHandler("everyone", everyoneMessage))
-    application.add_handler(CommandHandler("all", everyoneMessage))
     application.add_handler(CommandHandler("list", getList))
+    application.add_handler(CommandHandler("createlist", createlist))
+    application.add_handler(CommandHandler("deletelist", deletelist))
     application.add_handler(CommandHandler("status", status))
     application.add_handler(CommandHandler("stats", stats))
     application.add_handler(CommandHandler("announce", announce))
     application.add_handler(CommandHandler("checkGroups", checkGroups))
 
-    # Message handlers for triggers (like @everyone)
+    # Message handlers for triggers (like @everyone or /everyone)
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, everyone))
+    # Note: we also want to catch dynamic /commands that are not registered.
+    # To do this, we can add a MessageHandler for filters.COMMAND that isn't caught by others.
+    application.add_handler(MessageHandler(filters.COMMAND, everyone))
 
     if settings.ENABLE_WEBAPP_SERVER:
         # Run the webapp in a separate thread
         from threading import Thread
+
         import gui
 
         webapp_thread = Thread(target=gui.mainGUI)

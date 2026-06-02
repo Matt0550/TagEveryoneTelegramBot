@@ -1,7 +1,8 @@
-from telegram import Update
-from telegram.ext import ContextTypes
 from decorators.cooldown import cooldown
 from decorators.set_sentry_context import set_sentry_context
+from telegram import Update
+from telegram.ext import ContextTypes
+
 
 @set_sentry_context
 @cooldown(15)
@@ -24,7 +25,7 @@ This project is open source and free to use.
 Follow updates on News channel: @tageveryone_news\n
 Developed by @Non_Sono_Matteo
 https://matteosillitti.it
-                                    
+
 Source code: https://github.com/Matt0550/TagEveryoneTelegramBot
 Buy me a coffee: https://buymeacoffee.com/Matt0550
 """)

@@ -16,5 +16,12 @@ export const groupService = {
     return apiData<Record<string, unknown>>(
       publicApiLeaveGroup({ path: { group_id: groupId as any } })
     );
+  },
+
+  checkIsAdmin(groupId: number): Promise<{ message: { is_admin: boolean }, success: boolean }> {
+    return apiData<{ message: { is_admin: boolean }, success: boolean }>({
+      url: `/api/v1/public/groups/${groupId}/is-admin`,
+      method: 'GET'
+    } as any);
   }
 };

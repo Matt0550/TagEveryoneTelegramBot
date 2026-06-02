@@ -30,6 +30,21 @@ export type GenericResponseLogsResponse = {
 };
 
 /**
+ * GenericResponse[TagListResponse]
+ */
+export type GenericResponseTagListResponse = {
+    message: TagListResponse;
+    /**
+     * Success
+     */
+    success?: boolean;
+    /**
+     * Status Code
+     */
+    status_code: number;
+};
+
+/**
  * GenericResponse[dict]
  */
 export type GenericResponseDict = {
@@ -81,6 +96,18 @@ export type GroupResponse = {
      * Id
      */
     id: number;
+    /**
+     * Active
+     */
+    active: boolean;
+    /**
+     * Is Admin
+     */
+    is_admin?: boolean;
+    /**
+     * Lists
+     */
+    lists?: Array<TagListWithSubscriptionResponse>;
 };
 
 /**
@@ -122,7 +149,7 @@ export type LogResponse = {
     /**
      * Group Id
      */
-    group_id?: string | null;
+    group_id?: number | null;
     /**
      * Action
      */
@@ -149,6 +176,172 @@ export type LogsResponse = {
      * Items
      */
     items: Array<LogResponse>;
+    /**
+     * Count
+     */
+    count: number;
+};
+
+/**
+ * TagListCreate
+ */
+export type TagListCreate = {
+    /**
+     * Group Id
+     */
+    group_id: number;
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Description
+     */
+    description?: string | null;
+    /**
+     * Trigger Name
+     */
+    trigger_name: string;
+    /**
+     * Is System
+     */
+    is_system?: boolean;
+    /**
+     * Aliases
+     */
+    aliases?: Array<string>;
+};
+
+/**
+ * TagListResponse
+ */
+export type TagListResponse = {
+    /**
+     * Group Id
+     */
+    group_id: number;
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Description
+     */
+    description?: string | null;
+    /**
+     * Trigger Name
+     */
+    trigger_name: string;
+    /**
+     * Is System
+     */
+    is_system?: boolean;
+    /**
+     * Aliases
+     */
+    aliases?: Array<string>;
+    /**
+     * Id
+     */
+    id: number;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Updated At
+     */
+    updated_at: string | null;
+    /**
+     * Active
+     */
+    active: boolean;
+};
+
+/**
+ * TagListUpdate
+ */
+export type TagListUpdate = {
+    /**
+     * Name
+     */
+    name?: string | null;
+    /**
+     * Description
+     */
+    description?: string | null;
+    /**
+     * Trigger Name
+     */
+    trigger_name?: string | null;
+    /**
+     * Aliases
+     */
+    aliases?: Array<string> | null;
+    /**
+     * Active
+     */
+    active?: boolean | null;
+};
+
+/**
+ * TagListWithSubscriptionResponse
+ */
+export type TagListWithSubscriptionResponse = {
+    /**
+     * Group Id
+     */
+    group_id: number;
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Description
+     */
+    description?: string | null;
+    /**
+     * Trigger Name
+     */
+    trigger_name: string;
+    /**
+     * Is System
+     */
+    is_system?: boolean;
+    /**
+     * Aliases
+     */
+    aliases?: Array<string>;
+    /**
+     * Id
+     */
+    id: number;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Updated At
+     */
+    updated_at: string | null;
+    /**
+     * Active
+     */
+    active: boolean;
+    /**
+     * Is Subscribed
+     */
+    is_subscribed: boolean;
+};
+
+/**
+ * TagListsWithSubscriptionResponse
+ */
+export type TagListsWithSubscriptionResponse = {
+    /**
+     * Items
+     */
+    items: Array<TagListWithSubscriptionResponse>;
     /**
      * Count
      */
@@ -359,6 +552,219 @@ export type PublicApiLoginTglResponses = {
 };
 
 export type PublicApiLoginTglResponse = PublicApiLoginTglResponses[keyof PublicApiLoginTglResponses];
+
+export type PublicApiGetListsData = {
+    body?: never;
+    path: {
+        /**
+         * Group Id
+         */
+        group_id: number;
+    };
+    query?: {
+        /**
+         * Page
+         */
+        page?: number;
+        /**
+         * Page Size
+         */
+        page_size?: number;
+        /**
+         * Sort By
+         */
+        sort_by?: string | null;
+        /**
+         * Sort Desc
+         */
+        sort_desc?: boolean;
+    };
+    url: '/api/v1/public/groups/{group_id}/lists';
+};
+
+export type PublicApiGetListsErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type PublicApiGetListsError = PublicApiGetListsErrors[keyof PublicApiGetListsErrors];
+
+export type PublicApiGetListsResponses = {
+    /**
+     * Successful Response
+     */
+    200: TagListsWithSubscriptionResponse;
+};
+
+export type PublicApiGetListsResponse = PublicApiGetListsResponses[keyof PublicApiGetListsResponses];
+
+export type PublicApiCreateListData = {
+    body: TagListCreate;
+    path: {
+        /**
+         * Group Id
+         */
+        group_id: number;
+    };
+    query?: never;
+    url: '/api/v1/public/groups/{group_id}/lists';
+};
+
+export type PublicApiCreateListErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type PublicApiCreateListError = PublicApiCreateListErrors[keyof PublicApiCreateListErrors];
+
+export type PublicApiCreateListResponses = {
+    /**
+     * Successful Response
+     */
+    200: GenericResponseTagListResponse;
+};
+
+export type PublicApiCreateListResponse = PublicApiCreateListResponses[keyof PublicApiCreateListResponses];
+
+export type PublicApiDeleteListData = {
+    body?: never;
+    path: {
+        /**
+         * Group Id
+         */
+        group_id: number;
+        /**
+         * List Id
+         */
+        list_id: number;
+    };
+    query?: never;
+    url: '/api/v1/public/groups/{group_id}/lists/{list_id}';
+};
+
+export type PublicApiDeleteListErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type PublicApiDeleteListError = PublicApiDeleteListErrors[keyof PublicApiDeleteListErrors];
+
+export type PublicApiDeleteListResponses = {
+    /**
+     * Successful Response
+     */
+    200: GenericResponseDict;
+};
+
+export type PublicApiDeleteListResponse = PublicApiDeleteListResponses[keyof PublicApiDeleteListResponses];
+
+export type PublicApiUpdateListData = {
+    body: TagListUpdate;
+    path: {
+        /**
+         * Group Id
+         */
+        group_id: number;
+        /**
+         * List Id
+         */
+        list_id: number;
+    };
+    query?: never;
+    url: '/api/v1/public/groups/{group_id}/lists/{list_id}';
+};
+
+export type PublicApiUpdateListErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type PublicApiUpdateListError = PublicApiUpdateListErrors[keyof PublicApiUpdateListErrors];
+
+export type PublicApiUpdateListResponses = {
+    /**
+     * Successful Response
+     */
+    200: GenericResponseTagListResponse;
+};
+
+export type PublicApiUpdateListResponse = PublicApiUpdateListResponses[keyof PublicApiUpdateListResponses];
+
+export type PublicApiSubscribeToListData = {
+    body?: never;
+    path: {
+        /**
+         * Group Id
+         */
+        group_id: number;
+        /**
+         * List Id
+         */
+        list_id: number;
+    };
+    query?: never;
+    url: '/api/v1/public/groups/{group_id}/lists/{list_id}/subscribe';
+};
+
+export type PublicApiSubscribeToListErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type PublicApiSubscribeToListError = PublicApiSubscribeToListErrors[keyof PublicApiSubscribeToListErrors];
+
+export type PublicApiSubscribeToListResponses = {
+    /**
+     * Successful Response
+     */
+    200: GenericResponseDict;
+};
+
+export type PublicApiSubscribeToListResponse = PublicApiSubscribeToListResponses[keyof PublicApiSubscribeToListResponses];
+
+export type PublicApiUnsubscribeFromListData = {
+    body?: never;
+    path: {
+        /**
+         * Group Id
+         */
+        group_id: number;
+        /**
+         * List Id
+         */
+        list_id: number;
+    };
+    query?: never;
+    url: '/api/v1/public/groups/{group_id}/lists/{list_id}/unsubscribe';
+};
+
+export type PublicApiUnsubscribeFromListErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type PublicApiUnsubscribeFromListError = PublicApiUnsubscribeFromListErrors[keyof PublicApiUnsubscribeFromListErrors];
+
+export type PublicApiUnsubscribeFromListResponses = {
+    /**
+     * Successful Response
+     */
+    200: GenericResponseDict;
+};
+
+export type PublicApiUnsubscribeFromListResponse = PublicApiUnsubscribeFromListResponses[keyof PublicApiUnsubscribeFromListResponses];
 
 export type SystemSystemStatusData = {
     body?: never;

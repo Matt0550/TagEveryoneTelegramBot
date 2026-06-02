@@ -1,25 +1,25 @@
-from fastapi.routing import APIRoute
 import os
 import sys
+
+from fastapi.routing import APIRoute
 
 # Add the src directory to the sys.path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+import sentry_sdk
 import uvicorn
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
-from starlette.exceptions import HTTPException as StarletteHTTPException
-from starlette.middleware.cors import CORSMiddleware
-import sentry_sdk
 from sentry_sdk.integrations.asyncio import AsyncioIntegration
 from sentry_sdk.integrations.fastapi import FastApiIntegration
 from sentry_sdk.integrations.starlette import StarletteIntegration
-
-from utils.config import settings
-from utils.logger_base import logger
-from models import CustomResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.middleware.cors import CORSMiddleware
 
 from api.v1.routes.public import router as public_router
+from models import CustomResponse
+from utils.config import settings
+from utils.logger_base import logger
 
 if settings.SENTRY_DSN:
     logger.info("Sentry is enabled. Initializing Sentry SDK...")
