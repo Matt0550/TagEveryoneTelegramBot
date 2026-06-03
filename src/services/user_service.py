@@ -10,10 +10,24 @@ class UserService:
         self.repository = repository
 
     def get_by_id(self, user_id: int) -> User | None:
+        """
+        Get a user by their Telegram User ID.
+
+        :param user_id: The Telegram user ID
+        :return: The User object if found, otherwise None
+        """
         return self.repository.get_by_user_id(self.session, user_id)
 
     @staticmethod
     def get_or_create_user(session: Session, user_in: UserCreate) -> User:
+        """
+        Get a user by ID or create one if they don't exist.
+        Updates user info (username, first_name, last_name) if changed.
+
+        :param session: The database session
+        :param user_in: The UserCreate schema with user details
+        :return: The existing or newly created User object
+        """
         user_repo = UserRepository()
         user = user_repo.get_by_user_id(session, user_in.user_id)
         if not user:

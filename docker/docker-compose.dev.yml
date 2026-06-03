@@ -59,7 +59,9 @@ services:
 
   # --- Application Services ---
   bot:
-    image: matt0550/tageveryone_telegrambot
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
     restart: unless-stopped
     depends_on:
       redis:
@@ -86,7 +88,9 @@ services:
       - network
 
   api:
-    image: matt0550/tageveryone_telegrambot
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
     command: ["python", "api/main.py"]
     restart: unless-stopped
     depends_on:
@@ -116,7 +120,9 @@ services:
       - network
 
   celery_worker:
-    image: matt0550/tageveryone_telegrambot
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
     command: ["celery", "-A", "celery_workers.celery_app", "worker", "--loglevel=info", "--concurrency=2"]
     restart: unless-stopped
     depends_on:
@@ -144,7 +150,9 @@ services:
       - network
 
   webapp:
-    image: matt0550/tageveryone_webapp
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.webapp
     restart: unless-stopped
     ports:
       - "3000:80"

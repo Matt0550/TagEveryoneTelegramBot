@@ -69,9 +69,9 @@ export type GenericResponseDict = {
  */
 export type GroupResponse = {
     /**
-     * Group Id
+     * Telegram Id
      */
-    group_id: number;
+    telegram_id: number;
     /**
      * Group Name
      */
@@ -163,9 +163,9 @@ export type LogResponse = {
      */
     id: number;
     /**
-     * Datetime
+     * Created At
      */
-    datetime: string;
+    created_at: string;
 };
 
 /**
@@ -417,36 +417,6 @@ export type PublicApiGetUserGroupsResponses = {
 };
 
 export type PublicApiGetUserGroupsResponse = PublicApiGetUserGroupsResponses[keyof PublicApiGetUserGroupsResponses];
-
-export type PublicApiLeaveGroupData = {
-    body?: never;
-    path: {
-        /**
-         * Group Id
-         */
-        group_id: number;
-    };
-    query?: never;
-    url: '/api/v1/public/groups/{group_id}/leave';
-};
-
-export type PublicApiLeaveGroupErrors = {
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-
-export type PublicApiLeaveGroupError = PublicApiLeaveGroupErrors[keyof PublicApiLeaveGroupErrors];
-
-export type PublicApiLeaveGroupResponses = {
-    /**
-     * Successful Response
-     */
-    200: GenericResponseDict;
-};
-
-export type PublicApiLeaveGroupResponse = PublicApiLeaveGroupResponses[keyof PublicApiLeaveGroupResponses];
 
 export type PublicApiGetAdminLogsData = {
     body?: never;

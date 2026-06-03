@@ -1,9 +1,8 @@
-from decorators.cooldown import cooldown
-from decorators.is_group import is_group
-from decorators.set_sentry_context import set_sentry_context
 from telegram import MessageEntity, Update
 from telegram.ext import ContextTypes
 
+from bot.decorators.cooldown import cooldown
+from bot.decorators.is_group import is_group
 from models_all.group import GroupCreate
 from models_all.list_user import ListUser
 from models_all.user import UserCreate
@@ -16,7 +15,6 @@ from utils.logger_base import logger
 from utils.session_manager import Session, engine
 
 
-@set_sentry_context
 @cooldown(15)
 @is_group
 async def join_list(update: Update, context: ContextTypes.DEFAULT_TYPE):

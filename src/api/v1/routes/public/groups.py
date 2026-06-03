@@ -2,7 +2,6 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 
-from api.auth_deps import is_group_admin
 from api.decorators.set_sentry_context import set_sentry_context
 from api.dependencies import GroupServiceDep, get_group_service
 from api.utils.telegram_auth import TelegramUser, verify_telegram_webapp
@@ -11,12 +10,7 @@ from utils.config import settings
 from utils.pagination import PaginationParams
 
 router = APIRouter()
-
-
-import asyncio
-
 from api.dependencies import ListServiceDep
-from models_all.tag_list import TagListWithSubscriptionResponse
 
 
 @router.get(
@@ -34,27 +28,21 @@ async def get_user_groups(
 ) -> GroupsResponse:
     groups, total = group_service.get_groups_of_user(user.id, params)
 
-    user_subs = list_service.user_repo.get_user_subscriptions(list_service.session, user.id)
-    subscribed_list_ids = {sub.list_id for sub in user_subs}
-
-    db = group_service.session
-    admin_tasks = [is_group_admin(g, user, db) for g in groups]
-    admin_results = await asyncio.gather(*admin_tasks)
+    subscribed_list_ids = list_service.get_subscribed_list_ids(user.id)
+    admin_results = await group_service.get_admin_statuses(groups, user)
 
     formatted_groups = []
     for g, is_admin in zip(groups, admin_results, strict=False):
         data = g.model_dump()
         data["is_admin"] = is_admin
 
-        lists_formatted = []
-        for l in g.tag_lists:
-            if not l.active:
-                continue
-            ldata = l.model_dump()
-            ldata["is_subscribed"] = l.id in subscribed_list_ids
-            lists_formatted.append(TagListWithSubscriptionResponse(**ldata))
+        data["lists"] = list_service.format_lists_with_subscriptions(
+            g.tag_lists,
+            user.id,
+            subscribed_list_ids=subscribed_list_ids,
+            filter_active=True
+        )
 
-        data["lists"] = lists_formatted
         formatted_groups.append(GroupResponse(**data))
 
     return GroupsResponse(
@@ -62,11 +50,3 @@ async def get_user_groups(
         count=total,
         isOwner=str(user.id) == str(settings.OWNER_ID),
     )
-
-
-
-
-
-
-
-

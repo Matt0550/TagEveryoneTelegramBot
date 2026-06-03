@@ -54,3 +54,8 @@ def handle_task_retry(sender=None, request=None, reason=None, **_):
 @worker_shutdown.connect
 def handle_worker_shutdown(sender=None, **_):
     logger.info(f"Worker {sender} is shutting down. Cleaning up resources...")
+
+
+# Explicitly import the task modules to ensure they are registered
+import celery_workers.tasks.send_telegram_message  # noqa: E402, I001
+import celery_workers.tasks.send_announce_batch  # noqa: E402, F401, I001

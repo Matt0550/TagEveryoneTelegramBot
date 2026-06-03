@@ -1,12 +1,10 @@
 import os
 
-# Use the environment variables with default values
-env_broker_url = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/1")
-env_result_backend = os.getenv("CELERY_RESULT_BACKEND", "redis://localhost:6379/1")
+from utils.config import settings
 
 # Configuration of Celery
-broker_url = env_broker_url
-result_backend = env_result_backend
+broker_url = settings.CELERY_BROKER_URL
+result_backend = settings.CELERY_RESULT_BACKEND
 
 task_serializer = "json"
 accept_content = ["json"]

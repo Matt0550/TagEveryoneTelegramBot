@@ -1,48 +1,68 @@
 # syntax=docker/dockerfile:1
 
-ARG PYTHON_VERSION=3.11-slim
-FROM python:${PYTHON_VERSION} AS base
+FROM python:3.14
 
-ENV PYTHONDONTWRITEBYTECODE=1
+# Labels
+LABEL org.opencontainers.image.title="TagEveryoneTelegramBot"
+LABEL org.opencontainers.image.description="Telegram bot for tagging group members"
+LABEL org.opencontainers.image.authors="Matt0550"
+
 ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
 
-WORKDIR /home
+WORKDIR /app
 
-# Install system dependencies in a single layer
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    gosu \
-    dos2unix && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# Install uv
+# Ref: https://docs.astral.sh/uv/guides/integration/docker/#installing-uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-# Create user early to cache this layer
-ARG APP_USER=appuser
-ENV APP_USER=${APP_USER}
-ARG APP_UID=1000
-ARG APP_GID=1000
+# Place executables in the environment at the front of the path
+# Ref: https://docs.astral.sh/uv/guides/integration/docker/#using-the-environment
+ENV PATH="/app/.venv/bin:$PATH"
 
-RUN groupadd -g ${APP_GID} ${APP_USER} && \
-    useradd -u ${APP_UID} -g ${APP_GID} -M -s /usr/sbin/nologin ${APP_USER}
+# Compile bytecode for faster startup
+# Ref: https://docs.astral.sh/uv/guides/integration/docker/#compiling-bytecode
+ENV UV_COMPILE_BYTECODE=1
 
-# Install Python dependencies first (most cacheable layer)
-COPY requirements.txt .
-RUN --mount=type=cache,target=/root/.cache/pip \
-    python -m pip install -r requirements.txt
+# uv Cache
+# Ref: https://docs.astral.sh/uv/guides/integration/docker/#caching
+ENV UV_LINK_MODE=copy
 
-# Copy and prepare scripts
-COPY scripts/ ./scripts/
-RUN dos2unix /home/scripts/init.sh && \
-    chmod +x /home/scripts/init.sh
+# Install dependencies first (most cacheable layer)
+# Ref: https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    uv sync --frozen --no-install-project
 
-# Copy application code last (changes most frequently)
-COPY . .
+# Copy project files
+COPY ./pyproject.toml ./uv.lock /app/
+COPY ./alembic.ini /app/
 
-# Set ownership in final step
-RUN chown -R ${APP_USER}:${APP_USER} /home
+# Copy application source code
+COPY ./src /app/src
 
-VOLUME [ "/home/src/db/input" ]
+# Sync the project (install the project itself)
+# Ref: https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen
 
-EXPOSE 5000
+# Create non-root user
+RUN groupadd -r appuser && useradd -r -g appuser -d /app appuser
 
-ENTRYPOINT [ "/bin/bash", "/home/scripts/init.sh" ]
+# Create necessary directories with correct permissions
+RUN mkdir -p /app/src/db/input \
+    && mkdir -p /app/src/logs \
+    && chown -R appuser:appuser /app
+
+# Database volume — SQLite DB stored here
+VOLUME ["/app/src/db/input"]
+
+# Switch to non-root user
+USER appuser
+
+# Default working directory for all services (src is the Python root)
+WORKDIR /app/src
+
+# Default CMD — bot (override in docker-compose for api/celery)
+CMD ["python", "bot/main.py"]

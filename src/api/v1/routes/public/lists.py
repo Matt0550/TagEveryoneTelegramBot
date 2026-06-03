@@ -1,25 +1,20 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session
 
 from api.auth_deps import TelegramUser, get_current_user, require_group_admin
 from api.decorators.set_sentry_context import set_sentry_context
-from api.dependencies import ListServiceDep, get_session
+from api.dependencies import ListServiceDep
 from models import GenericResponse
-from models_all.group import Group
 from models_all.tag_list import (
     TagListCreate,
     TagListResponse,
     TagListsWithSubscriptionResponse,
     TagListUpdate,
-    TagListWithSubscriptionResponse,
 )
 from utils.pagination import PaginationParams
 
 router = APIRouter(prefix="/groups/{group_id}/lists", tags=["lists"])
-
-
 
 
 @router.get(
@@ -30,7 +25,7 @@ router = APIRouter(prefix="/groups/{group_id}/lists", tags=["lists"])
 @set_sentry_context
 def get_lists(
     group_id: int,
-    params: Annotated[PaginationParams, Depends()] = Depends(),
+    params: Annotated[PaginationParams, Depends()],
     list_service: ListServiceDep = None,
     user: TelegramUser = Depends(get_current_user),
 ):
@@ -40,17 +35,8 @@ def get_lists(
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-    # Check subscriptions
-    user_subs = list_service.user_repo.get_user_subscriptions(
-        list_service.session, user.id
-    )
-    subscribed_list_ids = {sub.list_id for sub in user_subs}
-
-    formatted = []
-    for l in lists:
-        data = l.model_dump()
-        data["is_subscribed"] = l.id in subscribed_list_ids
-        formatted.append(TagListWithSubscriptionResponse(**data))
+    # Format lists with subscription info
+    formatted = list_service.format_lists_with_subscriptions(lists, user.id)
 
     return TagListsWithSubscriptionResponse(items=formatted, count=total)
 

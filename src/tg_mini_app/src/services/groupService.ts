@@ -1,4 +1,4 @@
-import { publicApiGetUserGroups, publicApiLeaveGroup } from '@/api/sdk.gen';
+import { publicApiGetUserGroups } from '@/api/sdk.gen';
 import type {
   PublicApiGetUserGroupsData,
   GroupsResponse,
@@ -9,12 +9,6 @@ export const groupService = {
   getUserGroups(query?: NonNullable<PublicApiGetUserGroupsData['query']>): Promise<GroupsResponse> {
     return apiData<GroupsResponse>(
       publicApiGetUserGroups({ query })
-    );
-  },
-
-  leaveGroup(groupId: Number): Promise<Record<string, unknown>> {
-    return apiData<Record<string, unknown>>(
-      publicApiLeaveGroup({ path: { group_id: groupId as any } })
     );
   },
 

@@ -6,4 +6,6 @@ from .tag_list import TagList, TagListCreate, TagListUpdate, TagListResponse, Ta
 from .list_user import ListUser
 from .group_admin_exclusion import GroupAdminExclusion
 from .log import Log
+from .async_job import AsyncJob
+from .announce_job_group import AnnounceJobGroup
 from .enums import Role, Permission

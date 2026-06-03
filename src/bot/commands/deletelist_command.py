@@ -1,10 +1,9 @@
-from decorators.cooldown import cooldown
-from decorators.is_group import is_group
-from decorators.require_admin import require_admin
-from decorators.set_sentry_context import set_sentry_context
 from telegram import Update
 from telegram.ext import ContextTypes
 
+from bot.decorators.cooldown import cooldown
+from bot.decorators.is_group import is_group
+from bot.decorators.require_admin import require_admin
 from repositories.group_repository import GroupRepository
 from repositories.list_repository import ListRepository
 from services.log_service import LogService
@@ -12,7 +11,6 @@ from utils.logger_base import logger
 from utils.session_manager import Session, engine
 
 
-@set_sentry_context
 @cooldown(5)
 @is_group
 @require_admin
@@ -28,7 +26,7 @@ async def deletelist(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
 
         trigger_name = args[0].lower()
-        if trigger_name.startswith('@') or trigger_name.startswith('/'):
+        if trigger_name.startswith("@") or trigger_name.startswith("/"):
             trigger_name = trigger_name[1:]
 
         group_repo = GroupRepository()
@@ -50,8 +48,16 @@ async def deletelist(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         list_repo.delete(session, target_list.id)
 
-        await update.message.reply_text(f"List '{target_list.name}' deleted successfully!")
-        LogService.add_log(session, user_id, group.id, "delete_list", f"Deleted list {target_list.name}")
+        await update.message.reply_text(
+            f"List '{target_list.name}' deleted successfully!"
+        )
+        LogService.add_log(
+            session,
+            user_id,
+            group.id,
+            "delete_list",
+            f"Deleted list {target_list.name}",
+        )
 
     except Exception as e:
         logger.error(f"[ERROR] {e}")

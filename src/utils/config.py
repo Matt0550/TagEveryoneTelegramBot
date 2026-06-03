@@ -58,29 +58,44 @@ class Settings(BaseSettings):
             os.makedirs(os.path.dirname(db_path), exist_ok=True)
             return f"sqlite:///{db_path}"
 
+    # * MARK: REDIS / CELERY CONFIG
+    REDIS_HOST: str = "localhost"
+    REDIS_PORT: int = 6379
+    REDIS_PASSWORD: str | None = None
+    REDIS_CELERY_DB: int = 0  # Same DB for both Celery Broker and Result Backend
+    REDIS_CACHE_DB: int = 1  # Different DB for internal cache
+
+    @property
+    def _redis_auth_prefix(self) -> str:
+        if self.REDIS_PASSWORD:
+            return f":{self.REDIS_PASSWORD}@"
+        return ""
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def CELERY_BROKER_URL(self) -> str:
+        return f"redis://{self._redis_auth_prefix}{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_CELERY_DB}"
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def CELERY_RESULT_BACKEND(self) -> str:
+        return f"redis://{self._redis_auth_prefix}{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_CELERY_DB}"
+
     # * MARK: TELEGRAM BOT CONFIG
     BOT_TOKEN: str = ""
     OWNER_ID: str = ""
     REPORT_ERRORS_OWNER: bool = True
-    EVERYONE_COMMANDS: list[str] = ["/everyone", "/all", "@everyone", "@all"]
     SENTRY_DSN: str | None = None
 
-    # * MARK: WEBAPP CONFIG
-    APP_HOST: str = "0.0.0.0"
-    APP_PORT: int = 5000
-    SECRET_KEY: str | None = None
-    WEBSERVER_DEBUG: bool = False
-    ENABLE_WEBAPP_SERVER: bool = False
-
     # * MARK: FASTAPI SERVER CONFIG
-    HOST: str = "0.0.0.0"
-    PORT: int = 8000
-    WORKERS: int = 1
-    ENABLE_ADMIN_API: bool = False
-    BACKEND_CORS_ORIGINS: list[str] = []
-    SERVER_RELOAD: bool = False
-    IS_BEHIND_PROXY: bool = False
-    USE_SSL: bool = False
+    API_HOST: str = "0.0.0.0"
+    API_PORT: int = 8000
+    API_WORKERS: int = 1
+    API_ENABLE_ADMIN_API: bool = False
+    API_BACKEND_CORS_ORIGINS: list[str] = []
+    API_SERVER_RELOAD: bool = False
+    API_IS_BEHIND_PROXY: bool = False
+    API_USE_SSL: bool = False
 
 
 settings = Settings()  # type: ignore

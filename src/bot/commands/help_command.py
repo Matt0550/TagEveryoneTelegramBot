@@ -1,12 +1,11 @@
-from decorators.cooldown import cooldown
-from decorators.set_sentry_context import set_sentry_context
 from telegram import Update
 from telegram.ext import ContextTypes
 
+from bot.decorators.cooldown import cooldown
 
-@set_sentry_context
+
 @cooldown(15)
-async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def help(update: Update, _context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("""
     Tag Everyone Telegram Bot\n
 Commands:

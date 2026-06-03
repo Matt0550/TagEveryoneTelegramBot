@@ -1,9 +1,8 @@
-from decorators.cooldown import cooldown
-from decorators.set_sentry_context import set_sentry_context
 from sqlmodel import select
 from telegram import Update
 from telegram.ext import ContextTypes
 
+from bot.decorators.cooldown import cooldown
 from models_all.tag_list import TagList
 from repositories.group_repository import GroupRepository
 from repositories.list_repository import ListRepository
@@ -13,7 +12,6 @@ from utils.logger_base import logger
 from utils.session_manager import Session, engine
 
 
-@set_sentry_context
 @cooldown(15)
 async def getList(update: Update, context: ContextTypes.DEFAULT_TYPE):
     session = Session(engine)
@@ -86,7 +84,7 @@ async def getList(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         continue
 
                 await update.message.reply_text(
-                    f"Members of '{target_list.name}':\n"
+                    f"Members of <b>{target_list.name}</b>:\n"
                     + "\n".join(members)
                     + "\n\nThanks for using this bot. Buy me a coffee: https://buymeacoffee.com/Matt0550\nSource code: https://github.com/Matt0550/TagEveryoneTelegramBot",
                     disable_web_page_preview=True,

@@ -1,14 +1,14 @@
 
+from collections.abc import Sequence
+
 from sqlmodel import Session
 
 from models_all import ListUser, Log, TagList, TagListCreate, TagListUpdate
+from repositories.group_repository import GroupRepository
 from repositories.list_repository import ListRepository
 from repositories.list_user_repository import ListUserRepository
-
-
-from repositories.group_repository import GroupRepository
 from utils.pagination import PaginationParams
-from typing import Sequence
+
 
 class ListService:
     def __init__(self, session: Session, repository: ListRepository, user_repo: ListUserRepository, group_repo: GroupRepository):
@@ -18,20 +18,89 @@ class ListService:
         self.group_repo = group_repo
 
     def _check_group(self, group_id: int):
+        """
+        Verify that a group exists in the database.
+
+        :param group_id: The internal ID of the group
+        :raises ValueError: If the group is not found
+        """
         if not self.group_repo.get_by_id(self.session, group_id):
             raise ValueError("Group not found")
 
+    def get_subscribed_list_ids(self, user_id: int) -> set[int]:
+        """
+        Get the set of list IDs a user is subscribed to.
+
+        :param user_id: The ID of the user
+        :return: A set of subscribed list IDs
+        """
+        user_subs = self.user_repo.get_user_subscriptions(self.session, user_id)
+        return {sub.list_id for sub in user_subs}
+
+    def format_lists_with_subscriptions(
+        self,
+        lists: Sequence[TagList],
+        user_id: int,
+        subscribed_list_ids: set[int] | None = None,
+        filter_active: bool = False
+    ) -> list:
+        """
+        Format TagList objects to include subscription status for a specific user.
+
+        :param lists: The sequence of TagList objects to format
+        :param user_id: The ID of the user
+        :param subscribed_list_ids: An optional pre-fetched set of list IDs the user is subscribed to
+        :param filter_active: If True, exclude inactive lists
+        :return: A list of TagListWithSubscriptionResponse objects (as dicts or models)
+        """
+        from models_all.tag_list import TagListWithSubscriptionResponse
+
+        if subscribed_list_ids is None:
+            subscribed_list_ids = self.get_subscribed_list_ids(user_id)
+
+        formatted = []
+        for lst in lists:
+            if filter_active and not lst.active:
+                continue
+            data = lst.model_dump()
+            data["is_subscribed"] = lst.id in subscribed_list_ids
+            formatted.append(TagListWithSubscriptionResponse(**data))
+        return formatted
+
     def get_lists(self, group_id: int, params: PaginationParams) -> tuple[Sequence[TagList], int]:
+        """
+        Get paginated lists for a specific group.
+
+        :param group_id: The internal ID of the group
+        :param params: Pagination parameters
+        :return: A tuple containing a sequence of TagList objects and the total count
+        """
         self._check_group(group_id)
         return self.repository.get_lists_of_group(self.session, group_id, params)
 
     def create_list(self, user_id: int, obj_in: TagListCreate) -> TagList:
+        """
+        Create a new list in a group.
+
+        :param user_id: The ID of the user creating the list
+        :param obj_in: The TagListCreate schema
+        :return: The created TagList object
+        """
         self._check_group(obj_in.group_id)
         new_list = self.repository.create(self.session, TagList(**obj_in.model_dump()))
         self._log(user_id, obj_in.group_id, "CREATE_LIST", f"Created list {obj_in.name}")
         return new_list
 
     def update_list(self, user_id: int, group_id: int, list_id: int, obj_in: TagListUpdate) -> TagList | None:
+        """
+        Update an existing list.
+
+        :param user_id: The ID of the user updating the list
+        :param group_id: The internal ID of the group
+        :param list_id: The internal ID of the list
+        :param obj_in: The TagListUpdate schema
+        :return: The updated TagList object, or None if not found or group ID mismatch
+        """
         self._check_group(group_id)
         tag_list = self.repository.get_by_id(self.session, list_id)
         if not tag_list or tag_list.group_id != group_id:
@@ -41,6 +110,15 @@ class ListService:
         return updated
 
     def delete_list(self, user_id: int, group_id: int, list_id: int) -> bool:
+        """
+        Delete an existing list.
+
+        :param user_id: The ID of the user deleting the list
+        :param group_id: The internal ID of the group
+        :param list_id: The internal ID of the list
+        :return: True if successfully deleted, False if not found or group ID mismatch
+        :raises ValueError: If attempting to delete a system list
+        """
         self._check_group(group_id)
         tag_list = self.repository.get_by_id(self.session, list_id)
         if not tag_list or tag_list.group_id != group_id:
@@ -55,6 +133,14 @@ class ListService:
         return success
 
     def subscribe(self, user_id: int, group_id: int, list_id: int) -> bool:
+        """
+        Subscribe a user to a list.
+
+        :param user_id: The ID of the user
+        :param group_id: The internal ID of the group
+        :param list_id: The internal ID of the list
+        :return: True if successfully subscribed or already subscribed, False if list not found or group ID mismatch
+        """
         self._check_group(group_id)
         tag_list = self.repository.get_by_id(self.session, list_id)
         if not tag_list or tag_list.group_id != group_id:
@@ -67,6 +153,14 @@ class ListService:
         return True
 
     def unsubscribe(self, user_id: int, group_id: int, list_id: int) -> bool:
+        """
+        Unsubscribe a user from a list.
+
+        :param user_id: The ID of the user
+        :param group_id: The internal ID of the group
+        :param list_id: The internal ID of the list
+        :return: True if successfully unsubscribed or not subscribed, False if list not found or group ID mismatch
+        """
         self._check_group(group_id)
         tag_list = self.repository.get_by_id(self.session, list_id)
         if not tag_list or tag_list.group_id != group_id:
@@ -79,6 +173,14 @@ class ListService:
         return True
 
     def _log(self, user_id: int, group_id: int, action: str, description: str):
+        """
+        Log an action performed by a user in a group.
+
+        :param user_id: The ID of the user performing the action
+        :param group_id: The ID of the group where the action occurred
+        :param action: A short string identifying the action type
+        :param description: A human-readable description of the action
+        """
         log = Log(user_id=user_id, group_id=group_id, action=action, description=description)
         self.session.add(log)
         self.session.commit()

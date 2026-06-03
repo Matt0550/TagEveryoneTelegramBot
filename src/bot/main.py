@@ -4,6 +4,9 @@ import os
 import sys
 import traceback
 
+# Add the src directory to the sys.path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import sentry_sdk
 from telegram import Update
 from telegram.ext import (
@@ -11,12 +14,11 @@ from telegram.ext import (
     CommandHandler,
     ContextTypes,
     MessageHandler,
+    TypeHandler,
     filters,
 )
 
-# Add the src directory to the sys.path
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
+from bot.middlewares.sentry_middleware import sentry_middleware
 from utils.config import settings
 from utils.logger_base import logger
 
@@ -28,17 +30,17 @@ if settings.SENTRY_DSN:
     )
     logger.info("Sentry initialized")
 
-from commands.announce_command import announce, checkGroups
-from commands.createlist_command import createlist
-from commands.deletelist_command import deletelist
-from commands.everyone_command import everyone
-from commands.help_command import help as help_cmd
-from commands.in_command import join_list
-from commands.list_command import getList
-from commands.out_command import leave_list
-from commands.start_command import start
-from commands.stats_command import stats
-from commands.status_command import status
+from bot.commands.announce_command import announce, announce_status, checkGroups
+from bot.commands.createlist_command import createlist
+from bot.commands.deletelist_command import deletelist
+from bot.commands.everyone_command import everyone
+from bot.commands.help_command import help as help_cmd
+from bot.commands.in_command import join_list
+from bot.commands.list_command import getList
+from bot.commands.out_command import leave_list
+from bot.commands.start_command import start
+from bot.commands.stats_command import stats
+from bot.commands.status_command import status
 
 
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -96,17 +98,22 @@ def main():
 
     application.add_error_handler(error_handler)
 
+    # Global middleware for Sentry context
+    application.add_handler(TypeHandler(Update, sentry_middleware), group=-1)
+
     # Command handlers
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_cmd))
     application.add_handler(CommandHandler("in", join_list))
     application.add_handler(CommandHandler("out", leave_list))
     application.add_handler(CommandHandler("list", getList))
+    application.add_handler(CommandHandler("lists", getList))
     application.add_handler(CommandHandler("createlist", createlist))
     application.add_handler(CommandHandler("deletelist", deletelist))
     application.add_handler(CommandHandler("status", status))
     application.add_handler(CommandHandler("stats", stats))
     application.add_handler(CommandHandler("announce", announce))
+    application.add_handler(CommandHandler("announce_status", announce_status))
     application.add_handler(CommandHandler("checkGroups", checkGroups))
 
     # Message handlers for triggers (like @everyone or /everyone)
@@ -114,17 +121,6 @@ def main():
     # Note: we also want to catch dynamic /commands that are not registered.
     # To do this, we can add a MessageHandler for filters.COMMAND that isn't caught by others.
     application.add_handler(MessageHandler(filters.COMMAND, everyone))
-
-    if settings.ENABLE_WEBAPP_SERVER:
-        # Run the webapp in a separate thread
-        from threading import Thread
-
-        import gui
-
-        webapp_thread = Thread(target=gui.mainGUI)
-        webapp_thread.daemon = True
-        webapp_thread.start()
-        logger.info("Webapp thread started")
 
     logger.info("Bot started successfully!")
     application.run_polling()

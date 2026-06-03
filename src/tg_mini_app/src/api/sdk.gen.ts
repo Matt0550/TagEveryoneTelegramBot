@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { PublicApiCreateListData, PublicApiCreateListErrors, PublicApiCreateListResponses, PublicApiDeleteListData, PublicApiDeleteListErrors, PublicApiDeleteListResponses, PublicApiGetAdminLogsData, PublicApiGetAdminLogsErrors, PublicApiGetAdminLogsResponses, PublicApiGetListsData, PublicApiGetListsErrors, PublicApiGetListsResponses, PublicApiGetUserGroupsData, PublicApiGetUserGroupsErrors, PublicApiGetUserGroupsResponses, PublicApiLeaveGroupData, PublicApiLeaveGroupErrors, PublicApiLeaveGroupResponses, PublicApiLoginTglData, PublicApiLoginTglErrors, PublicApiLoginTglResponses, PublicApiLoginTmaData, PublicApiLoginTmaErrors, PublicApiLoginTmaResponses, PublicApiSubscribeToListData, PublicApiSubscribeToListErrors, PublicApiSubscribeToListResponses, PublicApiUnsubscribeFromListData, PublicApiUnsubscribeFromListErrors, PublicApiUnsubscribeFromListResponses, PublicApiUpdateListData, PublicApiUpdateListErrors, PublicApiUpdateListResponses, SystemSystemStatusData, SystemSystemStatusResponses } from './types.gen';
+import type { PublicApiCreateListData, PublicApiCreateListErrors, PublicApiCreateListResponses, PublicApiDeleteListData, PublicApiDeleteListErrors, PublicApiDeleteListResponses, PublicApiGetAdminLogsData, PublicApiGetAdminLogsErrors, PublicApiGetAdminLogsResponses, PublicApiGetListsData, PublicApiGetListsErrors, PublicApiGetListsResponses, PublicApiGetUserGroupsData, PublicApiGetUserGroupsErrors, PublicApiGetUserGroupsResponses, PublicApiLoginTglData, PublicApiLoginTglErrors, PublicApiLoginTglResponses, PublicApiLoginTmaData, PublicApiLoginTmaErrors, PublicApiLoginTmaResponses, PublicApiSubscribeToListData, PublicApiSubscribeToListErrors, PublicApiSubscribeToListResponses, PublicApiUnsubscribeFromListData, PublicApiUnsubscribeFromListErrors, PublicApiUnsubscribeFromListResponses, PublicApiUpdateListData, PublicApiUpdateListErrors, PublicApiUpdateListResponses, SystemSystemStatusData, SystemSystemStatusResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -24,15 +24,6 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
 export const publicApiGetUserGroups = <ThrowOnError extends boolean = false>(options?: Options<PublicApiGetUserGroupsData, ThrowOnError>) => (options?.client ?? client).get<PublicApiGetUserGroupsResponses, PublicApiGetUserGroupsErrors, ThrowOnError>({
     security: [{ name: 'Authorization', type: 'apiKey' }],
     url: '/api/v1/public/groups',
-    ...options
-});
-
-/**
- * Leave a group
- */
-export const publicApiLeaveGroup = <ThrowOnError extends boolean = false>(options: Options<PublicApiLeaveGroupData, ThrowOnError>) => (options.client ?? client).post<PublicApiLeaveGroupResponses, PublicApiLeaveGroupErrors, ThrowOnError>({
-    security: [{ name: 'Authorization', type: 'apiKey' }],
-    url: '/api/v1/public/groups/{group_id}/leave',
     ...options
 });
 

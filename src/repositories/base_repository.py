@@ -13,6 +13,13 @@ class BaseRepository[T: SQLModel]:
         self.model = model
 
     def get_by_id(self, db: Session, id: Any) -> T | None:
+        """
+        Get an entity by its ID.
+
+        :param db: The database session
+        :param id: The ID of the entity
+        :return: The entity if found and active, otherwise None
+        """
         obj = db.get(self.model, id)
         if obj and hasattr(obj, "active") and not obj.active:
             return None
@@ -21,6 +28,14 @@ class BaseRepository[T: SQLModel]:
     def get_all(
         self, db: Session, params: PaginationParams, filters: dict[str, Any] = None
     ) -> tuple[Sequence[T], int]:
+        """
+        Get all entities, with pagination and optional filtering.
+
+        :param db: The database session
+        :param params: Pagination parameters (page, page_size, sort_by, sort_desc)
+        :param filters: Optional dictionary of column filters
+        :return: A tuple containing a sequence of entities and the total count
+        """
         statement = select(self.model)
 
         if hasattr(self.model, "active"):
@@ -51,12 +66,27 @@ class BaseRepository[T: SQLModel]:
         return items, total
 
     def create(self, db: Session, obj_in: T) -> T:
+        """
+        Create a new entity in the database.
+
+        :param db: The database session
+        :param obj_in: The entity to create
+        :return: The created entity
+        """
         db.add(obj_in)
         db.commit()
         db.refresh(obj_in)
         return obj_in
 
     def update(self, db: Session, db_obj: T, obj_in: dict[str, Any]) -> T:
+        """
+        Update an existing entity in the database.
+
+        :param db: The database session
+        :param db_obj: The existing database object to update
+        :param obj_in: A dictionary of new values
+        :return: The updated entity
+        """
         for key, value in obj_in.items():
             setattr(db_obj, key, value)
         db.add(db_obj)
@@ -65,6 +95,13 @@ class BaseRepository[T: SQLModel]:
         return db_obj
 
     def delete(self, db: Session, id: Any) -> bool:
+        """
+        Delete an entity by its ID (soft delete if 'active' attribute exists).
+
+        :param db: The database session
+        :param id: The ID of the entity to delete
+        :return: True if successful, False if the entity was not found
+        """
         obj = db.get(self.model, id)
         if obj:
             if hasattr(obj, "active"):

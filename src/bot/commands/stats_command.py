@@ -1,12 +1,11 @@
 import datetime
 
-from decorators.cooldown import cooldown
-from decorators.is_owner import is_owner
-from decorators.set_sentry_context import set_sentry_context
 from telegram import Update
 from telegram.constants import ParseMode
 from telegram.ext import ContextTypes
 
+from bot.decorators.cooldown import cooldown
+from bot.decorators.is_owner import is_owner
 from services.group_service import GroupService
 from services.log_service import LogService
 from utils.logger_base import logger
@@ -15,10 +14,9 @@ from utils.session_manager import Session, engine
 from .status_command import start_time
 
 
-@set_sentry_context
 @is_owner
 @cooldown(15)
-async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def stats(update: Update, _context: ContextTypes.DEFAULT_TYPE):
     session = Session(engine)
     try:
         total_groups = GroupService.get_total_groups(session)

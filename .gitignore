@@ -5,3 +5,4 @@ database-new.db
 .cache_ggshield
 .venv/
 *bot.log
+*celery.log

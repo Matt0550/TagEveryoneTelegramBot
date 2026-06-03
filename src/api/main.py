@@ -49,8 +49,8 @@ app = FastAPI(
 )
 
 cors_origins = (
-    settings.BACKEND_CORS_ORIGINS
-    if settings.BACKEND_CORS_ORIGINS
+    settings.API_BACKEND_CORS_ORIGINS
+    if settings.API_BACKEND_CORS_ORIGINS
     else [
         "http://localhost:5173",
         "http://localhost:3000",
@@ -71,7 +71,7 @@ app.add_middleware(
 
 # * Error handlers
 @app.exception_handler(Exception)
-async def generic_exception_handler(request: Request, exc: Exception):
+async def generic_exception_handler(_request: Request, exc: Exception):
     logger.error(f"Internal server error: {exc}")
     return CustomResponse(
         "Internal server error. Please try again later.",
@@ -80,13 +80,13 @@ async def generic_exception_handler(request: Request, exc: Exception):
 
 
 @app.exception_handler(StarletteHTTPException)
-async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+async def http_exception_handler(_request: Request, exc: StarletteHTTPException):
     logger.error(f"HTTP error: {exc.detail}")
     return CustomResponse(exc.detail, status_code=exc.status_code)
 
 
 @app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
+async def validation_exception_handler(_request: Request, exc: RequestValidationError):
     logger.error(f"Validation error: {exc.errors()}")
     errors = exc.errors()
     message = "Validation error"
@@ -115,17 +115,17 @@ def system_status():
 if __name__ == "__main__":
     print(f"Tag Everyone Telegram Bot REST API {settings.API_VERSION}")
     print("© 2026 Matteo Sillitti. All rights reserved.")
-    print("Running on port: ", settings.PORT)
+    print("Running on port: ", settings.API_PORT)
     print("Environment: ", settings.ENVIRONMENT)
 
     ssl_keyfile = (
         "certs/key.pem"
-        if settings.USE_SSL and settings.ENVIRONMENT == "local"
+        if settings.API_USE_SSL and settings.ENVIRONMENT == "local"
         else None
     )
     ssl_certfile = (
         "certs/cert.pem"
-        if settings.USE_SSL and settings.ENVIRONMENT == "local"
+        if settings.API_USE_SSL and settings.ENVIRONMENT == "local"
         else None
     )
 
@@ -141,11 +141,11 @@ if __name__ == "__main__":
 
     uvicorn.run(
         "api.main:app",
-        host=settings.HOST,
-        port=settings.PORT,
-        workers=settings.WORKERS,
-        reload=settings.ENVIRONMENT == "local" and settings.SERVER_RELOAD,
-        forwarded_allow_ips="*" if settings.IS_BEHIND_PROXY else None,
+        host=settings.API_HOST,
+        port=settings.API_PORT,
+        workers=settings.API_WORKERS,
+        reload=settings.ENVIRONMENT == "local" and settings.API_SERVER_RELOAD,
+        forwarded_allow_ips="*" if settings.API_IS_BEHIND_PROXY else None,
         log_level="info",
         ssl_keyfile=ssl_keyfile,
         ssl_certfile=ssl_certfile,

@@ -22,14 +22,12 @@ router = APIRouter()
 def get_admin_logs(
     params: Annotated[PaginationParams, Depends()],
     log_service: Annotated[LogServiceDep, Depends(get_log_service)],
-    user: TelegramUser = Depends(verify_admin),
+    _user: TelegramUser = Depends(verify_admin),
 ):
     logs, total = log_service.get_weekly_logs(params)
 
     formatted_logs = [LogResponse.model_validate(log) for log in logs]
 
-    response_data = LogsResponse(
-        items=formatted_logs, count=total
-    )
+    response_data = LogsResponse(items=formatted_logs, count=total)
 
     return GenericResponse(message=response_data, status_code=200)

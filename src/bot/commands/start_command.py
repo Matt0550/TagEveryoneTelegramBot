@@ -1,15 +1,13 @@
-from decorators.cooldown import cooldown
-from decorators.set_sentry_context import set_sentry_context
 from telegram import Update
 from telegram.ext import ContextTypes
 
+from bot.decorators.cooldown import cooldown
 from services.log_service import LogService
 from services.user_service import UserService
 from utils.logger_base import logger
 from utils.session_manager import Session, engine
 
 
-@set_sentry_context
 @cooldown(15)
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     session = Session(engine)
@@ -21,6 +19,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         chat_id = update.message.chat.id
 
         from models_all.user import UserCreate
+
         UserService.get_or_create_user(
             session,
             UserCreate(
@@ -28,7 +27,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 first_name=first_name,
                 last_name=last_name,
                 username=username,
-            )
+            ),
         )
 
         if update.message.chat.type not in ["group", "supergroup"]:

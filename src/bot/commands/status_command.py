@@ -1,19 +1,17 @@
 import datetime
 
-from decorators.cooldown import cooldown
-from decorators.set_sentry_context import set_sentry_context
 from telegram import Update
 from telegram.ext import ContextTypes
 
+from bot.decorators.cooldown import cooldown
 from services.log_service import LogService
 from utils.session_manager import Session, engine
 
 start_time = datetime.datetime.now()
 
 
-@set_sentry_context
 @cooldown(15)
-async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def status(update: Update, _context: ContextTypes.DEFAULT_TYPE):
     session = Session(engine)
     try:
         uptime = datetime.datetime.now() - start_time
