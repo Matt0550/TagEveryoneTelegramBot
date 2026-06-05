@@ -1,3 +1,4 @@
+import uuid
 from collections.abc import Sequence
 
 from sqlmodel import Session, func, select
@@ -11,7 +12,7 @@ class ListRepository(BaseRepository[TagList]):
     def __init__(self):
         super().__init__(TagList)
 
-    def get_lists_of_group(self, db: Session, group_id: int, params: PaginationParams) -> tuple[Sequence[TagList], int]:
+    def get_lists_of_group(self, db: Session, group_id: uuid.UUID, params: PaginationParams) -> tuple[Sequence[TagList], int]:
         """
         Get all active paginated lists within a specific group.
 
@@ -31,7 +32,7 @@ class ListRepository(BaseRepository[TagList]):
         items = db.exec(statement).all()
         return items, total
 
-    def get_by_trigger_name(self, db: Session, group_id: int, trigger_name: str) -> TagList | None:
+    def get_by_trigger_name(self, db: Session, group_id: uuid.UUID, trigger_name: str) -> TagList | None:
         """
         Get an active list in a specific group by its trigger name.
         Note: checking aliases will be done in service or by parsing JSON in SQLite if possible.

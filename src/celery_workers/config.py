@@ -1,4 +1,3 @@
-import os
 
 from utils.config import settings
 

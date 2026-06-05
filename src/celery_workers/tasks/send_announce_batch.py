@@ -4,6 +4,7 @@ Sends an announcement message to a batch of Telegram groups,
 tracking delivery status in the database.
 """
 
+import uuid
 from datetime import UTC, datetime
 
 import httpx
@@ -21,7 +22,7 @@ from models_all.async_job import AsyncJob, JobStatus
 from utils.session_manager import Session, engine
 
 
-def _update_job_progress(session: Session, job_id: int) -> None:
+def _update_job_progress(session: Session, job_id: uuid.UUID) -> None:
     """
     Recalculate and update the async job's completed/failed counts
     from the announce_job_groups table.
@@ -73,8 +74,8 @@ def _update_job_progress(session: Session, job_id: int) -> None:
 )
 def send_announce_batch(
     self,
-    job_id: int,
-    group_ids: list[int],
+    job_id: uuid.UUID,
+    group_ids: list[uuid.UUID],
     message: str,
 ) -> dict:
     """

@@ -1,9 +1,13 @@
+import uuid
 from collections.abc import Sequence
 
 from sqlmodel import Session, select
 
 from models_all.group import Group, GroupCreate, GroupUpdate
+from models_all.group_setting import GroupSetting
+from models_all.tag_list import TagList
 from repositories.group_repository import GroupRepository
+from repositories.list_repository import ListRepository
 from utils.pagination import PaginationParams
 
 
@@ -38,14 +42,99 @@ class GroupService:
         admin_tasks = [is_group_admin(g, user, self.session) for g in groups]
         return await asyncio.gather(*admin_tasks)
 
-    def remove_user_from_group(self, group_id: int, user_id: int) -> None:
+    def remove_user_from_group(self, group_id: uuid.UUID, user_id: int) -> None:
         """
         Remove a user from a specific group.
 
-        :param group_id: The ID of the group
+        :param group_id: The internal ID of the group (UUID)
         :param user_id: The ID of the user to remove
         """
         return self.repository.remove_user_from_group(self.session, group_id, user_id)
+
+    def get_group_settings(self, group_id: uuid.UUID) -> GroupSetting:
+        """
+        Get or create settings for a specific group.
+        """
+        group = self.repository.get_by_id(self.session, group_id)
+        if not group:
+            raise ValueError("Group not found")
+
+        settings = self.repository.get_settings(self.session, group_id)
+        if not settings:
+            # Return default unsaved settings
+            from models_all.group_setting import GroupSetting
+            settings = GroupSetting(group_id=group_id)
+        return settings
+
+    def update_group_settings(self, group_id: uuid.UUID, update_data: dict) -> GroupSetting:
+        """
+        Update settings for a specific group with validation.
+        """
+        group = self.repository.get_by_id(self.session, group_id)
+        if not group:
+            raise ValueError("Group not found")
+
+        settings = self.repository.get_settings(self.session, group_id)
+        if not settings:
+            settings = self.repository.create_settings(self.session, group_id)
+
+        if "auto_add_list_ids" in update_data:
+            list_ids = update_data.pop("auto_add_list_ids")
+            if list_ids is not None:
+                from datetime import UTC, datetime
+
+                from models_all.group_setting_tag_list_link import (
+                    GroupSettingTagListLink,
+                )
+                list_repo = ListRepository()
+
+                valid_lids = []
+                for lid in list_ids:
+                    tag_list = list_repo.get_by_id(self.session, lid)
+                    if not tag_list or tag_list.group_id != group_id:
+                        raise ValueError(f"Invalid list ID {lid} for this group")
+                    valid_lids.append(uuid.UUID(str(lid)))
+
+                statement = select(GroupSettingTagListLink).where(GroupSettingTagListLink.group_setting_id == settings.id)
+                existing_links = self.session.exec(statement).all()
+
+                existing_lids = {link.tag_list_id for link in existing_links}
+                new_lids = set(valid_lids)
+
+                for link in existing_links:
+                    if link.tag_list_id not in new_lids:
+                        link.active = False
+                        link.deleted_at = datetime.now(UTC)
+                        self.session.add(link)
+                    else:
+                        link.active = True
+                        link.deleted_at = None
+                        self.session.add(link)
+
+                for lid in new_lids - existing_lids:
+                    new_link = GroupSettingTagListLink(
+                        group_setting_id=settings.id,
+                        tag_list_id=lid
+                    )
+                    self.session.add(new_link)
+
+                self.session.commit()
+
+        return self.repository.update_settings(self.session, settings, update_data)
+
+    @staticmethod
+    def _ensure_everyone_list(session: Session, group: Group) -> None:
+        list_repo = ListRepository()
+        everyone_list = list_repo.get_by_trigger_name(session, group.id, "everyone")
+        if not everyone_list:
+            new_list = TagList(
+                group_id=group.id,
+                name="Everyone",
+                trigger_name="everyone",
+                description="Default list for everyone in the group",
+                is_system=True,
+            )
+            list_repo.create(session, new_list)
 
     @staticmethod
     def get_or_create_group(session: Session, group_in: GroupCreate) -> Group:
@@ -75,6 +164,7 @@ class GroupService:
             group_repo.update(
                 session, group, group_update.model_dump(exclude_unset=True)
             )
+        GroupService._ensure_everyone_list(session, group)
         return group
 
     @staticmethod
@@ -100,7 +190,9 @@ class GroupService:
         repo = GroupRepository()
         group = repo.get_by_telegram_id(session, telegram_id)
         if group:
-            return repo.update(session, group, kwargs)
+            updated_group = repo.update(session, group, kwargs)
+            GroupService._ensure_everyone_list(session, updated_group)
+            return updated_group
         return None
 
     @staticmethod

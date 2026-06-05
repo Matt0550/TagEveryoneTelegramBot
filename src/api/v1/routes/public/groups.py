@@ -1,11 +1,17 @@
+import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
+from api.auth_deps import require_group_admin
 from api.decorators.set_sentry_context import set_sentry_context
 from api.dependencies import GroupServiceDep, get_group_service
 from api.utils.telegram_auth import TelegramUser, verify_telegram_webapp
 from models_all.group import GroupResponse, GroupsResponse
+from models_all.group_setting import (
+    GroupSettingResponse,
+    GroupSettingUpdate,
+)
 from utils.config import settings
 from utils.pagination import PaginationParams
 
@@ -40,7 +46,7 @@ async def get_user_groups(
             g.tag_lists,
             user.id,
             subscribed_list_ids=subscribed_list_ids,
-            filter_active=True
+            filter_active=True,
         )
 
         formatted_groups.append(GroupResponse(**data))
@@ -50,3 +56,48 @@ async def get_user_groups(
         count=total,
         isOwner=str(user.id) == str(settings.OWNER_ID),
     )
+
+
+@router.get(
+    "/{group_id}/settings",
+    summary="Get group settings",
+    tags=["groups"],
+    response_model=GroupSettingResponse,
+    dependencies=[Depends(require_group_admin)],
+)
+@set_sentry_context
+async def get_group_settings(
+    group_id: uuid.UUID,
+    group_service: Annotated[GroupServiceDep, Depends(get_group_service)],
+) -> GroupSettingResponse:
+    try:
+        settings = group_service.get_group_settings(group_id)
+        data = settings.model_dump()
+        data["auto_add_lists"] = settings.auto_add_lists
+        return GroupSettingResponse(**data)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.put(
+    "/{group_id}/settings",
+    summary="Update group settings",
+    tags=["groups"],
+    response_model=GroupSettingResponse,
+    dependencies=[Depends(require_group_admin)],
+)
+@set_sentry_context
+async def update_group_settings(
+    group_id: uuid.UUID,
+    settings_update: GroupSettingUpdate,
+    group_service: Annotated[GroupServiceDep, Depends(get_group_service)],
+) -> GroupSettingResponse:
+    try:
+        update_data = settings_update.model_dump(exclude_unset=True)
+        updated_settings = group_service.update_group_settings(group_id, update_data)
+        data = updated_settings.model_dump()
+        data["auto_add_lists"] = updated_settings.auto_add_lists
+        return GroupSettingResponse(**data)
+    except ValueError as e:
+        status_code = 404 if "Group not found" in str(e) else 400
+        raise HTTPException(status_code=status_code, detail=str(e))

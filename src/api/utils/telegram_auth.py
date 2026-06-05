@@ -102,6 +102,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     encoded_jwt = jwt.encode(to_encode, secret, algorithm="HS256")
     return encoded_jwt
 
+
 api_key_header = APIKeyHeader(
     name="Authorization",
     auto_error=False,
@@ -109,7 +110,9 @@ api_key_header = APIKeyHeader(
 )
 
 
-async def verify_telegram_webapp(authorization: str = Depends(api_key_header)) -> TelegramUser:
+async def verify_telegram_webapp(
+    authorization: str = Depends(api_key_header),
+) -> TelegramUser:
     """
     FastAPI dependency to verify the JWT authentication token.
     Expects 'Authorization: Bearer <token>'
@@ -135,7 +138,9 @@ async def verify_telegram_webapp(authorization: str = Depends(api_key_header)) -
         raise HTTPException(status_code=401, detail="Invalid token")
 
 
-async def verify_admin(user: TelegramUser = Depends(verify_telegram_webapp)) -> TelegramUser:
+async def verify_admin(
+    user: TelegramUser = Depends(verify_telegram_webapp),
+) -> TelegramUser:
     """
     FastAPI dependency to verify if the user is an admin.
     """

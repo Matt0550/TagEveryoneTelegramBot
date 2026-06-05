@@ -26,10 +26,10 @@ def cooldown(seconds):
                 # If the user is the owner, execute the function without cooldown
                 await func(update, context)
                 return
-            
+
             # Get the current time
             now = datetime.now()
-            
+
             # Check if the user has used the command before
             if tg_user_id in last_time:
                 # Check if the user has used the command in the last seconds
@@ -40,10 +40,10 @@ def cooldown(seconds):
                     )
                     # Return to avoid the function to be executed
                     return
-            
+
             # Update the last time the user used the command
             last_time[tg_user_id] = now
-            
+
             # Execute the function
             await func(update, context)
         return wrapper

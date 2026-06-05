@@ -26,6 +26,8 @@ class Settings(BaseSettings):
     # * MARK: GENERAL CONFIG
     ENVIRONMENT: Literal["local", "development", "production"] = "local"
     API_VERSION: str = "v1"
+    SENTRY_DSN: str | None = None
+    SECRET_KEY: str
 
     # * MARK: DATABASE CONFIG
     DB_TYPE: Literal["sqlite", "mysql"] = "sqlite"
@@ -85,7 +87,6 @@ class Settings(BaseSettings):
     BOT_TOKEN: str = ""
     OWNER_ID: str = ""
     REPORT_ERRORS_OWNER: bool = True
-    SENTRY_DSN: str | None = None
 
     # * MARK: FASTAPI SERVER CONFIG
     API_HOST: str = "0.0.0.0"

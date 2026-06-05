@@ -1,6 +1,8 @@
+import uuid
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
+from sqlalchemy import BigInteger
 from sqlmodel import Column, DateTime, Field, Relationship, func
 
 from models import ModelBase
@@ -10,7 +12,7 @@ if TYPE_CHECKING:
     from models_all.list_user import ListUser
 
 class UserShared(ModelBase):
-    user_id: int = Field(sa_column_kwargs={"unique": True})
+    user_id: int = Field(sa_column=Column(BigInteger, unique=True, nullable=False))
     first_name: str | None = Field(default=None)
     last_name: str | None = Field(default=None)
     username: str | None = Field(default=None)
@@ -18,7 +20,7 @@ class UserShared(ModelBase):
 class User(UserShared, table=True):
     __tablename__ = "users"  # type: ignore
 
-    id: int = Field(default=None, primary_key=True)
+    id: uuid.UUID = Field(default_factory=uuid.uuid7, primary_key=True)
 
     created_at: datetime = Field(
         sa_column=Column(
@@ -48,7 +50,7 @@ class UserUpdate(UserShared):
 
 
 class UserResponse(UserShared):
-    id: int
+    id: uuid.UUID
     created_at: datetime
     updated_at: datetime | None
     active: bool

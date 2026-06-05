@@ -1,4 +1,5 @@
 
+import uuid
 from collections.abc import Sequence
 
 from sqlmodel import Session
@@ -17,7 +18,7 @@ class ListService:
         self.user_repo = user_repo
         self.group_repo = group_repo
 
-    def _check_group(self, group_id: int):
+    def _check_group(self, group_id: uuid.UUID):
         """
         Verify that a group exists in the database.
 
@@ -27,7 +28,7 @@ class ListService:
         if not self.group_repo.get_by_id(self.session, group_id):
             raise ValueError("Group not found")
 
-    def get_subscribed_list_ids(self, user_id: int) -> set[int]:
+    def get_subscribed_list_ids(self, user_id: int) -> set[uuid.UUID]:
         """
         Get the set of list IDs a user is subscribed to.
 
@@ -41,7 +42,7 @@ class ListService:
         self,
         lists: Sequence[TagList],
         user_id: int,
-        subscribed_list_ids: set[int] | None = None,
+        subscribed_list_ids: set[uuid.UUID] | None = None,
         filter_active: bool = False
     ) -> list:
         """
@@ -67,7 +68,7 @@ class ListService:
             formatted.append(TagListWithSubscriptionResponse(**data))
         return formatted
 
-    def get_lists(self, group_id: int, params: PaginationParams) -> tuple[Sequence[TagList], int]:
+    def get_lists(self, group_id: uuid.UUID, params: PaginationParams) -> tuple[Sequence[TagList], int]:
         """
         Get paginated lists for a specific group.
 
@@ -91,7 +92,7 @@ class ListService:
         self._log(user_id, obj_in.group_id, "CREATE_LIST", f"Created list {obj_in.name}")
         return new_list
 
-    def update_list(self, user_id: int, group_id: int, list_id: int, obj_in: TagListUpdate) -> TagList | None:
+    def update_list(self, user_id: int, group_id: uuid.UUID, list_id: uuid.UUID, obj_in: TagListUpdate) -> TagList | None:
         """
         Update an existing list.
 
@@ -109,7 +110,7 @@ class ListService:
         self._log(user_id, group_id, "UPDATE_LIST", f"Updated list {updated.name}")
         return updated
 
-    def delete_list(self, user_id: int, group_id: int, list_id: int) -> bool:
+    def delete_list(self, user_id: int, group_id: uuid.UUID, list_id: uuid.UUID) -> bool:
         """
         Delete an existing list.
 
@@ -132,7 +133,7 @@ class ListService:
             self._log(user_id, group_id, "DELETE_LIST", f"Deleted list {tag_list.name}")
         return success
 
-    def subscribe(self, user_id: int, group_id: int, list_id: int) -> bool:
+    def subscribe(self, user_id: int, group_id: uuid.UUID, list_id: uuid.UUID) -> bool:
         """
         Subscribe a user to a list.
 
@@ -152,7 +153,7 @@ class ListService:
             self._log(user_id, group_id, "SUBSCRIBE", f"Subscribed to list {tag_list.name}")
         return True
 
-    def unsubscribe(self, user_id: int, group_id: int, list_id: int) -> bool:
+    def unsubscribe(self, user_id: int, group_id: uuid.UUID, list_id: uuid.UUID) -> bool:
         """
         Unsubscribe a user from a list.
 
@@ -172,7 +173,7 @@ class ListService:
             self._log(user_id, group_id, "UNSUBSCRIBE", f"Unsubscribed from list {tag_list.name}")
         return True
 
-    def _log(self, user_id: int, group_id: int, action: str, description: str):
+    def _log(self, user_id: int, group_id: uuid.UUID, action: str, description: str):
         """
         Log an action performed by a user in a group.
 

@@ -1,6 +1,8 @@
+import uuid
 from datetime import UTC, datetime
 from enum import StrEnum
 
+from sqlalchemy import BigInteger
 from sqlmodel import Column, DateTime, Field, Relationship, Text, func
 
 from models import ModelBase
@@ -24,14 +26,14 @@ class AsyncJobShared(ModelBase):
     completed_items: int = Field(default=0)
     failed_items: int = Field(default=0)
     metadata_json: str | None = Field(default=None, sa_column=Column(Text))
-    started_by: int  # Telegram user ID of whoever triggered the job
+    started_by: int = Field(sa_column=Column(BigInteger, nullable=False))  # Telegram user ID of whoever triggered the job
     error_message: str | None = Field(default=None, sa_column=Column(Text))
 
 
 class AsyncJob(AsyncJobShared, table=True):
     __tablename__ = "async_jobs"  # type: ignore
 
-    id: int = Field(default=None, primary_key=True)
+    id: uuid.UUID = Field(default_factory=uuid.uuid7, primary_key=True)
 
     created_at: datetime = Field(
         sa_column=Column(
@@ -55,7 +57,7 @@ class AsyncJobCreate(AsyncJobShared):
 
 
 class AsyncJobResponse(AsyncJobShared):
-    id: int
+    id: uuid.UUID
     created_at: datetime
     completed_at: datetime | None
 

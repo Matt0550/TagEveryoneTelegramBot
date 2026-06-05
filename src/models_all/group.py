@@ -1,9 +1,12 @@
+import uuid
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
-from sqlmodel import Field, Relationship
+from sqlalchemy import BigInteger
+from sqlmodel import Column, Field, Relationship
 
 from models import ModelBase
+from models_all.group_setting import GroupSetting
 
 if TYPE_CHECKING:
     from models_all.group_admin_exclusion import GroupAdminExclusion
@@ -11,7 +14,7 @@ if TYPE_CHECKING:
 
 
 class GroupShared(ModelBase):
-    telegram_id: int = Field(sa_column_kwargs={"unique": True})
+    telegram_id: int = Field(sa_column=Column(BigInteger, unique=True, nullable=False))
     group_name: str | None = Field(default=None)
     group_description: str | None = Field(default=None)
     group_username: str | None = Field(default=None)
@@ -24,7 +27,7 @@ from sqlmodel import Column, DateTime, func
 
 class Group(GroupShared, table=True):
     __tablename__ = "groups"  # type: ignore
-    id: int = Field(default=None, primary_key=True)
+    id: uuid.UUID = Field(default_factory=uuid.uuid7, primary_key=True)
 
     created_at: datetime = Field(
         sa_column=Column(
@@ -43,6 +46,9 @@ class Group(GroupShared, table=True):
 
     tag_lists: list[TagList] = Relationship(back_populates="group")
     admin_exclusions: list[GroupAdminExclusion] = Relationship(back_populates="group")
+    settings: GroupSetting | None = Relationship(
+        back_populates="group", sa_relationship_kwargs={"uselist": False}
+    )
 
 
 class GroupCreate(GroupShared):
@@ -57,7 +63,7 @@ from models_all.tag_list import TagListWithSubscriptionResponse
 
 
 class GroupResponse(GroupShared):
-    id: int
+    id: uuid.UUID
     active: bool
     is_admin: bool = False
     lists: list[TagListWithSubscriptionResponse] = []

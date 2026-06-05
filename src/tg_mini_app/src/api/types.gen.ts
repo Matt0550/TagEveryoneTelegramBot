@@ -15,56 +15,6 @@ export type BodyPublicApiLoginTma = {
 };
 
 /**
- * GenericResponse[LogsResponse]
- */
-export type GenericResponseLogsResponse = {
-    message: LogsResponse;
-    /**
-     * Success
-     */
-    success?: boolean;
-    /**
-     * Status Code
-     */
-    status_code: number;
-};
-
-/**
- * GenericResponse[TagListResponse]
- */
-export type GenericResponseTagListResponse = {
-    message: TagListResponse;
-    /**
-     * Success
-     */
-    success?: boolean;
-    /**
-     * Status Code
-     */
-    status_code: number;
-};
-
-/**
- * GenericResponse[dict]
- */
-export type GenericResponseDict = {
-    /**
-     * Message
-     */
-    message: {
-        [key: string]: unknown;
-    };
-    /**
-     * Success
-     */
-    success?: boolean;
-    /**
-     * Status Code
-     */
-    status_code: number;
-};
-
-/**
  * GroupResponse
  */
 export type GroupResponse = {
@@ -95,7 +45,7 @@ export type GroupResponse = {
     /**
      * Id
      */
-    id: number;
+    id: string;
     /**
      * Active
      */
@@ -108,6 +58,58 @@ export type GroupResponse = {
      * Lists
      */
     lists?: Array<TagListWithSubscriptionResponse>;
+};
+
+/**
+ * GroupSettingResponse
+ */
+export type GroupSettingResponse = {
+    /**
+     * Group Id
+     */
+    group_id: string;
+    /**
+     * Auto Add New Members
+     */
+    auto_add_new_members?: boolean;
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Updated At
+     */
+    updated_at: string | null;
+    /**
+     * Deleted At
+     */
+    deleted_at: string | null;
+    /**
+     * Active
+     */
+    active: boolean;
+    /**
+     * Auto Add Lists
+     */
+    auto_add_lists?: Array<TagListResponse>;
+};
+
+/**
+ * GroupSettingUpdate
+ */
+export type GroupSettingUpdate = {
+    /**
+     * Auto Add New Members
+     */
+    auto_add_new_members?: boolean | null;
+    /**
+     * Auto Add List Ids
+     */
+    auto_add_list_ids?: Array<string> | null;
 };
 
 /**
@@ -149,7 +151,7 @@ export type LogResponse = {
     /**
      * Group Id
      */
-    group_id?: number | null;
+    group_id?: string | null;
     /**
      * Action
      */
@@ -161,7 +163,7 @@ export type LogResponse = {
     /**
      * Id
      */
-    id: number;
+    id: string;
     /**
      * Created At
      */
@@ -189,7 +191,7 @@ export type TagListCreate = {
     /**
      * Group Id
      */
-    group_id: number;
+    group_id: string;
     /**
      * Name
      */
@@ -219,7 +221,7 @@ export type TagListResponse = {
     /**
      * Group Id
      */
-    group_id: number;
+    group_id: string;
     /**
      * Name
      */
@@ -243,7 +245,7 @@ export type TagListResponse = {
     /**
      * Id
      */
-    id: number;
+    id: string;
     /**
      * Created At
      */
@@ -291,7 +293,7 @@ export type TagListWithSubscriptionResponse = {
     /**
      * Group Id
      */
-    group_id: number;
+    group_id: string;
     /**
      * Name
      */
@@ -315,7 +317,7 @@ export type TagListWithSubscriptionResponse = {
     /**
      * Id
      */
-    id: number;
+    id: string;
     /**
      * Created At
      */
@@ -418,6 +420,66 @@ export type PublicApiGetUserGroupsResponses = {
 
 export type PublicApiGetUserGroupsResponse = PublicApiGetUserGroupsResponses[keyof PublicApiGetUserGroupsResponses];
 
+export type PublicApiGetGroupSettingsData = {
+    body?: never;
+    path: {
+        /**
+         * Group Id
+         */
+        group_id: string;
+    };
+    query?: never;
+    url: '/api/v1/public/groups/{group_id}/settings';
+};
+
+export type PublicApiGetGroupSettingsErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type PublicApiGetGroupSettingsError = PublicApiGetGroupSettingsErrors[keyof PublicApiGetGroupSettingsErrors];
+
+export type PublicApiGetGroupSettingsResponses = {
+    /**
+     * Successful Response
+     */
+    200: GroupSettingResponse;
+};
+
+export type PublicApiGetGroupSettingsResponse = PublicApiGetGroupSettingsResponses[keyof PublicApiGetGroupSettingsResponses];
+
+export type PublicApiUpdateGroupSettingsData = {
+    body: GroupSettingUpdate;
+    path: {
+        /**
+         * Group Id
+         */
+        group_id: string;
+    };
+    query?: never;
+    url: '/api/v1/public/groups/{group_id}/settings';
+};
+
+export type PublicApiUpdateGroupSettingsErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type PublicApiUpdateGroupSettingsError = PublicApiUpdateGroupSettingsErrors[keyof PublicApiUpdateGroupSettingsErrors];
+
+export type PublicApiUpdateGroupSettingsResponses = {
+    /**
+     * Successful Response
+     */
+    200: GroupSettingResponse;
+};
+
+export type PublicApiUpdateGroupSettingsResponse = PublicApiUpdateGroupSettingsResponses[keyof PublicApiUpdateGroupSettingsResponses];
+
 export type PublicApiGetAdminLogsData = {
     body?: never;
     path?: never;
@@ -455,7 +517,7 @@ export type PublicApiGetAdminLogsResponses = {
     /**
      * Successful Response
      */
-    200: GenericResponseLogsResponse;
+    200: LogsResponse;
 };
 
 export type PublicApiGetAdminLogsResponse = PublicApiGetAdminLogsResponses[keyof PublicApiGetAdminLogsResponses];
@@ -529,7 +591,7 @@ export type PublicApiGetListsData = {
         /**
          * Group Id
          */
-        group_id: number;
+        group_id: string;
     };
     query?: {
         /**
@@ -576,7 +638,7 @@ export type PublicApiCreateListData = {
         /**
          * Group Id
          */
-        group_id: number;
+        group_id: string;
     };
     query?: never;
     url: '/api/v1/public/groups/{group_id}/lists';
@@ -595,7 +657,7 @@ export type PublicApiCreateListResponses = {
     /**
      * Successful Response
      */
-    200: GenericResponseTagListResponse;
+    200: TagListResponse;
 };
 
 export type PublicApiCreateListResponse = PublicApiCreateListResponses[keyof PublicApiCreateListResponses];
@@ -606,11 +668,11 @@ export type PublicApiDeleteListData = {
         /**
          * Group Id
          */
-        group_id: number;
+        group_id: string;
         /**
          * List Id
          */
-        list_id: number;
+        list_id: string;
     };
     query?: never;
     url: '/api/v1/public/groups/{group_id}/lists/{list_id}';
@@ -627,9 +689,11 @@ export type PublicApiDeleteListError = PublicApiDeleteListErrors[keyof PublicApi
 
 export type PublicApiDeleteListResponses = {
     /**
+     * Response Public Api-Delete List
+     *
      * Successful Response
      */
-    200: GenericResponseDict;
+    200: string;
 };
 
 export type PublicApiDeleteListResponse = PublicApiDeleteListResponses[keyof PublicApiDeleteListResponses];
@@ -640,11 +704,11 @@ export type PublicApiUpdateListData = {
         /**
          * Group Id
          */
-        group_id: number;
+        group_id: string;
         /**
          * List Id
          */
-        list_id: number;
+        list_id: string;
     };
     query?: never;
     url: '/api/v1/public/groups/{group_id}/lists/{list_id}';
@@ -663,7 +727,7 @@ export type PublicApiUpdateListResponses = {
     /**
      * Successful Response
      */
-    200: GenericResponseTagListResponse;
+    200: TagListResponse;
 };
 
 export type PublicApiUpdateListResponse = PublicApiUpdateListResponses[keyof PublicApiUpdateListResponses];
@@ -674,11 +738,11 @@ export type PublicApiSubscribeToListData = {
         /**
          * Group Id
          */
-        group_id: number;
+        group_id: string;
         /**
          * List Id
          */
-        list_id: number;
+        list_id: string;
     };
     query?: never;
     url: '/api/v1/public/groups/{group_id}/lists/{list_id}/subscribe';
@@ -695,9 +759,11 @@ export type PublicApiSubscribeToListError = PublicApiSubscribeToListErrors[keyof
 
 export type PublicApiSubscribeToListResponses = {
     /**
+     * Response Public Api-Subscribe To List
+     *
      * Successful Response
      */
-    200: GenericResponseDict;
+    200: string;
 };
 
 export type PublicApiSubscribeToListResponse = PublicApiSubscribeToListResponses[keyof PublicApiSubscribeToListResponses];
@@ -708,11 +774,11 @@ export type PublicApiUnsubscribeFromListData = {
         /**
          * Group Id
          */
-        group_id: number;
+        group_id: string;
         /**
          * List Id
          */
-        list_id: number;
+        list_id: string;
     };
     query?: never;
     url: '/api/v1/public/groups/{group_id}/lists/{list_id}/unsubscribe';
@@ -729,9 +795,11 @@ export type PublicApiUnsubscribeFromListError = PublicApiUnsubscribeFromListErro
 
 export type PublicApiUnsubscribeFromListResponses = {
     /**
+     * Response Public Api-Unsubscribe From List
+     *
      * Successful Response
      */
-    200: GenericResponseDict;
+    200: string;
 };
 
 export type PublicApiUnsubscribeFromListResponse = PublicApiUnsubscribeFromListResponses[keyof PublicApiUnsubscribeFromListResponses];

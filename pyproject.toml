@@ -55,4 +55,5 @@ ignore = [
     "B904",  # Allow raising exceptions without from e, for HTTPException
     "E712",  # Allow equality comparisons to True (needed for SQLAlchemy queries)
     "E402",  # Allow module level imports not at the top of the file (for type checking imports)
+    "UP037"
 ]

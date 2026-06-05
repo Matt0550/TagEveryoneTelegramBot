@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { PublicApiCreateListData, PublicApiCreateListErrors, PublicApiCreateListResponses, PublicApiDeleteListData, PublicApiDeleteListErrors, PublicApiDeleteListResponses, PublicApiGetAdminLogsData, PublicApiGetAdminLogsErrors, PublicApiGetAdminLogsResponses, PublicApiGetListsData, PublicApiGetListsErrors, PublicApiGetListsResponses, PublicApiGetUserGroupsData, PublicApiGetUserGroupsErrors, PublicApiGetUserGroupsResponses, PublicApiLoginTglData, PublicApiLoginTglErrors, PublicApiLoginTglResponses, PublicApiLoginTmaData, PublicApiLoginTmaErrors, PublicApiLoginTmaResponses, PublicApiSubscribeToListData, PublicApiSubscribeToListErrors, PublicApiSubscribeToListResponses, PublicApiUnsubscribeFromListData, PublicApiUnsubscribeFromListErrors, PublicApiUnsubscribeFromListResponses, PublicApiUpdateListData, PublicApiUpdateListErrors, PublicApiUpdateListResponses, SystemSystemStatusData, SystemSystemStatusResponses } from './types.gen';
+import type { PublicApiCreateListData, PublicApiCreateListErrors, PublicApiCreateListResponses, PublicApiDeleteListData, PublicApiDeleteListErrors, PublicApiDeleteListResponses, PublicApiGetAdminLogsData, PublicApiGetAdminLogsErrors, PublicApiGetAdminLogsResponses, PublicApiGetGroupSettingsData, PublicApiGetGroupSettingsErrors, PublicApiGetGroupSettingsResponses, PublicApiGetListsData, PublicApiGetListsErrors, PublicApiGetListsResponses, PublicApiGetUserGroupsData, PublicApiGetUserGroupsErrors, PublicApiGetUserGroupsResponses, PublicApiLoginTglData, PublicApiLoginTglErrors, PublicApiLoginTglResponses, PublicApiLoginTmaData, PublicApiLoginTmaErrors, PublicApiLoginTmaResponses, PublicApiSubscribeToListData, PublicApiSubscribeToListErrors, PublicApiSubscribeToListResponses, PublicApiUnsubscribeFromListData, PublicApiUnsubscribeFromListErrors, PublicApiUnsubscribeFromListResponses, PublicApiUpdateGroupSettingsData, PublicApiUpdateGroupSettingsErrors, PublicApiUpdateGroupSettingsResponses, PublicApiUpdateListData, PublicApiUpdateListErrors, PublicApiUpdateListResponses, SystemSystemStatusData, SystemSystemStatusResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -25,6 +25,28 @@ export const publicApiGetUserGroups = <ThrowOnError extends boolean = false>(opt
     security: [{ name: 'Authorization', type: 'apiKey' }],
     url: '/api/v1/public/groups',
     ...options
+});
+
+/**
+ * Get group settings
+ */
+export const publicApiGetGroupSettings = <ThrowOnError extends boolean = false>(options: Options<PublicApiGetGroupSettingsData, ThrowOnError>) => (options.client ?? client).get<PublicApiGetGroupSettingsResponses, PublicApiGetGroupSettingsErrors, ThrowOnError>({
+    security: [{ name: 'Authorization', type: 'apiKey' }],
+    url: '/api/v1/public/groups/{group_id}/settings',
+    ...options
+});
+
+/**
+ * Update group settings
+ */
+export const publicApiUpdateGroupSettings = <ThrowOnError extends boolean = false>(options: Options<PublicApiUpdateGroupSettingsData, ThrowOnError>) => (options.client ?? client).put<PublicApiUpdateGroupSettingsResponses, PublicApiUpdateGroupSettingsErrors, ThrowOnError>({
+    security: [{ name: 'Authorization', type: 'apiKey' }],
+    url: '/api/v1/public/groups/{group_id}/settings',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
 });
 
 /**

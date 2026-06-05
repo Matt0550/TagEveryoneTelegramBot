@@ -1,3 +1,4 @@
+import uuid
 from collections.abc import Sequence
 
 from sqlmodel import Session
@@ -25,7 +26,7 @@ class LogService:
     def add_log(
         session: Session,
         user_id: int,
-        group_id: str,
+        group_id: uuid.UUID | int | str | None,
         action: str,
         description: str = None,
     ) -> Log:
@@ -39,9 +40,27 @@ class LogService:
         :param description: An optional human-readable description
         :return: The created Log object
         """
+        real_group_id = None
+        if group_id:
+            if isinstance(group_id, uuid.UUID):
+                real_group_id = group_id
+            else:
+                try:
+                    # Check if it's a UUID string
+                    real_group_id = uuid.UUID(str(group_id))
+                except ValueError:
+                    # It's likely a Telegram ID
+                    try:
+                        from repositories.group_repository import GroupRepository
+                        group = GroupRepository().get_by_telegram_id(session, int(group_id))
+                        if group:
+                            real_group_id = group.id
+                    except (ValueError, TypeError):
+                        pass
+
         log_create = LogCreate(
             user_id=user_id,
-            group_id=int(group_id) if group_id else None,
+            group_id=real_group_id,
             action=action.upper(),
             description=description,
         )

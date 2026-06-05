@@ -8,4 +8,6 @@ from .group_admin_exclusion import GroupAdminExclusion
 from .log import Log
 from .async_job import AsyncJob
 from .announce_job_group import AnnounceJobGroup
+from .group_setting import GroupSetting, GroupSettingCreate, GroupSettingUpdate, GroupSettingResponse
+from .group_setting_tag_list_link import GroupSettingTagListLink
 from .enums import Role, Permission

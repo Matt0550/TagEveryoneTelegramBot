@@ -11,44 +11,44 @@ import type {
   TagListCreate,
   TagListUpdate,
   TagListResponse,
-  GenericResponseDict
+  TagListsWithSubscriptionResponse
 } from '@/api/types.gen';
 import { apiData } from '@/services/apiRuntime';
 
 export const listService = {
-  getLists(groupId: number, query?: NonNullable<PublicApiGetListsData['query']>): Promise<TagListResponse> {
-    return apiData<TagListResponse>(
-      publicApiGetLists({ path: { group_id: groupId }, query })
+  getLists(groupId: string, query?: NonNullable<PublicApiGetListsData['query']>): Promise<TagListsWithSubscriptionResponse> {
+    return apiData<TagListsWithSubscriptionResponse>(
+      publicApiGetLists({ path: { group_id: groupId as any }, query })
     );
   },
 
-  createList(groupId: number, data: TagListCreate): Promise<{ message: TagListResponse, success: boolean }> {
+  createList(groupId: string, data: TagListCreate): Promise<{ message: TagListResponse, success: boolean }> {
     return apiData<{ message: TagListResponse, success: boolean }>(
-      publicApiCreateList({ path: { group_id: groupId }, body: data })
+      publicApiCreateList({ path: { group_id: groupId as any }, body: data })
     );
   },
 
-  updateList(groupId: number, listId: number, data: TagListUpdate): Promise<{ message: TagListResponse, success: boolean }> {
+  updateList(groupId: string, listId: string, data: TagListUpdate): Promise<{ message: TagListResponse, success: boolean }> {
     return apiData<{ message: TagListResponse, success: boolean }>(
-      publicApiUpdateList({ path: { group_id: groupId, list_id: listId }, body: data })
+      publicApiUpdateList({ path: { group_id: groupId as any, list_id: listId as any }, body: data })
     );
   },
 
-  deleteList(groupId: number, listId: number): Promise<GenericResponseDict> {
-    return apiData<GenericResponseDict>(
-      publicApiDeleteList({ path: { group_id: groupId, list_id: listId } })
+  deleteList(groupId: string, listId: string): Promise<string> {
+    return apiData<string>(
+      publicApiDeleteList({ path: { group_id: groupId as any, list_id: listId as any } })
     );
   },
 
-  subscribe(groupId: number, listId: number): Promise<GenericResponseDict> {
-    return apiData<GenericResponseDict>(
-      publicApiSubscribeToList({ path: { group_id: groupId, list_id: listId } })
+  subscribe(groupId: string, listId: string): Promise<string> {
+    return apiData<string>(
+      publicApiSubscribeToList({ path: { group_id: groupId as any, list_id: listId as any } })
     );
   },
 
-  unsubscribe(groupId: number, listId: number): Promise<GenericResponseDict> {
-    return apiData<GenericResponseDict>(
-      publicApiUnsubscribeFromList({ path: { group_id: groupId, list_id: listId } })
+  unsubscribe(groupId: string, listId: string): Promise<string> {
+    return apiData<string>(
+      publicApiUnsubscribeFromList({ path: { group_id: groupId as any, list_id: listId as any } })
     );
   }
 };

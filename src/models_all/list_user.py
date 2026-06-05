@@ -1,6 +1,8 @@
+import uuid
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
+from sqlalchemy import BigInteger, ForeignKey
 from sqlmodel import Column, DateTime, Field, Relationship, func
 
 from models import ModelBase
@@ -11,14 +13,14 @@ if TYPE_CHECKING:
 
 
 class ListUserShared(ModelBase):
-    list_id: int = Field(foreign_key="tag_lists.id")
-    user_id: int = Field(foreign_key="users.user_id")
+    list_id: uuid.UUID = Field(foreign_key="tag_lists.id")
+    user_id: int = Field(sa_column=Column(BigInteger, ForeignKey("users.user_id"), nullable=False))
 
 
 class ListUser(ListUserShared, table=True):
     __tablename__ = "list_users"  # type: ignore
 
-    id: int = Field(default=None, primary_key=True)
+    id: uuid.UUID = Field(default_factory=uuid.uuid7, primary_key=True)
 
     created_at: datetime = Field(
         sa_column=Column(
@@ -48,7 +50,7 @@ class ListUserUpdate(ModelBase):
 
 
 class ListUserResponse(ListUserShared):
-    id: int
+    id: uuid.UUID
     created_at: datetime
     updated_at: datetime | None
     active: bool

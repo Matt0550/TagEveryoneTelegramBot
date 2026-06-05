@@ -1,9 +1,10 @@
+import uuid
 from collections.abc import Sequence
 
 from sqlalchemy.orm import selectinload
 from sqlmodel import Session, func, select
 
-from models_all import Group, ListUser, TagList
+from models_all import Group, GroupSetting, ListUser, TagList
 from repositories.base_repository import BaseRepository
 from utils.pagination import PaginationParams
 
@@ -46,12 +47,12 @@ class GroupRepository(BaseRepository[Group]):
         items = db.exec(statement).all()
         return items, total
 
-    def remove_user_from_group(self, db: Session, group_id: int, user_id: int) -> None:
+    def remove_user_from_group(self, db: Session, group_id: uuid.UUID, user_id: int) -> None:
         """
         Remove a user from all lists within a specific group (soft delete their subscriptions).
 
         :param db: The database session
-        :param group_id: The internal ID of the group
+        :param group_id: The internal ID of the group (UUID)
         :param user_id: The ID of the user to remove
         """
         statement = select(ListUser).join(TagList).where(
@@ -65,3 +66,25 @@ class GroupRepository(BaseRepository[Group]):
             list_user.deleted_at = func.now()
             db.add(list_user)
         db.commit()
+
+    def get_settings(self, db: Session, group_id: uuid.UUID) -> GroupSetting | None:
+        return db.exec(
+            select(GroupSetting)
+            .options(selectinload(GroupSetting.auto_add_lists))
+            .where(GroupSetting.group_id == group_id)
+        ).first()
+
+    def create_settings(self, db: Session, group_id: uuid.UUID) -> GroupSetting:
+        settings = GroupSetting(group_id=group_id)
+        db.add(settings)
+        db.commit()
+        db.refresh(settings)
+        return settings
+
+    def update_settings(self, db: Session, settings: GroupSetting, update_data: dict) -> GroupSetting:
+        for key, value in update_data.items():
+            setattr(settings, key, value)
+        db.add(settings)
+        db.commit()
+        db.refresh(settings)
+        return settings

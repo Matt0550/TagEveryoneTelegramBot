@@ -55,10 +55,11 @@ async def require_group_admin(
     if not group_id_str:
         raise HTTPException(status_code=400, detail="group_id path parameter is required")
 
+    import uuid
     try:
-        internal_group_id = int(group_id_str)
+        internal_group_id = uuid.UUID(group_id_str)
     except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid group_id")
+        raise HTTPException(status_code=400, detail="Invalid group_id format")
 
     from models_all.group import Group
     group = db.get(Group, internal_group_id)

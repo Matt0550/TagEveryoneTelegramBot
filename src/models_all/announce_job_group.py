@@ -1,7 +1,9 @@
+import uuid
 from datetime import UTC, datetime
 from enum import StrEnum
 from typing import TYPE_CHECKING
 
+from sqlalchemy import BigInteger
 from sqlmodel import Column, DateTime, Field, Relationship, Text, func
 
 from models import ModelBase
@@ -17,8 +19,8 @@ class AnnounceGroupStatus(StrEnum):
 
 
 class AnnounceJobGroupShared(ModelBase):
-    job_id: int = Field(foreign_key="async_jobs.id")
-    group_telegram_id: int
+    job_id: uuid.UUID = Field(foreign_key="async_jobs.id")
+    group_telegram_id: int = Field(sa_column=Column(BigInteger, nullable=False))
     group_name: str | None = Field(default=None)
     status: str = Field(default=AnnounceGroupStatus.PENDING, max_length=20)
     error_message: str | None = Field(default=None, sa_column=Column(Text))
@@ -27,7 +29,7 @@ class AnnounceJobGroupShared(ModelBase):
 class AnnounceJobGroup(AnnounceJobGroupShared, table=True):
     __tablename__ = "announce_job_groups"  # type: ignore
 
-    id: int = Field(default=None, primary_key=True)
+    id: uuid.UUID = Field(default_factory=uuid.uuid7, primary_key=True)
 
     sent_at: datetime | None = Field(
         sa_column=Column(DateTime(timezone=True), nullable=True),
@@ -48,6 +50,6 @@ class AnnounceJobGroupCreate(AnnounceJobGroupShared):
 
 
 class AnnounceJobGroupResponse(AnnounceJobGroupShared):
-    id: int
+    id: uuid.UUID
     sent_at: datetime | None
     created_at: datetime

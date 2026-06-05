@@ -18,6 +18,7 @@ from telegram.ext import (
     filters,
 )
 
+from bot.middlewares.activity_middleware import activity_middleware
 from bot.middlewares.sentry_middleware import sentry_middleware
 from utils.config import settings
 from utils.logger_base import logger
@@ -30,6 +31,8 @@ if settings.SENTRY_DSN:
     )
     logger.info("Sentry initialized")
 
+from telegram.ext import ChatMemberHandler
+
 from bot.commands.announce_command import announce, announce_status, checkGroups
 from bot.commands.createlist_command import createlist
 from bot.commands.deletelist_command import deletelist
@@ -41,6 +44,7 @@ from bot.commands.out_command import leave_list
 from bot.commands.start_command import start
 from bot.commands.stats_command import stats
 from bot.commands.status_command import status
+from bot.handlers.chat_member_handler import chat_member_handler, my_chat_member_handler
 
 
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -98,8 +102,13 @@ def main():
 
     application.add_error_handler(error_handler)
 
-    # Global middleware for Sentry context
+    # Global middlewares
     application.add_handler(TypeHandler(Update, sentry_middleware), group=-1)
+    application.add_handler(TypeHandler(Update, activity_middleware), group=-2)
+
+    # Chat member handlers
+    application.add_handler(ChatMemberHandler(my_chat_member_handler, ChatMemberHandler.MY_CHAT_MEMBER))
+    application.add_handler(ChatMemberHandler(chat_member_handler, ChatMemberHandler.CHAT_MEMBER))
 
     # Command handlers
     application.add_handler(CommandHandler("start", start))

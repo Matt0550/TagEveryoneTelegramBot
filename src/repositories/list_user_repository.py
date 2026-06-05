@@ -1,3 +1,5 @@
+import uuid
+
 from sqlmodel import Session, select
 
 from models_all import ListUser
@@ -8,7 +10,7 @@ class ListUserRepository(BaseRepository[ListUser]):
     def __init__(self):
         super().__init__(ListUser)
 
-    def get_subscription(self, db: Session, list_id: int, user_id: int) -> ListUser | None:
+    def get_subscription(self, db: Session, list_id: uuid.UUID, user_id: int) -> ListUser | None:
         """
         Get a specific active subscription for a user to a list.
 
@@ -24,7 +26,7 @@ class ListUserRepository(BaseRepository[ListUser]):
         )
         return db.exec(statement).first()
 
-    def get_users_in_list(self, db: Session, list_id: int) -> list[ListUser]:
+    def get_users_in_list(self, db: Session, list_id: uuid.UUID) -> list[ListUser]:
         """
         Get all active user subscriptions for a specific list.
 

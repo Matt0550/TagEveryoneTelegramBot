@@ -1,3 +1,5 @@
+import uuid
+
 from sqlmodel import Session, select
 
 from models_all import GroupAdminExclusion
@@ -8,7 +10,7 @@ class GroupAdminExclusionRepository(BaseRepository[GroupAdminExclusion]):
     def __init__(self):
         super().__init__(GroupAdminExclusion)
 
-    def is_excluded(self, db: Session, group_id: int, user_id: int) -> bool:
+    def is_excluded(self, db: Session, group_id: uuid.UUID, user_id: int) -> bool:
         """
         Check if a user is excluded from admin privileges in a specific group.
 

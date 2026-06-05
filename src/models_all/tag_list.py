@@ -1,3 +1,4 @@
+import uuid
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
@@ -11,7 +12,7 @@ if TYPE_CHECKING:
 
 
 class TagListShared(ModelBase):
-    group_id: int = Field(foreign_key="groups.id")
+    group_id: uuid.UUID = Field(foreign_key="groups.id")
     name: str
     description: str | None = Field(default=None)
     trigger_name: str
@@ -22,7 +23,7 @@ class TagListShared(ModelBase):
 class TagList(TagListShared, table=True):
     __tablename__ = "tag_lists"  # type: ignore
 
-    id: int = Field(default=None, primary_key=True)
+    id: uuid.UUID = Field(default_factory=uuid.uuid7, primary_key=True)
 
     created_at: datetime = Field(
         sa_column=Column(
@@ -56,7 +57,7 @@ class TagListUpdate(ModelBase):
 
 
 class TagListResponse(TagListShared):
-    id: int
+    id: uuid.UUID
     created_at: datetime
     updated_at: datetime | None
     active: bool

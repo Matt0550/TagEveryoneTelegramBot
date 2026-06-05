@@ -1,6 +1,8 @@
+import uuid
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
+from sqlalchemy import BigInteger, ForeignKey
 from sqlmodel import Column, DateTime, Field, Relationship, func
 
 from models import ModelBase
@@ -11,15 +13,15 @@ if TYPE_CHECKING:
 
 
 class GroupAdminExclusionShared(ModelBase):
-    group_id: int = Field(foreign_key="groups.id")
-    user_id: int = Field(foreign_key="users.user_id")
+    group_id: uuid.UUID = Field(foreign_key="groups.id")
+    user_id: int = Field(sa_column=Column(BigInteger, ForeignKey("users.user_id"), nullable=False))
     reason: str | None = Field(default=None)
 
 
 class GroupAdminExclusion(GroupAdminExclusionShared, table=True):
     __tablename__ = "group_admin_exclusions"  # type: ignore
 
-    id: int = Field(default=None, primary_key=True)
+    id: uuid.UUID = Field(default_factory=uuid.uuid7, primary_key=True)
 
     created_at: datetime = Field(
         sa_column=Column(
@@ -50,7 +52,7 @@ class GroupAdminExclusionUpdate(ModelBase):
 
 
 class GroupAdminExclusionResponse(GroupAdminExclusionShared):
-    id: int
+    id: uuid.UUID
     created_at: datetime
     updated_at: datetime | None
     active: bool
