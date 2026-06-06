@@ -1,11 +1,51 @@
 {
   "actions": {
+    "cancel": "Cancel",
+    "continue": "Continue",
+    "create": "Create",
+    "delete": "Delete",
+    "clear": "Clear",
+    "loading": "Loading...",
+    "noOptions": "No options available",
+    "selectOptions": "Select options...",
     "adminPanel": "Admin Panel",
     "leaveList": "Leave list",
     "logOut": "Log out",
     "language": "Language",
     "english": "English",
-    "italian": "Italian"
+    "italian": "Italian",
+    "subscribe": "Subscribe",
+    "unsubscribe": "Unsubscribe",
+    "save": "Save"
+  },
+  "modules": {
+    "list": "List",
+    "settings": "Settings",
+    "group": "Group"
+  },
+  "messages": {
+    "created": "{moduleName} created successfully",
+    "deleted": "{moduleName} deleted successfully",
+    "cleared": "{moduleName} cleared successfully",
+    "saved": "{moduleName} saved successfully",
+    "loadFailed": "Failed to load {moduleName}",
+    "saveFailed": "Failed to save {moduleName}",
+    "subscribed": "Subscribed successfully",
+    "unsubscribed": "Unsubscribed successfully"
+  },
+  "dialogs": {
+    "deleteTitle": "Delete {moduleName}",
+    "deleteDesc": "Are you sure you want to delete this {moduleName}?",
+    "clearTitle": "Clear {moduleName}",
+    "clearDesc": "Are you sure you want to remove all users from the {moduleName} \"{name}\"?"
+  },
+  "app": {
+    "loginDesc": "Log in to manage your Telegram group mentions."
+  },
+  "nav": {
+    "brand": "TagEveryone",
+    "groups": "Groups",
+    "admin": "Admin"
   },
   "errors": {
     "unknown": "Unknown error",
@@ -31,6 +71,28 @@
       "loading": "Loading Admin Panel...",
       "userId": "User ID",
       "chatId": "Chat ID"
+    },
+    "groupDetails": {
+      "notFound": "Group not found",
+      "tabs": {
+        "lists": "Lists",
+        "settings": "Settings"
+      },
+      "lists": {
+        "available": "Available Lists",
+        "createNew": "Create New List",
+        "namePlaceholder": "List Name (e.g. Developers)",
+        "triggerPlaceholder": "Trigger Name (e.g. devs)",
+        "noLists": "No lists available in this group.",
+        "systemList": "System List"
+      },
+      "settings": {
+        "title": "Group Settings",
+        "loading": "Loading settings...",
+        "autoAdd": "Automatically add new members",
+        "autoAddDesc": "Enable to automatically subscribe newcomers to a default list.",
+        "selectLists": "Select lists..."
+      }
     }
   }
 }

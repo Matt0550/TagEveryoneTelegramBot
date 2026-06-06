@@ -45,7 +45,8 @@ async def activity_middleware(update: Update, _context: ContextTypes.DEFAULT_TYP
                 logger.info(f"Reactivated user {user.id} due to new activity.")
 
             if db_user.updated_at:
-                if datetime.now(UTC) - db_user.updated_at > timedelta(hours=24):
+                user_updated_at = db_user.updated_at.replace(tzinfo=UTC) if db_user.updated_at.tzinfo is None else db_user.updated_at
+                if datetime.now(UTC) - user_updated_at > timedelta(hours=24):
                     db_user.username = getattr(user, "username", None)
                     db_user.first_name = getattr(user, "first_name", None)
                     db_user.last_name = getattr(user, "last_name", None)
@@ -78,7 +79,8 @@ async def activity_middleware(update: Update, _context: ContextTypes.DEFAULT_TYP
 
             needs_update = False
             if db_group.updated_at:
-                if datetime.now(UTC) - db_group.updated_at > timedelta(hours=24):
+                group_updated_at = db_group.updated_at.replace(tzinfo=UTC) if db_group.updated_at.tzinfo is None else db_group.updated_at
+                if datetime.now(UTC) - group_updated_at > timedelta(hours=24):
                     db_group.group_name = getattr(chat, "title", None)
                     db_group.group_description = getattr(chat, "description", None)
                     db_group.group_username = getattr(chat, "username", None)

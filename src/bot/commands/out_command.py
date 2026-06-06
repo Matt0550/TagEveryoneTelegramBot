@@ -6,6 +6,7 @@ from bot.decorators.is_group import is_group
 from repositories.group_repository import GroupRepository
 from repositories.list_repository import ListRepository
 from repositories.list_user_repository import ListUserRepository
+from repositories.user_repository import UserRepository
 from services.log_service import LogService
 from utils.logger_base import logger
 from utils.session_manager import Session, engine
@@ -20,24 +21,43 @@ async def leave_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
         group_id = update.message.chat.id
         args = context.args
 
-        # Default to "everyone" list if no args provided or not mentioning user
         target_list_trigger = "everyone"
-        mentioned_user = None
+
+        target_user_id = user_id
+        is_manual_modify = False
 
         if args:
-            if args[0].startswith("@"):
-                target_list_trigger = args[0][1:].lower()
-            else:
-                target_list_trigger = args[0].lower()
-
             entities = update.message.parse_entities(
                 types=[MessageEntity.TEXT_MENTION, MessageEntity.MENTION]
             )
-            for entity, _value in entities.items():
-                if entity.type == MessageEntity.TEXT_MENTION:
-                    mentioned_user = entity.user
+            mentioned_user_obj = None
+            mentioned_username = None
 
-            if mentioned_user:
+            for entity, value in entities.items():
+                if entity.type == MessageEntity.TEXT_MENTION:
+                    mentioned_user_obj = entity.user
+                elif entity.type == MessageEntity.MENTION:
+                    mentioned_username = value[1:]
+
+            if mentioned_user_obj:
+                target_user_id = mentioned_user_obj.id
+                is_manual_modify = True
+            elif mentioned_username:
+                user_repo = UserRepository()
+                db_user = user_repo.get_by_username(session, mentioned_username)
+                if db_user:
+                    target_user_id = db_user.user_id
+                    is_manual_modify = True
+                else:
+                    await update.message.reply_text(
+                        f"User @{mentioned_username} not found in bot database."
+                    )
+                    return
+            elif args[0].isdigit():
+                target_user_id = int(args[0])
+                is_manual_modify = True
+
+            if is_manual_modify:
                 if len(args) > 1:
                     target_list_trigger = args[1].lower()
                 else:
@@ -52,8 +72,11 @@ async def leave_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         "You must be a group admin or owner to remove others."
                     )
                     return
-
-        target_user_id = mentioned_user.id if mentioned_user else user_id
+            else:
+                if args[0].startswith("@"):
+                    target_list_trigger = args[0][1:].lower()
+                else:
+                    target_list_trigger = args[0].lower()
 
         list_repo = ListRepository()
         user_list_repo = ListUserRepository()
@@ -82,7 +105,7 @@ async def leave_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         user_list_repo.delete(session, existing.id)
 
-        if mentioned_user:
+        if is_manual_modify:
             await update.message.reply_text(
                 f"User manually removed from '{target_list.name}'."
             )

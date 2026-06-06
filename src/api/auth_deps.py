@@ -18,6 +18,14 @@ async def check_telegram_admin(chat_id: int, user_id: int) -> bool:
     except TelegramError:
         return False
 
+async def check_telegram_member(chat_id: int, user_id: int) -> bool:
+    bot = Bot(token=settings.BOT_TOKEN)
+    try:
+        member = await bot.get_chat_member(chat_id, user_id)
+        return member.status not in ["left", "kicked", "banned"]
+    except TelegramError:
+        return False
+
 def get_current_user(user: TelegramUser = Depends(verify_telegram_webapp)) -> TelegramUser:
     return user
 

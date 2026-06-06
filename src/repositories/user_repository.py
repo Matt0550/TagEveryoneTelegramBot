@@ -19,3 +19,16 @@ class UserRepository(BaseRepository[User]):
         """
         statement = select(User).where(User.user_id == user_id, User.active == True)
         return db.exec(statement).first()
+
+    def get_by_username(self, db: Session, username: str) -> User | None:
+        """
+        Get an active user by their Telegram username.
+
+        :param db: The database session
+        :param username: The Telegram username (without @)
+        :return: The User object if found, otherwise None
+        """
+        statement = select(User).where(
+            User.username.ilike(username), User.active == True
+        )
+        return db.exec(statement).first()

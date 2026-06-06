@@ -49,10 +49,14 @@ async def _resolve_username(
     # Check if cached data is fresh enough
     if db_user and db_user.username:
         cache_cutoff = datetime.now(UTC) - USER_CACHE_MAX_AGE
-        if db_user.updated_at and db_user.updated_at >= cache_cutoff:
-            return db_user.username
-        if not db_user.updated_at and db_user.created_at >= cache_cutoff:
-            return db_user.username
+        if db_user.updated_at:
+            updated_at_aware = db_user.updated_at.replace(tzinfo=UTC) if db_user.updated_at.tzinfo is None else db_user.updated_at
+            if updated_at_aware >= cache_cutoff:
+                return db_user.username
+        elif db_user.created_at:
+            created_at_aware = db_user.created_at.replace(tzinfo=UTC) if db_user.created_at.tzinfo is None else db_user.created_at
+            if created_at_aware >= cache_cutoff:
+                return db_user.username
 
     # Cache is stale or user not in DB — perform live lookup
     try:

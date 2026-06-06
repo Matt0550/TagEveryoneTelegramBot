@@ -133,6 +133,25 @@ class ListService:
             self._log(user_id, group_id, "DELETE_LIST", f"Deleted list {tag_list.name}")
         return success
 
+    def clear_list(self, user_id: int, group_id: uuid.UUID, list_id: uuid.UUID) -> bool:
+        """
+        Clear all users from a list.
+
+        :param user_id: The ID of the user clearing the list
+        :param group_id: The internal ID of the group
+        :param list_id: The internal ID of the list
+        :return: True if successfully cleared, False if not found or group ID mismatch
+        """
+        self._check_group(group_id)
+        tag_list = self.repository.get_by_id(self.session, list_id)
+        if not tag_list or tag_list.group_id != group_id:
+            return False
+
+        cleared_count = self.user_repo.clear_list_subscriptions(self.session, list_id)
+        self.session.commit()
+        self._log(user_id, group_id, "CLEAR_LIST", f"Cleared {cleared_count} users from list {tag_list.name}")
+        return True
+
     def subscribe(self, user_id: int, group_id: uuid.UUID, list_id: uuid.UUID) -> bool:
         """
         Subscribe a user to a list.

@@ -7,6 +7,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { client } from '@/api/client.gen'
 import { setCookie } from '@/services/apiRuntime'
 import { useAuth } from '@/composables/useAuth'
+import { useI18n } from 'vue-i18n'
 
 import Navbar from '@/components/Navbar.vue'
 import GlobalConfirmDialog from '@/components/GlobalConfirmDialog.vue'
@@ -17,6 +18,7 @@ const route = useRoute()
 const botUsername = import.meta.env.VITE_BOT_USERNAME || 'TagEveryoneBot'
 
 const { isAuthenticated, isLoading, initAuth, loginWithWidget } = useAuth()
+const { t } = useI18n()
 
 onMounted(async () => {
   await initAuth()
@@ -61,8 +63,8 @@ onMounted(async () => {
                 </div>
               </div>
               <CardHeader class="pt-14 text-center">
-                <CardTitle class="text-2xl font-bold tracking-tight">TagEveryone</CardTitle>
-                <CardDescription>Log in to manage your Telegram group mentions.</CardDescription>
+                <CardTitle class="text-2xl font-bold tracking-tight">{{ t('nav.brand') }}</CardTitle>
+                <CardDescription>{{ t('app.loginDesc') }}</CardDescription>
               </CardHeader>
               <CardContent class="flex justify-center pb-8">
                 <LoginWidget :bot-username="botUsername" @auth="loginWithWidget" corner-radius="12"

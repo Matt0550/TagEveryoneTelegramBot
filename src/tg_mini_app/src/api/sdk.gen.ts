@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { PublicApiCreateListData, PublicApiCreateListErrors, PublicApiCreateListResponses, PublicApiDeleteListData, PublicApiDeleteListErrors, PublicApiDeleteListResponses, PublicApiGetAdminLogsData, PublicApiGetAdminLogsErrors, PublicApiGetAdminLogsResponses, PublicApiGetGroupSettingsData, PublicApiGetGroupSettingsErrors, PublicApiGetGroupSettingsResponses, PublicApiGetListsData, PublicApiGetListsErrors, PublicApiGetListsResponses, PublicApiGetUserGroupsData, PublicApiGetUserGroupsErrors, PublicApiGetUserGroupsResponses, PublicApiLoginTglData, PublicApiLoginTglErrors, PublicApiLoginTglResponses, PublicApiLoginTmaData, PublicApiLoginTmaErrors, PublicApiLoginTmaResponses, PublicApiSubscribeToListData, PublicApiSubscribeToListErrors, PublicApiSubscribeToListResponses, PublicApiUnsubscribeFromListData, PublicApiUnsubscribeFromListErrors, PublicApiUnsubscribeFromListResponses, PublicApiUpdateGroupSettingsData, PublicApiUpdateGroupSettingsErrors, PublicApiUpdateGroupSettingsResponses, PublicApiUpdateListData, PublicApiUpdateListErrors, PublicApiUpdateListResponses, SystemSystemStatusData, SystemSystemStatusResponses } from './types.gen';
+import type { PublicApiClearListData, PublicApiClearListErrors, PublicApiClearListResponses, PublicApiCreateListData, PublicApiCreateListErrors, PublicApiCreateListResponses, PublicApiDeleteListData, PublicApiDeleteListErrors, PublicApiDeleteListResponses, PublicApiGetAdminLogsData, PublicApiGetAdminLogsErrors, PublicApiGetAdminLogsResponses, PublicApiGetGroupData, PublicApiGetGroupErrors, PublicApiGetGroupResponses, PublicApiGetGroupsData, PublicApiGetGroupsErrors, PublicApiGetGroupSettingsData, PublicApiGetGroupSettingsErrors, PublicApiGetGroupSettingsResponses, PublicApiGetGroupsResponses, PublicApiGetListsData, PublicApiGetListsErrors, PublicApiGetListsResponses, PublicApiLoginTglData, PublicApiLoginTglErrors, PublicApiLoginTglResponses, PublicApiLoginTmaData, PublicApiLoginTmaErrors, PublicApiLoginTmaResponses, PublicApiSubscribeToListData, PublicApiSubscribeToListErrors, PublicApiSubscribeToListResponses, PublicApiUnsubscribeFromListData, PublicApiUnsubscribeFromListErrors, PublicApiUnsubscribeFromListResponses, PublicApiUpdateGroupSettingsData, PublicApiUpdateGroupSettingsErrors, PublicApiUpdateGroupSettingsResponses, PublicApiUpdateListData, PublicApiUpdateListErrors, PublicApiUpdateListResponses, SystemSystemStatusData, SystemSystemStatusResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -21,9 +21,18 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
 /**
  * Get groups for the current user
  */
-export const publicApiGetUserGroups = <ThrowOnError extends boolean = false>(options?: Options<PublicApiGetUserGroupsData, ThrowOnError>) => (options?.client ?? client).get<PublicApiGetUserGroupsResponses, PublicApiGetUserGroupsErrors, ThrowOnError>({
+export const publicApiGetGroups = <ThrowOnError extends boolean = false>(options?: Options<PublicApiGetGroupsData, ThrowOnError>) => (options?.client ?? client).get<PublicApiGetGroupsResponses, PublicApiGetGroupsErrors, ThrowOnError>({
     security: [{ name: 'Authorization', type: 'apiKey' }],
     url: '/api/v1/public/groups',
+    ...options
+});
+
+/**
+ * Get a single group for the current user
+ */
+export const publicApiGetGroup = <ThrowOnError extends boolean = false>(options: Options<PublicApiGetGroupData, ThrowOnError>) => (options.client ?? client).get<PublicApiGetGroupResponses, PublicApiGetGroupErrors, ThrowOnError>({
+    security: [{ name: 'Authorization', type: 'apiKey' }],
+    url: '/api/v1/public/groups/{group_id}',
     ...options
 });
 
@@ -124,6 +133,15 @@ export const publicApiUpdateList = <ThrowOnError extends boolean = false>(option
         'Content-Type': 'application/json',
         ...options.headers
     }
+});
+
+/**
+ * Clear all users from a list
+ */
+export const publicApiClearList = <ThrowOnError extends boolean = false>(options: Options<PublicApiClearListData, ThrowOnError>) => (options.client ?? client).post<PublicApiClearListResponses, PublicApiClearListErrors, ThrowOnError>({
+    security: [{ name: 'Authorization', type: 'apiKey' }],
+    url: '/api/v1/public/groups/{group_id}/lists/{list_id}/clear',
+    ...options
 });
 
 /**

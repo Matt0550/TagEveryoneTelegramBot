@@ -1,9 +1,9 @@
-import { publicApiGetUserGroups } from '@/api/sdk.gen';
+import { publicApiGetGroups } from '@/api/sdk.gen';
 import type {
-  PublicApiGetUserGroupsData,
+  PublicApiGetGroupsData,
   GroupsResponse,
 } from '@/api/types.gen';
-import { apiData } from '@/services/apiRuntime';
+import { apiData } from './apiRuntime';
 import { client } from '@/api/client.gen';
 
 export interface GroupSettings {
@@ -18,9 +18,15 @@ export interface GroupSettingsUpdate {
 }
 
 export const groupService = {
-  getUserGroups(query?: NonNullable<PublicApiGetUserGroupsData['query']>): Promise<GroupsResponse> {
+  getGroups(query?: NonNullable<PublicApiGetGroupsData['query']>): Promise<GroupsResponse> {
     return apiData<GroupsResponse>(
-      publicApiGetUserGroups({ query })
+      publicApiGetGroups({ query })
+    );
+  },
+
+  getGroup(groupId: string): Promise<any> {
+    return apiData<any>(
+      client.get({ url: `/api/v1/public/groups/${groupId}` } as any)
     );
   },
 

@@ -103,6 +103,23 @@ def delete_list(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+@router.post(
+    "/{list_id}/clear",
+    summary="Clear all users from a list",
+    response_model=str,
+)
+@set_sentry_context
+def clear_list(
+    group_id: uuid.UUID,
+    list_id: uuid.UUID,
+    list_service: ListServiceDep = None,
+    admin: TelegramUser = Depends(require_group_admin),
+) -> str:
+    success = list_service.clear_list(admin.id, group_id, list_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="List not found")
+    return "List cleared successfully"
+
 
 @router.post(
     "/{list_id}/subscribe",

@@ -52,7 +52,9 @@ async def getList(update: Update, context: ContextTypes.DEFAULT_TYPE):
             session, group.id, target_list_trigger
         )
         if not target_list:
-            await update.message.reply_text(f"List '{target_list_trigger}' not found.")
+            await update.message.reply_text(
+                f"List <b>{target_list_trigger}</b> not found.", parse_mode="HTML"
+            )
             return
 
         user_list_repo = ListUserRepository()
@@ -60,7 +62,7 @@ async def getList(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         if not data:
             await update.message.reply_text(
-                f"No one is in the '{target_list.name}' list"
+                f"No one is in the <b>{target_list.name}</b> list", parse_mode="HTML"
             )
         else:
             try:
@@ -88,6 +90,7 @@ async def getList(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     + "\n".join(members)
                     + "\n\nThanks for using this bot. Buy me a coffee: https://buymeacoffee.com/Matt0550\nSource code: https://github.com/Matt0550/TagEveryoneTelegramBot",
                     disable_web_page_preview=True,
+                    parse_mode="HTML",
                 )
 
                 LogService.add_log(

@@ -36,7 +36,7 @@ class GroupRepository(BaseRepository[Group]):
             ListUser.user_id == user_id,
             TagList.active == True,
             Group.active == True
-        ).distinct().options(selectinload(Group.tag_lists))
+        ).distinct()
 
         count_statement = select(func.count()).select_from(statement.subquery())
         total = db.exec(count_statement).one()

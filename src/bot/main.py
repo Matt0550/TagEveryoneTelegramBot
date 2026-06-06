@@ -34,6 +34,7 @@ if settings.SENTRY_DSN:
 from telegram.ext import ChatMemberHandler
 
 from bot.commands.announce_command import announce, announce_status, checkGroups
+from bot.commands.clearlist_command import clearlist
 from bot.commands.createlist_command import createlist
 from bot.commands.deletelist_command import deletelist
 from bot.commands.everyone_command import everyone
@@ -119,6 +120,7 @@ def main():
     application.add_handler(CommandHandler("lists", getList))
     application.add_handler(CommandHandler("createlist", createlist))
     application.add_handler(CommandHandler("deletelist", deletelist))
+    application.add_handler(CommandHandler("clearlist", clearlist))
     application.add_handler(CommandHandler("status", status))
     application.add_handler(CommandHandler("stats", stats))
     application.add_handler(CommandHandler("announce", announce))

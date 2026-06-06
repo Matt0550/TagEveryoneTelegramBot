@@ -1,11 +1,51 @@
 {
   "actions": {
+    "cancel": "Annulla",
+    "continue": "Continua",
+    "create": "Crea",
+    "delete": "Elimina",
+    "clear": "Svuota",
+    "loading": "Caricamento...",
+    "noOptions": "Nessuna opzione disponibile",
+    "selectOptions": "Seleziona opzioni...",
     "adminPanel": "Pannello di Controllo",
     "leaveList": "Abbandona lista",
     "logOut": "Esci",
     "language": "Lingua",
     "english": "Inglese",
-    "italian": "Italiano"
+    "italian": "Italiano",
+    "subscribe": "Iscriviti",
+    "unsubscribe": "Disiscriviti",
+    "save": "Salva"
+  },
+  "modules": {
+    "list": "lista",
+    "settings": "impostazioni",
+    "group": "gruppo"
+  },
+  "messages": {
+    "created": "{moduleName} creata con successo",
+    "deleted": "{moduleName} eliminata con successo",
+    "cleared": "{moduleName} svuotata con successo",
+    "saved": "{moduleName} salvate con successo",
+    "loadFailed": "Impossibile caricare {moduleName}",
+    "saveFailed": "Impossibile salvare {moduleName}",
+    "subscribed": "Iscrizione completata",
+    "unsubscribed": "Disiscrizione completata"
+  },
+  "dialogs": {
+    "deleteTitle": "Elimina {moduleName}",
+    "deleteDesc": "Sei sicuro di voler eliminare questa {moduleName}?",
+    "clearTitle": "Svuota {moduleName}",
+    "clearDesc": "Sei sicuro di voler rimuovere tutti gli utenti dalla {moduleName} \"{name}\"?"
+  },
+  "app": {
+    "loginDesc": "Accedi per gestire le tue menzioni nei gruppi Telegram."
+  },
+  "nav": {
+    "brand": "TagEveryone",
+    "groups": "Gruppi",
+    "admin": "Admin"
   },
   "errors": {
     "unknown": "Errore sconosciuto",
@@ -31,6 +71,28 @@
       "loading": "Caricamento Pannello di Controllo...",
       "userId": "ID Utente",
       "chatId": "ID Chat"
+    },
+    "groupDetails": {
+      "notFound": "Gruppo non trovato",
+      "tabs": {
+        "lists": "Liste",
+        "settings": "Impostazioni"
+      },
+      "lists": {
+        "available": "Liste disponibili",
+        "createNew": "Crea Nuova Lista",
+        "namePlaceholder": "Nome Lista (es. Sviluppatori)",
+        "triggerPlaceholder": "Nome Trigger (es. devs)",
+        "noLists": "Nessuna lista disponibile in questo gruppo.",
+        "systemList": "Lista di Sistema"
+      },
+      "settings": {
+        "title": "Impostazioni Gruppo",
+        "loading": "Caricamento impostazioni...",
+        "autoAdd": "Aggiungi automaticamente nuovi membri",
+        "autoAddDesc": "Abilita per iscrivere automaticamente i nuovi arrivati a una lista predefinita.",
+        "selectLists": "Seleziona liste..."
+      }
     }
   }
 }

@@ -51,9 +51,9 @@ export type GroupResponse = {
      */
     active: boolean;
     /**
-     * Is Admin
+     * Is Group Admin
      */
-    is_admin?: boolean;
+    is_group_admin?: boolean;
     /**
      * Lists
      */
@@ -113,21 +113,55 @@ export type GroupSettingUpdate = {
 };
 
 /**
+ * GroupSummaryResponse
+ */
+export type GroupSummaryResponse = {
+    /**
+     * Telegram Id
+     */
+    telegram_id: number;
+    /**
+     * Group Name
+     */
+    group_name?: string | null;
+    /**
+     * Group Description
+     */
+    group_description?: string | null;
+    /**
+     * Group Username
+     */
+    group_username?: string | null;
+    /**
+     * Group Type
+     */
+    group_type?: string | null;
+    /**
+     * Group Members
+     */
+    group_members?: number | null;
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Active
+     */
+    active: boolean;
+};
+
+/**
  * GroupsResponse
  */
 export type GroupsResponse = {
     /**
      * Items
      */
-    items: Array<GroupResponse>;
+    items: Array<GroupSummaryResponse>;
     /**
      * Count
      */
     count: number;
-    /**
-     * Isowner
-     */
-    isOwner?: boolean | null;
 };
 
 /**
@@ -378,7 +412,7 @@ export type ValidationError = {
     };
 };
 
-export type PublicApiGetUserGroupsData = {
+export type PublicApiGetGroupsData = {
     body?: never;
     path?: never;
     query?: {
@@ -402,23 +436,53 @@ export type PublicApiGetUserGroupsData = {
     url: '/api/v1/public/groups';
 };
 
-export type PublicApiGetUserGroupsErrors = {
+export type PublicApiGetGroupsErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type PublicApiGetUserGroupsError = PublicApiGetUserGroupsErrors[keyof PublicApiGetUserGroupsErrors];
+export type PublicApiGetGroupsError = PublicApiGetGroupsErrors[keyof PublicApiGetGroupsErrors];
 
-export type PublicApiGetUserGroupsResponses = {
+export type PublicApiGetGroupsResponses = {
     /**
      * Successful Response
      */
     200: GroupsResponse;
 };
 
-export type PublicApiGetUserGroupsResponse = PublicApiGetUserGroupsResponses[keyof PublicApiGetUserGroupsResponses];
+export type PublicApiGetGroupsResponse = PublicApiGetGroupsResponses[keyof PublicApiGetGroupsResponses];
+
+export type PublicApiGetGroupData = {
+    body?: never;
+    path: {
+        /**
+         * Group Id
+         */
+        group_id: string;
+    };
+    query?: never;
+    url: '/api/v1/public/groups/{group_id}';
+};
+
+export type PublicApiGetGroupErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type PublicApiGetGroupError = PublicApiGetGroupErrors[keyof PublicApiGetGroupErrors];
+
+export type PublicApiGetGroupResponses = {
+    /**
+     * Successful Response
+     */
+    200: GroupResponse;
+};
+
+export type PublicApiGetGroupResponse = PublicApiGetGroupResponses[keyof PublicApiGetGroupResponses];
 
 export type PublicApiGetGroupSettingsData = {
     body?: never;
@@ -731,6 +795,42 @@ export type PublicApiUpdateListResponses = {
 };
 
 export type PublicApiUpdateListResponse = PublicApiUpdateListResponses[keyof PublicApiUpdateListResponses];
+
+export type PublicApiClearListData = {
+    body?: never;
+    path: {
+        /**
+         * Group Id
+         */
+        group_id: string;
+        /**
+         * List Id
+         */
+        list_id: string;
+    };
+    query?: never;
+    url: '/api/v1/public/groups/{group_id}/lists/{list_id}/clear';
+};
+
+export type PublicApiClearListErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type PublicApiClearListError = PublicApiClearListErrors[keyof PublicApiClearListErrors];
+
+export type PublicApiClearListResponses = {
+    /**
+     * Response Public Api-Clear List
+     *
+     * Successful Response
+     */
+    200: string;
+};
+
+export type PublicApiClearListResponse = PublicApiClearListResponses[keyof PublicApiClearListResponses];
 
 export type PublicApiSubscribeToListData = {
     body?: never;

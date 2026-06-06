@@ -11,6 +11,8 @@ from api.utils.telegram_auth import (
     validate_telegram_data,
     validate_telegram_login,
 )
+from models_all.enums import Role
+from utils.config import settings
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -28,18 +30,20 @@ async def login_tma(init_data: str = Body(..., embed=True)) -> dict:
             status_code=400, detail="Bad Request: Missing or invalid user data"
         )
 
-    # In TMA, auth_date is a top level param in init_data, but let's parse it if present.
-    # Actually, validate_telegram_data uses unquote, we can find auth_date similarly
-
     parsed_data = dict(chunk.split("=", 1) for chunk in unquote(init_data).split("&"))
     if "auth_date" in parsed_data:
         if time.time() - int(parsed_data["auth_date"]) > 86400:  # 24 hours
             raise HTTPException(status_code=401, detail="Auth data is expired")
 
     user = TelegramUser(**user_dict)
-    token = create_access_token(user.model_dump())
-    return {"access_token": token, "token_type": "bearer", "user": user.model_dump()}
 
+    role = Role.SUPER_ADMIN if str(user.id) == str(settings.OWNER_ID) else Role.USER
+
+    payload = user.model_dump()
+    payload["role"] = role
+    token = create_access_token(payload)
+
+    return {"access_token": token, "token_type": "bearer", "user": user.model_dump(), "role": role}
 
 @router.post("/telegram-tgl")
 async def login_tgl(login_data: dict[str, Any] = Body(...)) -> dict:
@@ -53,5 +57,11 @@ async def login_tgl(login_data: dict[str, Any] = Body(...)) -> dict:
             raise HTTPException(status_code=401, detail="Auth data is expired")
 
     user = TelegramUser(**login_data)
-    token = create_access_token(user.model_dump())
-    return {"access_token": token, "token_type": "bearer", "user": user.model_dump()}
+
+    role = Role.SUPER_ADMIN if str(user.id) == str(settings.OWNER_ID) else Role.USER
+
+    payload = user.model_dump()
+    payload["role"] = role
+    token = create_access_token(payload)
+
+    return {"access_token": token, "token_type": "bearer", "user": user.model_dump(), "role": role}

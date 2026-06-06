@@ -22,7 +22,9 @@ class GroupShared(ModelBase):
     group_members: int | None = Field(default=None)
 
 
-from sqlmodel import Column, DateTime, func
+from sqlmodel import Column, func
+
+from utils.db_types import UTCDateTime
 
 
 class Group(GroupShared, table=True):
@@ -31,16 +33,16 @@ class Group(GroupShared, table=True):
 
     created_at: datetime = Field(
         sa_column=Column(
-            DateTime(timezone=True), server_default=func.now(), nullable=False
+            UTCDateTime(timezone=True), server_default=func.now(), nullable=False
         ),
         default_factory=lambda: datetime.now(UTC),
     )
     updated_at: datetime | None = Field(
-        sa_column=Column(DateTime(timezone=True), onupdate=func.now(), nullable=True),
+        sa_column=Column(UTCDateTime(timezone=True), onupdate=func.now(), nullable=True),
         default=None,
     )
     deleted_at: datetime | None = Field(
-        sa_column=Column(DateTime(timezone=True), nullable=True), default=None
+        sa_column=Column(UTCDateTime(timezone=True), nullable=True), default=None
     )
     active: bool = Field(default=True, nullable=False)
 
@@ -62,14 +64,16 @@ class GroupUpdate(GroupShared):
 from models_all.tag_list import TagListWithSubscriptionResponse
 
 
-class GroupResponse(GroupShared):
+class GroupSummaryResponse(GroupShared):
     id: uuid.UUID
     active: bool
-    is_admin: bool = False
+
+
+class GroupResponse(GroupSummaryResponse):
+    is_group_admin: bool = False
     lists: list[TagListWithSubscriptionResponse] = []
 
 
 class GroupsResponse(ModelBase):
-    items: list[GroupResponse]
+    items: list[GroupSummaryResponse]
     count: int
-    isOwner: bool | None = False

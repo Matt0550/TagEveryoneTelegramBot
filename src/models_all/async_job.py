@@ -3,9 +3,10 @@ from datetime import UTC, datetime
 from enum import StrEnum
 
 from sqlalchemy import BigInteger
-from sqlmodel import Column, DateTime, Field, Relationship, Text, func
+from sqlmodel import Column, Field, Relationship, Text, func
 
 from models import ModelBase
+from utils.db_types import UTCDateTime
 
 
 class JobType(StrEnum):
@@ -37,12 +38,12 @@ class AsyncJob(AsyncJobShared, table=True):
 
     created_at: datetime = Field(
         sa_column=Column(
-            DateTime(timezone=True), server_default=func.now(), nullable=False
+            UTCDateTime(timezone=True), server_default=func.now(), nullable=False
         ),
         default_factory=lambda: datetime.now(UTC),
     )
     completed_at: datetime | None = Field(
-        sa_column=Column(DateTime(timezone=True), nullable=True),
+        sa_column=Column(UTCDateTime(timezone=True), nullable=True),
         default=None,
     )
 

@@ -4,7 +4,8 @@ import {
   publicApiUpdateList,
   publicApiDeleteList,
   publicApiSubscribeToList,
-  publicApiUnsubscribeFromList
+  publicApiUnsubscribeFromList,
+  publicApiClearList
 } from '@/api/sdk.gen';
 import type {
   PublicApiGetListsData,
@@ -50,5 +51,12 @@ export const listService = {
     return apiData<string>(
       publicApiUnsubscribeFromList({ path: { group_id: groupId as any, list_id: listId as any } })
     );
-  }
+  },
+
+  clear(groupId: string, listId: string): Promise<string> {
+    return apiData<string>(
+      publicApiClearList({ path: { group_id: groupId as any, list_id: listId as any } })
+    );
+  },
+
 };

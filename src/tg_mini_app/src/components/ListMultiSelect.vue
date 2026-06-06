@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import ApiMultiSelect from '@/components/ApiMultiSelect.vue'
 import { listService } from '@/services/listService'
+import { useI18n } from 'vue-i18n'
 
 interface Props {
   modelValue: string[];
@@ -14,9 +15,11 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   modelValue: () => [],
   preloadedItems: () => [],
-  placeholder: 'Select lists...',
-  label: 'Available Lists'
+  placeholder: '',
+  label: ''
 })
+
+const { t } = useI18n()
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string[]): void
@@ -41,5 +44,5 @@ const fetchLists = async () => {
 
 <template>
   <ApiMultiSelect v-model="internalValue" :fetch-data="fetchLists" :preloaded-items="preloadedItems"
-    :placeholder="placeholder" :label="label" />
+    :placeholder="placeholder || t('views.groupDetails.settings.selectLists')" :label="label || t('views.groupDetails.lists.available')" />
 </template>

@@ -1,6 +1,6 @@
 import uuid
 
-from sqlmodel import Session, select
+from sqlmodel import Session, select, update
 
 from models_all import ListUser
 from repositories.base_repository import BaseRepository
@@ -53,3 +53,20 @@ class ListUserRepository(BaseRepository[ListUser]):
             ListUser.active == True
         )
         return list(db.exec(statement).all())
+
+    def clear_list_subscriptions(self, db: Session, list_id: uuid.UUID) -> int:
+        """
+        Soft-delete all active user subscriptions for a specific list.
+
+        :param db: The database session
+        :param list_id: The ID of the list
+        :return: The number of subscriptions cleared
+        """
+        from datetime import UTC, datetime
+        statement = (
+            update(ListUser)
+            .where(ListUser.list_id == list_id, ListUser.active == True)
+            .values(active=False, deleted_at=datetime.now(UTC))
+        )
+        result = db.exec(statement)
+        return result.rowcount

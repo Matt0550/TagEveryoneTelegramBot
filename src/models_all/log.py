@@ -2,9 +2,10 @@ import datetime as dt
 import uuid
 
 from sqlalchemy import BigInteger
-from sqlmodel import Column, DateTime, Field, func
+from sqlmodel import Column, Field, func
 
 from models import ModelBase
+from utils.db_types import UTCDateTime
 
 
 class LogShared(ModelBase):
@@ -20,7 +21,7 @@ class Log(LogShared, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid7, primary_key=True)
     created_at: dt.datetime = Field(
         sa_column=Column(
-            DateTime(timezone=True), server_default=func.now(), nullable=False
+            UTCDateTime(timezone=True), server_default=func.now(), nullable=False
         ),
         default_factory=lambda: dt.datetime.now(dt.UTC),
     )

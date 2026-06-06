@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useConfirmDialog } from '@/composables/useConfirmDialog'
+import { useI18n } from 'vue-i18n'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,6 +13,7 @@ import {
 } from '@/components/ui/alert-dialog'
 
 const { dialogState, closeDialog } = useConfirmDialog()
+const { t } = useI18n()
 
 const handleConfirm = () => {
   if (dialogState.value.onConfirm) {
@@ -45,8 +47,8 @@ const updateOpen = (open: boolean) => {
         </AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>
-        <AlertDialogCancel @click="handleCancel">Cancel</AlertDialogCancel>
-        <AlertDialogAction @click="handleConfirm">Continue</AlertDialogAction>
+        <AlertDialogCancel @click="handleCancel">{{ t('actions.cancel') }}</AlertDialogCancel>
+        <AlertDialogAction @click="handleConfirm">{{ t('actions.continue') }}</AlertDialogAction>
       </AlertDialogFooter>
     </AlertDialogContent>
   </AlertDialog>

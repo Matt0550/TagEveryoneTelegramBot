@@ -38,17 +38,17 @@ const { t, locale } = useI18n()
         <NavigationMenuList>
           <NavigationMenuItem v-if="!isInsideTelegram">
             <NavigationMenuLink as-child :class="navigationMenuTriggerStyle()">
-              <router-link to="/">TagEveryone</router-link>
+              <router-link to="/">{{ t('nav.brand') }}</router-link>
             </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuItem>
             <NavigationMenuLink as-child :class="navigationMenuTriggerStyle()">
-              <router-link to="/">Groups</router-link>
+              <router-link to="/">{{ t('nav.groups') }}</router-link>
             </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuItem>
             <NavigationMenuLink as-child :class="navigationMenuTriggerStyle()">
-              <router-link to="/admin">Admin</router-link>
+              <router-link to="/admin">{{ t('nav.admin') }}</router-link>
             </NavigationMenuLink>
           </NavigationMenuItem>
         </NavigationMenuList>

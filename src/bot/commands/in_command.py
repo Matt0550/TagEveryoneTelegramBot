@@ -8,6 +8,7 @@ from models_all.list_user import ListUser
 from models_all.user import UserCreate
 from repositories.list_repository import ListRepository
 from repositories.list_user_repository import ListUserRepository
+from repositories.user_repository import UserRepository
 from services.group_service import GroupService
 from services.log_service import LogService
 from services.user_service import UserService
@@ -34,28 +35,58 @@ async def join_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         args = context.args
 
-        # Default to "everyone" list if no args provided or not mentioning user
         target_list_trigger = "everyone"
-        mentioned_user = None
+
+        target_user_id = user_id
+        target_username = user_username
+        target_first_name = user_first_name
+        target_last_name = user_last_name
+        is_manual_modify = False
 
         if args:
-            if args[0].startswith("@"):
-                target_list_trigger = args[0][1:].lower()
-            else:
-                target_list_trigger = args[0].lower()
-
-            # Check if an admin mentioned someone to add them
             entities = update.message.parse_entities(
                 types=[MessageEntity.TEXT_MENTION, MessageEntity.MENTION]
             )
-            for entity, _value in entities.items():
-                if entity.type == MessageEntity.TEXT_MENTION:
-                    mentioned_user = entity.user
-                elif entity.type == MessageEntity.MENTION:
-                    pass  # We only support text mention right now, or we'd have to lookup by username
+            mentioned_user_obj = None
+            mentioned_username = None
 
-            if mentioned_user:
-                # If they mentioned someone, default the list to everyone unless specified as second arg
+            for entity, value in entities.items():
+                if entity.type == MessageEntity.TEXT_MENTION:
+                    mentioned_user_obj = entity.user
+                elif entity.type == MessageEntity.MENTION:
+                    mentioned_username = value[1:]
+
+            if mentioned_user_obj:
+                target_user_id = mentioned_user_obj.id
+                target_username = mentioned_user_obj.username
+                target_first_name = mentioned_user_obj.first_name
+                target_last_name = mentioned_user_obj.last_name
+                is_manual_modify = True
+            elif mentioned_username:
+                user_repo = UserRepository()
+                db_user = user_repo.get_by_username(session, mentioned_username)
+                if db_user:
+                    target_user_id = db_user.user_id
+                    target_username = db_user.username
+                    target_first_name = db_user.first_name
+                    target_last_name = db_user.last_name
+                    is_manual_modify = True
+                else:
+                    await update.message.reply_text(
+                        f"User @{mentioned_username} not found in bot database."
+                    )
+                    return
+            elif args[0].isdigit():
+                target_user_id = int(args[0])
+                is_manual_modify = True
+                user_repo = UserRepository()
+                db_user = user_repo.get_by_user_id(session, target_user_id)
+                if db_user:
+                    target_username = db_user.username
+                    target_first_name = db_user.first_name
+                    target_last_name = db_user.last_name
+
+            if is_manual_modify:
                 if len(args) > 1:
                     target_list_trigger = args[1].lower()
                 else:
@@ -67,9 +98,14 @@ async def join_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     admin_member.OWNER,
                 ]:
                     await update.message.reply_text(
-                        "You must be a group admin or owner to add others."
+                        "You must be a group admin or owner to modify others."
                     )
                     return
+            else:
+                if args[0].startswith("@"):
+                    target_list_trigger = args[0][1:].lower()
+                else:
+                    target_list_trigger = args[0].lower()
 
         UserService.get_or_create_user(
             session,
@@ -92,15 +128,14 @@ async def join_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
             ),
         )
 
-        target_user_id = mentioned_user.id if mentioned_user else user_id
-        if mentioned_user:
+        if is_manual_modify:
             UserService.get_or_create_user(
                 session,
                 UserCreate(
                     user_id=target_user_id,
-                    username=mentioned_user.username,
-                    first_name=mentioned_user.first_name,
-                    last_name=mentioned_user.last_name,
+                    username=target_username,
+                    first_name=target_first_name,
+                    last_name=target_last_name,
                 ),
             )
 
@@ -127,7 +162,7 @@ async def join_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
             session, ListUser(list_id=target_list.id, user_id=target_user_id)
         )
 
-        if mentioned_user:
+        if is_manual_modify:
             await update.message.reply_text(
                 f"User manually added to '{target_list.name}'."
             )

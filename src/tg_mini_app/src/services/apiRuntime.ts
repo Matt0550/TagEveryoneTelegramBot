@@ -1,4 +1,5 @@
 import { client } from '@/api/client.gen'
+import type { GlobalRole } from '@/composables/useAuth'
 
 export const setCookie = (name: string, value: string, days = 7) => {
   const expires = new Date(Date.now() + days * 86400000).toUTCString()
@@ -14,7 +15,7 @@ export const getCookie = (name: string) => {
 
 const API_BASE = import.meta.env.VITE_API_URL || ''
 
-export async function authenticateWithTma(initData: string): Promise<{token: string, user: any} | null> {
+export async function authenticateWithTma(initData: string): Promise<{token: string, user: any, role: GlobalRole} | null> {
     try {
         const response = await fetch(`${API_BASE}/api/v1/public/auth/telegram-tma`, {
             method: 'POST',
@@ -25,14 +26,15 @@ export async function authenticateWithTma(initData: string): Promise<{token: str
         const data = await response.json()
         const token = data?.message?.access_token || data?.access_token
         const user = data?.message?.user || data?.user
-        if (token) return { token, user }
+        const role = data?.message?.role || data?.role || 'user'
+        if (token) return { token, user, role: role as GlobalRole }
         return null
     } catch {
         return null
     }
 }
 
-export async function authenticateWithTgl(loginData: any): Promise<{token: string, user: any} | null> {
+export async function authenticateWithTgl(loginData: any): Promise<{token: string, user: any, role: GlobalRole} | null> {
     try {
         const response = await fetch(`${API_BASE}/api/v1/public/auth/telegram-tgl`, {
             method: 'POST',
@@ -43,7 +45,8 @@ export async function authenticateWithTgl(loginData: any): Promise<{token: strin
         const data = await response.json()
         const token = data?.message?.access_token || data?.access_token
         const user = data?.message?.user || data?.user
-        if (token) return { token, user }
+        const role = data?.message?.role || data?.role || 'user'
+        if (token) return { token, user, role: role as GlobalRole }
         return null
     } catch {
         return null

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import {
   Select,
   SelectContent,
@@ -20,13 +21,15 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   modelValue: () => [],
   preloadedItems: () => [],
-  placeholder: 'Select options...',
-  label: 'Available Lists'
+  placeholder: '',
+  label: ''
 })
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string[]): void
 }>()
+
+const { t } = useI18n()
 
 const items = ref<Array<{ id: string, name: string }>>([...props.preloadedItems])
 const isLoading = ref(false)
@@ -75,7 +78,7 @@ onMounted(() => {
 <template>
   <Select multiple :model-value="internalValue" @update:model-value="updateValue">
     <SelectTrigger class="w-full">
-      <SelectValue :placeholder="placeholder" />
+      <SelectValue :placeholder="placeholder || t('actions.selectOptions')" />
     </SelectTrigger>
     <SelectContent>
       <SelectGroup>
@@ -84,10 +87,10 @@ onMounted(() => {
           {{ item.name }}
         </SelectItem>
         <SelectItem v-if="items.length === 0 && !isLoading" value="empty" disabled>
-          No options available
+          {{ t('actions.noOptions') }}
         </SelectItem>
         <SelectItem v-if="isLoading" value="loading" disabled>
-          Loading...
+          {{ t('actions.loading') }}
         </SelectItem>
       </SelectGroup>
     </SelectContent>
