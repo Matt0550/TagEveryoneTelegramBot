@@ -1,7 +1,7 @@
 import hashlib
 import hmac
 import json
-from urllib.parse import unquote
+from urllib.parse import parse_qsl, unquote
 
 from telegram import Bot
 from telegram.error import TelegramError
@@ -32,9 +32,7 @@ def validate_telegram_data(init_data: str, c_str: str = "WebAppData") -> bool:
     Validates the data received from the Telegram web app using HMAC.
     """
     try:
-        parsed_data = dict(
-            chunk.split("=", 1) for chunk in unquote(init_data).split("&")
-        )
+        parsed_data = dict(parse_qsl(init_data, keep_blank_values=True))
         if "hash" not in parsed_data:
             return False
 
@@ -81,10 +79,11 @@ def get_user_from_init_data(init_data: str) -> dict | None:
     Extracts the user dictionary from the init_data string safely.
     """
     try:
-        parsed_data = dict(
-            chunk.split("=", 1) for chunk in unquote(init_data).split("&")
-        )
-        user_str = unquote(parsed_data.get("user", ""))
+        parsed_data = dict(parse_qsl(init_data, keep_blank_values=True))
+        user_str = parsed_data.get("user", "")
+
+        if not user_str:
+            return None
 
         # Parse the JSON string into a dictionary
         user = json.loads(user_str)

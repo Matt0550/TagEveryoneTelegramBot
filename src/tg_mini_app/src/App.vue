@@ -40,11 +40,19 @@ onMounted(async () => {
     }
   }
 })
+
+const handleBack = () => {
+  if (window.history.state && window.history.state.back) {
+    router.back()
+  } else {
+    router.push('/')
+  }
+}
 </script>
 
 <template>
   <div class="bg-background text-foreground min-h-screen">
-    <BackButton v-if="route.path !== '/'" @click="router.back()" />
+    <BackButton v-if="route.path !== '/'" @click="handleBack" />
     <Navbar v-if="isAuthenticated" />
 
     <div class="px-3 pt-6 pb-10">
