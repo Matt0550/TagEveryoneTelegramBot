@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { PublicApiClearListData, PublicApiClearListErrors, PublicApiClearListResponses, PublicApiCreateListData, PublicApiCreateListErrors, PublicApiCreateListResponses, PublicApiDeleteListData, PublicApiDeleteListErrors, PublicApiDeleteListResponses, PublicApiGetAdminLogsData, PublicApiGetAdminLogsErrors, PublicApiGetAdminLogsResponses, PublicApiGetGroupData, PublicApiGetGroupErrors, PublicApiGetGroupResponses, PublicApiGetGroupsData, PublicApiGetGroupsErrors, PublicApiGetGroupSettingsData, PublicApiGetGroupSettingsErrors, PublicApiGetGroupSettingsResponses, PublicApiGetGroupsResponses, PublicApiGetListsData, PublicApiGetListsErrors, PublicApiGetListsResponses, PublicApiLoginTglData, PublicApiLoginTglErrors, PublicApiLoginTglResponses, PublicApiLoginTmaData, PublicApiLoginTmaErrors, PublicApiLoginTmaResponses, PublicApiSubscribeToListData, PublicApiSubscribeToListErrors, PublicApiSubscribeToListResponses, PublicApiUnsubscribeFromListData, PublicApiUnsubscribeFromListErrors, PublicApiUnsubscribeFromListResponses, PublicApiUpdateGroupSettingsData, PublicApiUpdateGroupSettingsErrors, PublicApiUpdateGroupSettingsResponses, PublicApiUpdateListData, PublicApiUpdateListErrors, PublicApiUpdateListResponses, SystemSystemStatusData, SystemSystemStatusResponses } from './types.gen';
+import type { PublicApiAddListMemberData, PublicApiAddListMemberErrors, PublicApiAddListMemberResponses, PublicApiClearListData, PublicApiClearListErrors, PublicApiClearListResponses, PublicApiCreateListData, PublicApiCreateListErrors, PublicApiCreateListResponses, PublicApiDeleteListData, PublicApiDeleteListErrors, PublicApiDeleteListResponses, PublicApiGetAdminLogsData, PublicApiGetAdminLogsErrors, PublicApiGetAdminLogsResponses, PublicApiGetGroupData, PublicApiGetGroupErrors, PublicApiGetGroupResponses, PublicApiGetGroupsData, PublicApiGetGroupsErrors, PublicApiGetGroupSettingsData, PublicApiGetGroupSettingsErrors, PublicApiGetGroupSettingsResponses, PublicApiGetGroupsResponses, PublicApiGetListMembersData, PublicApiGetListMembersErrors, PublicApiGetListMembersResponses, PublicApiGetListsData, PublicApiGetListsErrors, PublicApiGetListsResponses, PublicApiLoginTglData, PublicApiLoginTglErrors, PublicApiLoginTglResponses, PublicApiLoginTmaData, PublicApiLoginTmaErrors, PublicApiLoginTmaResponses, PublicApiRemoveListMemberData, PublicApiRemoveListMemberErrors, PublicApiRemoveListMemberResponses, PublicApiSubscribeToListData, PublicApiSubscribeToListErrors, PublicApiSubscribeToListResponses, PublicApiTriggerListMentionData, PublicApiTriggerListMentionErrors, PublicApiTriggerListMentionResponses, PublicApiUnsubscribeFromListData, PublicApiUnsubscribeFromListErrors, PublicApiUnsubscribeFromListResponses, PublicApiUpdateGroupSettingsData, PublicApiUpdateGroupSettingsErrors, PublicApiUpdateGroupSettingsResponses, PublicApiUpdateListData, PublicApiUpdateListErrors, PublicApiUpdateListResponses, SystemSystemStatusData, SystemSystemStatusResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -159,6 +159,46 @@ export const publicApiSubscribeToList = <ThrowOnError extends boolean = false>(o
 export const publicApiUnsubscribeFromList = <ThrowOnError extends boolean = false>(options: Options<PublicApiUnsubscribeFromListData, ThrowOnError>) => (options.client ?? client).post<PublicApiUnsubscribeFromListResponses, PublicApiUnsubscribeFromListErrors, ThrowOnError>({
     security: [{ name: 'Authorization', type: 'apiKey' }],
     url: '/api/v1/public/groups/{group_id}/lists/{list_id}/unsubscribe',
+    ...options
+});
+
+/**
+ * Get members of a list
+ */
+export const publicApiGetListMembers = <ThrowOnError extends boolean = false>(options: Options<PublicApiGetListMembersData, ThrowOnError>) => (options.client ?? client).get<PublicApiGetListMembersResponses, PublicApiGetListMembersErrors, ThrowOnError>({
+    security: [{ name: 'Authorization', type: 'apiKey' }],
+    url: '/api/v1/public/groups/{group_id}/lists/{list_id}/members',
+    ...options
+});
+
+/**
+ * Add a member to a list by admin
+ */
+export const publicApiAddListMember = <ThrowOnError extends boolean = false>(options: Options<PublicApiAddListMemberData, ThrowOnError>) => (options.client ?? client).post<PublicApiAddListMemberResponses, PublicApiAddListMemberErrors, ThrowOnError>({
+    security: [{ name: 'Authorization', type: 'apiKey' }],
+    url: '/api/v1/public/groups/{group_id}/lists/{list_id}/members',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Remove a member from a list by admin
+ */
+export const publicApiRemoveListMember = <ThrowOnError extends boolean = false>(options: Options<PublicApiRemoveListMemberData, ThrowOnError>) => (options.client ?? client).delete<PublicApiRemoveListMemberResponses, PublicApiRemoveListMemberErrors, ThrowOnError>({
+    security: [{ name: 'Authorization', type: 'apiKey' }],
+    url: '/api/v1/public/groups/{group_id}/lists/{list_id}/members/{user_id}',
+    ...options
+});
+
+/**
+ * Trigger a mention for all list members via API
+ */
+export const publicApiTriggerListMention = <ThrowOnError extends boolean = false>(options: Options<PublicApiTriggerListMentionData, ThrowOnError>) => (options.client ?? client).post<PublicApiTriggerListMentionResponses, PublicApiTriggerListMentionErrors, ThrowOnError>({
+    security: [{ name: 'Authorization', type: 'apiKey' }],
+    url: '/api/v1/public/groups/{group_id}/lists/{list_id}/trigger',
     ...options
 });
 

@@ -5,6 +5,16 @@ export type ClientOptions = {
 };
 
 /**
+ * AddMemberPayload
+ */
+export type AddMemberPayload = {
+    /**
+     * Identifier
+     */
+    identifier: string | number;
+};
+
+/**
  * Body_Public API-login_tma
  */
 export type BodyPublicApiLoginTma = {
@@ -903,6 +913,156 @@ export type PublicApiUnsubscribeFromListResponses = {
 };
 
 export type PublicApiUnsubscribeFromListResponse = PublicApiUnsubscribeFromListResponses[keyof PublicApiUnsubscribeFromListResponses];
+
+export type PublicApiGetListMembersData = {
+    body?: never;
+    path: {
+        /**
+         * Group Id
+         */
+        group_id: string;
+        /**
+         * List Id
+         */
+        list_id: string;
+    };
+    query?: never;
+    url: '/api/v1/public/groups/{group_id}/lists/{list_id}/members';
+};
+
+export type PublicApiGetListMembersErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type PublicApiGetListMembersError = PublicApiGetListMembersErrors[keyof PublicApiGetListMembersErrors];
+
+export type PublicApiGetListMembersResponses = {
+    /**
+     * Response Public Api-Get List Members
+     *
+     * Successful Response
+     */
+    200: Array<{
+        [key: string]: unknown;
+    }>;
+};
+
+export type PublicApiGetListMembersResponse = PublicApiGetListMembersResponses[keyof PublicApiGetListMembersResponses];
+
+export type PublicApiAddListMemberData = {
+    body: AddMemberPayload;
+    path: {
+        /**
+         * Group Id
+         */
+        group_id: string;
+        /**
+         * List Id
+         */
+        list_id: string;
+    };
+    query?: never;
+    url: '/api/v1/public/groups/{group_id}/lists/{list_id}/members';
+};
+
+export type PublicApiAddListMemberErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type PublicApiAddListMemberError = PublicApiAddListMemberErrors[keyof PublicApiAddListMemberErrors];
+
+export type PublicApiAddListMemberResponses = {
+    /**
+     * Response Public Api-Add List Member
+     *
+     * Successful Response
+     */
+    200: string;
+};
+
+export type PublicApiAddListMemberResponse = PublicApiAddListMemberResponses[keyof PublicApiAddListMemberResponses];
+
+export type PublicApiRemoveListMemberData = {
+    body?: never;
+    path: {
+        /**
+         * Group Id
+         */
+        group_id: string;
+        /**
+         * List Id
+         */
+        list_id: string;
+        /**
+         * User Id
+         */
+        user_id: number;
+    };
+    query?: never;
+    url: '/api/v1/public/groups/{group_id}/lists/{list_id}/members/{user_id}';
+};
+
+export type PublicApiRemoveListMemberErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type PublicApiRemoveListMemberError = PublicApiRemoveListMemberErrors[keyof PublicApiRemoveListMemberErrors];
+
+export type PublicApiRemoveListMemberResponses = {
+    /**
+     * Response Public Api-Remove List Member
+     *
+     * Successful Response
+     */
+    200: string;
+};
+
+export type PublicApiRemoveListMemberResponse = PublicApiRemoveListMemberResponses[keyof PublicApiRemoveListMemberResponses];
+
+export type PublicApiTriggerListMentionData = {
+    body?: never;
+    path: {
+        /**
+         * Group Id
+         */
+        group_id: string;
+        /**
+         * List Id
+         */
+        list_id: string;
+    };
+    query?: never;
+    url: '/api/v1/public/groups/{group_id}/lists/{list_id}/trigger';
+};
+
+export type PublicApiTriggerListMentionErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type PublicApiTriggerListMentionError = PublicApiTriggerListMentionErrors[keyof PublicApiTriggerListMentionErrors];
+
+export type PublicApiTriggerListMentionResponses = {
+    /**
+     * Response Public Api-Trigger List Mention
+     *
+     * Successful Response
+     */
+    200: string;
+};
+
+export type PublicApiTriggerListMentionResponse = PublicApiTriggerListMentionResponses[keyof PublicApiTriggerListMentionResponses];
 
 export type SystemSystemStatusData = {
     body?: never;

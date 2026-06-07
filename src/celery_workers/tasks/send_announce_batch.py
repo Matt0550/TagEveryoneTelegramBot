@@ -12,13 +12,10 @@ from sqlmodel import select
 
 from celery_workers.celery_app import celery_app
 from celery_workers.celery_logger_base import logger
-from celery_workers.tasks.send_telegram_message import (
-    TelegramAPIError,
-    TelegramRateLimitError,
-    _get_api_url,
-)
 from models_all.announce_job_group import AnnounceGroupStatus, AnnounceJobGroup
 from models_all.async_job import AsyncJob, JobStatus
+from models_all.exceptions import TelegramAPIError, TelegramRateLimitError
+from utils.config import _get_telegram_api_url
 from utils.session_manager import Session, engine
 
 
@@ -207,7 +204,7 @@ def _send_message_to_group(chat_id: int, text: str) -> dict:
     }
 
     with httpx.Client(timeout=30.0) as client:
-        response = client.post(_get_api_url("sendMessage"), json=payload)
+        response = client.post(_get_telegram_api_url("sendMessage"), json=payload)
 
     response_data = response.json()
 

@@ -2,7 +2,7 @@
 import { onMounted } from 'vue'
 import { Toaster } from '@/components/ui/sonner'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
-import { LoginWidget, BackButton } from 'vue-tg'
+import { LoginWidget, BackButton, useMiniApp } from 'vue-tg'
 import { useRouter, useRoute } from 'vue-router'
 import { client } from '@/api/client.gen'
 import { setCookie } from '@/services/apiRuntime'
@@ -19,6 +19,7 @@ const botUsername = import.meta.env.VITE_BOT_USERNAME || 'TagEveryoneBot'
 
 const { isAuthenticated, isLoading, initAuth, loginWithWidget } = useAuth()
 const { t } = useI18n()
+const webApp = useMiniApp()
 
 onMounted(async () => {
   await initAuth()
@@ -31,6 +32,13 @@ onMounted(async () => {
     }
     return response
   })
+
+  // Handle Telegram startapp parameter (tgWebAppStartParam)
+  if (isAuthenticated.value && webApp.initDataUnsafe?.start_param) {
+    if (route.path === '/') {
+      router.push(`/groups/${webApp.initDataUnsafe.start_param}`)
+    }
+  }
 })
 </script>
 
@@ -38,7 +46,7 @@ onMounted(async () => {
   <div class="bg-background text-foreground min-h-screen">
     <BackButton v-if="route.path !== '/'" @click="router.back()" />
     <Navbar v-if="isAuthenticated" />
-    
+
     <div class="px-3 pt-6 pb-10">
       <div v-if="isLoading" class="flex items-center justify-center min-h-[80vh]">
         <div class="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>

@@ -87,6 +87,7 @@ class Settings(BaseSettings):
     BOT_TOKEN: str = ""
     OWNER_ID: str = ""
     REPORT_ERRORS_OWNER: bool = True
+    WEBAPP_SHORTNAME: str = "app"
 
     # * MARK: FASTAPI SERVER CONFIG
     API_HOST: str = "0.0.0.0"
@@ -100,3 +101,10 @@ class Settings(BaseSettings):
 
 
 settings = Settings()  # type: ignore
+
+TELEGRAM_API_BASE = "https://api.telegram.org/bot{token}"
+
+
+def _get_telegram_api_url(method: str) -> str:
+    """Build the full Telegram API URL for a given method."""
+    return f"{TELEGRAM_API_BASE.format(token=settings.BOT_TOKEN)}/{method}"

@@ -5,7 +5,11 @@ import {
   publicApiDeleteList,
   publicApiSubscribeToList,
   publicApiUnsubscribeFromList,
-  publicApiClearList
+  publicApiClearList,
+  publicApiGetListMembers,
+  publicApiAddListMember,
+  publicApiRemoveListMember,
+  publicApiTriggerListMention
 } from '@/api/sdk.gen';
 import type {
   PublicApiGetListsData,
@@ -56,6 +60,30 @@ export const listService = {
   clear(groupId: string, listId: string): Promise<string> {
     return apiData<string>(
       publicApiClearList({ path: { group_id: groupId as any, list_id: listId as any } })
+    );
+  },
+
+  getMembers(groupId: string, listId: string): Promise<Array<any>> {
+    return apiData<Array<any>>(
+      publicApiGetListMembers({ path: { group_id: groupId as any, list_id: listId as any } })
+    );
+  },
+
+  addMember(groupId: string, listId: string, identifier: string | number): Promise<string> {
+    return apiData<string>(
+      publicApiAddListMember({ path: { group_id: groupId as any, list_id: listId as any }, body: { identifier } as any })
+    );
+  },
+
+  removeMember(groupId: string, listId: string, userId: number): Promise<string> {
+    return apiData<string>(
+      publicApiRemoveListMember({ path: { group_id: groupId as any, list_id: listId as any, user_id: userId as any } })
+    );
+  },
+
+  triggerMention(groupId: string, listId: string): Promise<string> {
+    return apiData<string>(
+      publicApiTriggerListMention({ path: { group_id: groupId as any, list_id: listId as any } })
     );
   },
 

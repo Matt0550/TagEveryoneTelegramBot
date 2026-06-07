@@ -4,6 +4,7 @@ from collections.abc import Sequence
 from sqlmodel import Session
 
 from models_all.log import Log, LogCreate
+from repositories.group_repository import GroupRepository
 from repositories.log_repository import LogRepository
 from utils.pagination import PaginationParams
 
@@ -51,11 +52,12 @@ class LogService:
                 except ValueError:
                     # It's likely a Telegram ID
                     try:
-                        from repositories.group_repository import GroupRepository
-                        group = GroupRepository().get_by_telegram_id(session, int(group_id))
+                        group = GroupRepository().get_by_telegram_id(
+                            session, int(group_id)
+                        )
                         if group:
                             real_group_id = group.id
-                    except (ValueError, TypeError):
+                    except ValueError, TypeError:
                         pass
 
         log_create = LogCreate(

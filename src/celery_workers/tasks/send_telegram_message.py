@@ -7,32 +7,8 @@ import httpx
 
 from celery_workers.celery_app import celery_app
 from celery_workers.celery_logger_base import logger
-from utils.config import settings
-
-
-class TelegramRateLimitError(Exception):
-    """Raised when Telegram returns a 429 Too Many Requests response."""
-
-    def __init__(self, retry_after: int, message: str = "Rate limited by Telegram"):
-        self.retry_after = retry_after
-        super().__init__(f"{message} (retry_after={retry_after}s)")
-
-
-class TelegramAPIError(Exception):
-    """Raised when Telegram returns a non-2xx, non-429 response."""
-
-    def __init__(self, status_code: int, description: str):
-        self.status_code = status_code
-        self.description = description
-        super().__init__(f"Telegram API error {status_code}: {description}")
-
-
-TELEGRAM_API_BASE = "https://api.telegram.org/bot{token}"
-
-
-def _get_api_url(method: str) -> str:
-    """Build the full Telegram API URL for a given method."""
-    return f"{TELEGRAM_API_BASE.format(token=settings.BOT_TOKEN)}/{method}"
+from models_all.exceptions import TelegramAPIError, TelegramRateLimitError
+from utils.config import _get_telegram_api_url
 
 
 @celery_app.task(
@@ -88,7 +64,7 @@ def send_telegram_message(
 
     try:
         with httpx.Client(timeout=30.0) as client:
-            response = client.post(_get_api_url("sendMessage"), json=payload)
+            response = client.post(_get_telegram_api_url("sendMessage"), json=payload)
 
         response_data = response.json()
 

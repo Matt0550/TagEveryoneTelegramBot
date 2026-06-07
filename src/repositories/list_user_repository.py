@@ -1,8 +1,10 @@
 import uuid
+from datetime import UTC, datetime
 
 from sqlmodel import Session, select, update
 
 from models_all import ListUser
+from models_all.user import User
 from repositories.base_repository import BaseRepository
 
 
@@ -10,7 +12,9 @@ class ListUserRepository(BaseRepository[ListUser]):
     def __init__(self):
         super().__init__(ListUser)
 
-    def get_subscription(self, db: Session, list_id: uuid.UUID, user_id: int) -> ListUser | None:
+    def get_subscription(
+        self, db: Session, list_id: uuid.UUID, user_id: int
+    ) -> ListUser | None:
         """
         Get a specific active subscription for a user to a list.
 
@@ -22,7 +26,7 @@ class ListUserRepository(BaseRepository[ListUser]):
         statement = select(ListUser).where(
             ListUser.list_id == list_id,
             ListUser.user_id == user_id,
-            ListUser.active == True
+            ListUser.active == True,
         )
         return db.exec(statement).first()
 
@@ -35,8 +39,7 @@ class ListUserRepository(BaseRepository[ListUser]):
         :return: A list of ListUser objects
         """
         statement = select(ListUser).where(
-            ListUser.list_id == list_id,
-            ListUser.active == True
+            ListUser.list_id == list_id, ListUser.active == True
         )
         return list(db.exec(statement).all())
 
@@ -49,8 +52,7 @@ class ListUserRepository(BaseRepository[ListUser]):
         :return: A list of ListUser objects representing the user's subscriptions
         """
         statement = select(ListUser).where(
-            ListUser.user_id == user_id,
-            ListUser.active == True
+            ListUser.user_id == user_id, ListUser.active == True
         )
         return list(db.exec(statement).all())
 
@@ -62,7 +64,7 @@ class ListUserRepository(BaseRepository[ListUser]):
         :param list_id: The ID of the list
         :return: The number of subscriptions cleared
         """
-        from datetime import UTC, datetime
+
         statement = (
             update(ListUser)
             .where(ListUser.list_id == list_id, ListUser.active == True)
@@ -70,3 +72,24 @@ class ListUserRepository(BaseRepository[ListUser]):
         )
         result = db.exec(statement)
         return result.rowcount
+
+    def get_users_in_list_with_details(
+        self, db: Session, list_id: uuid.UUID
+    ) -> list[tuple[ListUser, "User"]]:
+        """
+        Get all active user subscriptions for a specific list along with their User details.
+
+        :param db: The database session
+        :param list_id: The ID of the list
+        :return: A list of tuples containing (ListUser, User)
+        """
+        statement = (
+            select(ListUser, User)
+            .join(User, ListUser.user_id == User.user_id)
+            .where(
+                ListUser.list_id == list_id,
+                ListUser.active == True,
+                User.active == True,
+            )
+        )
+        return list(db.exec(statement).all())

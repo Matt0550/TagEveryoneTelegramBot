@@ -8,6 +8,7 @@ from repositories.group_repository import GroupRepository
 from repositories.list_repository import ListRepository
 from repositories.list_user_repository import ListUserRepository
 from services.log_service import LogService
+from services.mention_service import MentionService
 from utils.logger_base import logger
 from utils.session_manager import Session, engine
 
@@ -66,24 +67,15 @@ async def getList(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
         else:
             try:
-                members = []
-                for user in data:
-                    try:
-                        member = await update.message.chat.get_member(user.user_id)
-                        username = (
-                            member.user.username
-                            if member.user.username is not None
-                            else member.user.full_name
-                        )
-                        members.append(username)
-                    except Exception as e:
-                        error_message_lower = str(e).lower()
-                        if (
-                            "member not found" in error_message_lower
-                            or "participant_id_invalid" in error_message_lower
-                        ):
-                            user_list_repo.delete(session, user.id)
-                        continue
+                user_ids = {u.user_id for u in data}
+                members = await MentionService.build_mentions(
+                    session=session,
+                    group_id=group.id,
+                    group_telegram_id=group.telegram_id,
+                    user_ids=user_ids,
+                    update=update,
+                    plain_text=True,
+                )
 
                 await update.message.reply_text(
                     f"Members of <b>{target_list.name}</b>:\n"

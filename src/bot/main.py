@@ -42,6 +42,7 @@ from bot.commands.help_command import help as help_cmd
 from bot.commands.in_command import join_list
 from bot.commands.list_command import getList
 from bot.commands.out_command import leave_list
+from bot.commands.settings_command import settings_command
 from bot.commands.start_command import start
 from bot.commands.stats_command import stats
 from bot.commands.status_command import status
@@ -126,6 +127,7 @@ def main():
     application.add_handler(CommandHandler("announce", announce))
     application.add_handler(CommandHandler("announce_status", announce_status))
     application.add_handler(CommandHandler("checkGroups", checkGroups))
+    application.add_handler(CommandHandler("settings", settings_command))
 
     # Message handlers for triggers (like @everyone or /everyone)
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, everyone))

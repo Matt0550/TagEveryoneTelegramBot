@@ -1,7 +1,9 @@
 from telegram import Update
 from telegram.ext import ContextTypes
 
+from api.utils.telegram_utils import check_telegram_admin
 from bot.decorators.cooldown import cooldown
+from models_all.user import UserCreate
 from services.log_service import LogService
 from services.user_service import UserService
 from utils.logger_base import logger
@@ -18,8 +20,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         username = update.message.from_user.username
         chat_id = update.message.chat.id
 
-        from models_all.user import UserCreate
-
         UserService.get_or_create_user(
             session,
             UserCreate(
@@ -35,10 +35,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "Welcome to Tag Everyone Bot\n\nFor more information type /help\n\nTo get started add this bot as ADMIN to a group and type /in to get started."
             )
         else:
-            member_status = await update.message.chat.get_member(
-                context.application.bot.id
-            )
-            if member_status.status == "administrator":
+            is_bot_admin = await check_telegram_admin(chat_id, context.application.bot.id, context.application.bot)
+            if is_bot_admin:
                 await update.message.reply_text(
                     "Bot is now ready to use.\nFor more information type /help"
                 )

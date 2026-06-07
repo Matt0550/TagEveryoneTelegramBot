@@ -1,18 +1,25 @@
 import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
-from api.auth_deps import is_group_admin
+from fastapi import APIRouter, Depends
+from telegram import Bot
 
-from api.auth_deps import require_group_admin
+from api.auth_deps import is_group_admin, require_group_admin
 from api.decorators.set_sentry_context import set_sentry_context
 from api.dependencies import GroupServiceDep, get_group_service
 from api.utils.telegram_auth import TelegramUser, verify_telegram_webapp
+from api.utils.telegram_utils import check_telegram_member
+from models_all.exceptions import (
+    BadRequestException,
+    ForbiddenException,
+    NotFoundException,
+)
 from models_all.group import GroupResponse, GroupsResponse, GroupSummaryResponse
 from models_all.group_setting import (
     GroupSettingResponse,
     GroupSettingUpdate,
 )
+from utils.config import settings
 from utils.pagination import PaginationParams
 
 router = APIRouter()
@@ -56,18 +63,15 @@ async def get_group(
 ) -> GroupResponse:
     group = group_service.repository.get_by_id(group_service.session, group_id)
     if not group:
-        raise HTTPException(status_code=404, detail="Group not found")
+        raise NotFoundException("Group not found")
 
-    is_admin = await is_group_admin(group, user, group_service.session)
+    bot = Bot(token=settings.BOT_TOKEN)
+    is_admin = await is_group_admin(group, user, group_service.session, bot=bot)
 
     # If not admin, check if user is a member of the group
     if not is_admin:
-        from api.auth_deps import check_telegram_member
-
-        if not await check_telegram_member(group.telegram_id, user.id):
-            raise HTTPException(
-                status_code=403, detail="Not authorized to view this group"
-            )
+        if not await check_telegram_member(group.telegram_id, user.id, bot=bot):
+            raise ForbiddenException("Not authorized to view this group")
 
     subscribed_list_ids = list_service.get_subscribed_list_ids(user.id)
 
@@ -101,7 +105,7 @@ async def get_group_settings(
         data["auto_add_lists"] = settings.auto_add_lists
         return GroupSettingResponse(**data)
     except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        raise NotFoundException(str(e))
 
 
 @router.put(
@@ -124,5 +128,6 @@ async def update_group_settings(
         data["auto_add_lists"] = updated_settings.auto_add_lists
         return GroupSettingResponse(**data)
     except ValueError as e:
-        status_code = 404 if "Group not found" in str(e) else 400
-        raise HTTPException(status_code=status_code, detail=str(e))
+        if "Group not found" in str(e):
+            raise NotFoundException(str(e))
+        raise BadRequestException(str(e))

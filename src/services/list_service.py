@@ -1,18 +1,31 @@
-
 import uuid
 from collections.abc import Sequence
 
 from sqlmodel import Session
+from telegram import Bot
 
+from api.utils.telegram_utils import check_telegram_member
+from celery_workers.tasks.send_telegram_message import send_telegram_message
 from models_all import ListUser, Log, TagList, TagListCreate, TagListUpdate
+from models_all.tag_list import TagListWithSubscriptionResponse
+from models_all.user import User
 from repositories.group_repository import GroupRepository
 from repositories.list_repository import ListRepository
 from repositories.list_user_repository import ListUserRepository
+from repositories.user_repository import UserRepository
+from services.mention_service import MentionService
+from utils.config import settings
 from utils.pagination import PaginationParams
 
 
 class ListService:
-    def __init__(self, session: Session, repository: ListRepository, user_repo: ListUserRepository, group_repo: GroupRepository):
+    def __init__(
+        self,
+        session: Session,
+        repository: ListRepository,
+        user_repo: ListUserRepository,
+        group_repo: GroupRepository,
+    ):
         self.session = session
         self.repository = repository
         self.user_repo = user_repo
@@ -43,7 +56,7 @@ class ListService:
         lists: Sequence[TagList],
         user_id: int,
         subscribed_list_ids: set[uuid.UUID] | None = None,
-        filter_active: bool = False
+        filter_active: bool = False,
     ) -> list:
         """
         Format TagList objects to include subscription status for a specific user.
@@ -54,7 +67,6 @@ class ListService:
         :param filter_active: If True, exclude inactive lists
         :return: A list of TagListWithSubscriptionResponse objects (as dicts or models)
         """
-        from models_all.tag_list import TagListWithSubscriptionResponse
 
         if subscribed_list_ids is None:
             subscribed_list_ids = self.get_subscribed_list_ids(user_id)
@@ -68,7 +80,9 @@ class ListService:
             formatted.append(TagListWithSubscriptionResponse(**data))
         return formatted
 
-    def get_lists(self, group_id: uuid.UUID, params: PaginationParams) -> tuple[Sequence[TagList], int]:
+    def get_lists(
+        self, group_id: uuid.UUID, params: PaginationParams
+    ) -> tuple[Sequence[TagList], int]:
         """
         Get paginated lists for a specific group.
 
@@ -89,10 +103,18 @@ class ListService:
         """
         self._check_group(obj_in.group_id)
         new_list = self.repository.create(self.session, TagList(**obj_in.model_dump()))
-        self._log(user_id, obj_in.group_id, "CREATE_LIST", f"Created list {obj_in.name}")
+        self._log(
+            user_id, obj_in.group_id, "CREATE_LIST", f"Created list {obj_in.name}"
+        )
         return new_list
 
-    def update_list(self, user_id: int, group_id: uuid.UUID, list_id: uuid.UUID, obj_in: TagListUpdate) -> TagList | None:
+    def update_list(
+        self,
+        user_id: int,
+        group_id: uuid.UUID,
+        list_id: uuid.UUID,
+        obj_in: TagListUpdate,
+    ) -> TagList | None:
         """
         Update an existing list.
 
@@ -106,11 +128,15 @@ class ListService:
         tag_list = self.repository.get_by_id(self.session, list_id)
         if not tag_list or tag_list.group_id != group_id:
             return None
-        updated = self.repository.update(self.session, tag_list, obj_in.model_dump(exclude_unset=True))
+        updated = self.repository.update(
+            self.session, tag_list, obj_in.model_dump(exclude_unset=True)
+        )
         self._log(user_id, group_id, "UPDATE_LIST", f"Updated list {updated.name}")
         return updated
 
-    def delete_list(self, user_id: int, group_id: uuid.UUID, list_id: uuid.UUID) -> bool:
+    def delete_list(
+        self, user_id: int, group_id: uuid.UUID, list_id: uuid.UUID
+    ) -> bool:
         """
         Delete an existing list.
 
@@ -149,7 +175,12 @@ class ListService:
 
         cleared_count = self.user_repo.clear_list_subscriptions(self.session, list_id)
         self.session.commit()
-        self._log(user_id, group_id, "CLEAR_LIST", f"Cleared {cleared_count} users from list {tag_list.name}")
+        self._log(
+            user_id,
+            group_id,
+            "CLEAR_LIST",
+            f"Cleared {cleared_count} users from list {tag_list.name}",
+        )
         return True
 
     def subscribe(self, user_id: int, group_id: uuid.UUID, list_id: uuid.UUID) -> bool:
@@ -168,11 +199,17 @@ class ListService:
 
         existing = self.user_repo.get_subscription(self.session, list_id, user_id)
         if not existing:
-            self.user_repo.create(self.session, ListUser(list_id=list_id, user_id=user_id))
-            self._log(user_id, group_id, "SUBSCRIBE", f"Subscribed to list {tag_list.name}")
+            self.user_repo.create(
+                self.session, ListUser(list_id=list_id, user_id=user_id)
+            )
+            self._log(
+                user_id, group_id, "SUBSCRIBE", f"Subscribed to list {tag_list.name}"
+            )
         return True
 
-    def unsubscribe(self, user_id: int, group_id: uuid.UUID, list_id: uuid.UUID) -> bool:
+    def unsubscribe(
+        self, user_id: int, group_id: uuid.UUID, list_id: uuid.UUID
+    ) -> bool:
         """
         Unsubscribe a user from a list.
 
@@ -189,7 +226,12 @@ class ListService:
         existing = self.user_repo.get_subscription(self.session, list_id, user_id)
         if existing:
             self.user_repo.delete(self.session, existing.id)
-            self._log(user_id, group_id, "UNSUBSCRIBE", f"Unsubscribed from list {tag_list.name}")
+            self._log(
+                user_id,
+                group_id,
+                "UNSUBSCRIBE",
+                f"Unsubscribed from list {tag_list.name}",
+            )
         return True
 
     def _log(self, user_id: int, group_id: uuid.UUID, action: str, description: str):
@@ -201,6 +243,131 @@ class ListService:
         :param action: A short string identifying the action type
         :param description: A human-readable description of the action
         """
-        log = Log(user_id=user_id, group_id=group_id, action=action, description=description)
+        log = Log(
+            user_id=user_id, group_id=group_id, action=action, description=description
+        )
         self.session.add(log)
         self.session.commit()
+
+    def get_list_members(self, group_id: uuid.UUID, list_id: uuid.UUID) -> list["User"]:
+        self._check_group(group_id)
+        users_with_details = self.user_repo.get_users_in_list_with_details(
+            self.session, list_id
+        )
+        return [user for list_user, user in users_with_details]
+
+    async def add_member_by_admin(
+        self,
+        admin_id: int,
+        group_id: uuid.UUID,
+        list_id: uuid.UUID,
+        identifier: str | int,
+        bot: Bot | None = None,
+    ) -> bool:
+        self._check_group(group_id)
+        tag_list = self.repository.get_by_id(self.session, list_id)
+        if not tag_list or tag_list.group_id != group_id:
+            raise ValueError("List not found or group ID mismatch")
+
+        group = self.group_repo.get_by_id(self.session, group_id)
+
+        target_user_id = None
+
+        user_repo_db = UserRepository()
+
+        if isinstance(identifier, str):
+            identifier = identifier.lstrip("@")
+            user = user_repo_db.get_by_username(self.session, identifier)
+            if not user:
+                raise ValueError(
+                    "User not found in our database. Please provide a valid Telegram ID or ensure they have interacted with the bot."
+                )
+            target_user_id = user.user_id
+        else:
+            target_user_id = identifier
+
+        # check if in group
+
+        if not await check_telegram_member(group.telegram_id, target_user_id, bot=bot):
+            raise ValueError("User is not a member of the Telegram group.")
+
+        success = self.subscribe(target_user_id, group_id, list_id)
+        if success:
+            self._log(
+                admin_id,
+                group_id,
+                "ADMIN_ADD_MEMBER",
+                f"Admin added user {target_user_id} to list {tag_list.name}",
+            )
+        return success
+
+    def remove_member_by_admin(
+        self,
+        admin_id: int,
+        group_id: uuid.UUID,
+        list_id: uuid.UUID,
+        target_user_id: int,
+    ) -> bool:
+        success = self.unsubscribe(target_user_id, group_id, list_id)
+        if success:
+            tag_list = self.repository.get_by_id(self.session, list_id)
+            list_name = tag_list.name if tag_list else str(list_id)
+            self._log(
+                admin_id,
+                group_id,
+                "ADMIN_REMOVE_MEMBER",
+                f"Admin removed user {target_user_id} from list {list_name}",
+            )
+        return success
+
+    async def trigger_list_mention(
+        self,
+        admin_id: int,
+        group_id: uuid.UUID,
+        list_id: uuid.UUID,
+        bot: Bot | None = None,
+    ) -> bool:
+        self._check_group(group_id)
+        tag_list = self.repository.get_by_id(self.session, list_id)
+        if not tag_list or tag_list.group_id != group_id:
+            raise ValueError("List not found or group ID mismatch")
+
+        group = self.group_repo.get_by_id(self.session, group_id)
+        users = self.user_repo.get_users_in_list(self.session, list_id)
+        if not users:
+            raise ValueError("No one is in the list")
+
+        user_ids = {u.user_id for u in users}
+
+        bot_instance = bot or Bot(token=settings.BOT_TOKEN)
+
+        mentions = await MentionService.build_mentions(
+            session=self.session,
+            group_id=group_id,
+            group_telegram_id=group.telegram_id,
+            user_ids=user_ids,
+            bot=bot_instance,
+        )
+
+        if not mentions:
+            raise ValueError("Could not resolve any members")
+
+        batch_size = 50
+        for i in range(0, len(mentions), batch_size):
+            batch = mentions[i : i + batch_size]
+            message_text = "\n".join(batch) + "\n\n<i>(Triggered by Admin via Web)</i>"
+
+            send_telegram_message.delay(
+                chat_id=group.telegram_id,
+                text=message_text,
+                parse_mode="HTML",
+                disable_web_page_preview=True,
+            )
+
+        self._log(
+            admin_id,
+            group_id,
+            "trigger_list_api",
+            f"Triggered list {tag_list.name} via API",
+        )
+        return True

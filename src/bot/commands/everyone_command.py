@@ -1,7 +1,6 @@
 import json
 import random
 import string
-from datetime import UTC, datetime, timedelta
 
 from sqlmodel import select
 from telegram import ReactionTypeEmoji, Update
@@ -12,80 +11,13 @@ from bot.decorators.cooldown import cooldown
 from bot.decorators.is_group import is_group
 from celery_workers.tasks.send_telegram_message import send_telegram_message
 from models_all.tag_list import TagList
-from models_all.user import UserCreate
 from repositories.group_repository import GroupRepository
 from repositories.list_repository import ListRepository
 from repositories.list_user_repository import ListUserRepository
-from repositories.user_repository import UserRepository
-from services.group_service import GroupService
 from services.log_service import LogService
-from services.user_service import UserService
+from services.mention_service import MentionService
 from utils.logger_base import logger
 from utils.session_manager import Session, engine
-
-# Users with updated_at older than this will be re-fetched from Telegram
-USER_CACHE_MAX_AGE = timedelta(hours=24)
-
-
-async def _resolve_username(
-    update: Update,
-    session: Session,
-    user_service: UserService,
-    group_service: GroupService,
-    group,
-    uid: int,
-) -> str | None:
-    """
-    Resolve a user's username, using the DB cache when fresh enough.
-
-    If the cached user is stale (updated_at > 24h) or missing, performs a
-    Telegram API lookup and updates the DB.
-
-    Returns the username string, or None if the user can't be resolved.
-    Returns "SKIP" if the user left the group and was removed.
-    """
-    db_user = user_service.get_by_id(uid)
-
-    # Check if cached data is fresh enough
-    if db_user and db_user.username:
-        cache_cutoff = datetime.now(UTC) - USER_CACHE_MAX_AGE
-        if db_user.updated_at:
-            updated_at_aware = db_user.updated_at.replace(tzinfo=UTC) if db_user.updated_at.tzinfo is None else db_user.updated_at
-            if updated_at_aware >= cache_cutoff:
-                return db_user.username
-        elif db_user.created_at:
-            created_at_aware = db_user.created_at.replace(tzinfo=UTC) if db_user.created_at.tzinfo is None else db_user.created_at
-            if created_at_aware >= cache_cutoff:
-                return db_user.username
-
-    # Cache is stale or user not in DB — perform live lookup
-    try:
-        member = await update.message.chat.get_member(uid)
-        if member.user.username is not None:
-            user_service.get_or_create_user(
-                session,
-                UserCreate(
-                    user_id=uid,
-                    username=member.user.username,
-                    first_name=member.user.first_name,
-                    last_name=member.user.last_name,
-                ),
-            )
-        return member.user.username
-    except Exception as e:
-        error_message_lower = str(e).lower()
-        if (
-            "member not found" in error_message_lower
-            or "participant_id_invalid" in error_message_lower
-            or "user not found" in error_message_lower
-        ):
-            group_service.remove_user_from_group(group.id, uid)
-            return "SKIP"
-
-        # Fallback to DB cache even if stale
-        if db_user:
-            return db_user.username
-        return None
 
 
 async def triggerMessage(
@@ -115,9 +47,6 @@ async def triggerMessage(
             await update.message.reply_text("No one is in the list")
         else:
             try:
-                user_service = UserService(session, UserRepository())
-                group_service = GroupService(session, GroupRepository())
-
                 # Set a reaction to acknowledge the command
                 try:
                     await update.message.set_reaction(
@@ -127,22 +56,14 @@ async def triggerMessage(
                     logger.warning(f"Could not set reaction: {reaction_error}")
 
                 # Build mention strings with cached usernames
-                mentions = []
-                for uid in user_ids:
-                    if uid == update.effective_user.id:
-                        mentions.append("You")
-                        continue
-
-                    username = await _resolve_username(
-                        update, session, user_service, group_service, group, uid
-                    )
-
-                    if username == "SKIP":
-                        continue
-                    elif username is not None:
-                        mentions.append(f"<a href='tg://user?id={uid}'>@{username}</a>")
-                    else:
-                        mentions.append(f"<a href='tg://user?id={uid}'>👤</a>")
+                mentions = await MentionService.build_mentions(
+                    session=session,
+                    group_id=group.id,
+                    group_telegram_id=group.telegram_id,
+                    user_ids=user_ids,
+                    exclude_user_id=update.effective_user.id,
+                    update=update,
+                )
 
                 # Determine which message to reply to
                 reply_to_id = update.message.message_id

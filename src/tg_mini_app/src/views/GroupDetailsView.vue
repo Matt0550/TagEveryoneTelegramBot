@@ -12,6 +12,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import ListMultiSelect from '@/components/ListMultiSelect.vue'
+import ListMembersDialog from '@/components/ListMembersDialog.vue'
 
 import { groupService } from '@/services/groupService'
 import { listService } from '@/services/listService'
@@ -59,6 +60,13 @@ const loadGroup = async () => {
 
 const newListState = ref({ name: '', trigger_name: '', description: '', show: false })
 const groupSettingsState = ref({ auto_add_new_members: false, auto_add_list_ids: [] as string[], preloadedItems: [] as Array<{id: string, name: string}>, show: false, isLoading: false })
+const membersDialogState = ref({ show: false, listId: '', listName: '' })
+
+const openMembersDialog = (listId: string, listName: string) => {
+  membersDialogState.value.listId = listId
+  membersDialogState.value.listName = listName
+  membersDialogState.value.show = true
+}
 
 const toggleNewListForm = () => {
   newListState.value.show = !newListState.value.show
@@ -237,6 +245,9 @@ onMounted(() => {
                         @click="toggleSubscription(list.id, list.is_subscribed)">
                         {{ list.is_subscribed ? t('actions.unsubscribe') : t('actions.subscribe') }}
                       </Button>
+                      <Button v-if="canManage" variant="outline" size="sm" @click="openMembersDialog(list.id, list.name)">
+                        Members
+                      </Button>
                       <Button v-if="canManage" variant="outline" size="sm"
                         @click="clearList(list.id, list.name)">
                         {{ t('actions.clear') }}
@@ -287,5 +298,12 @@ onMounted(() => {
         </TabsContent>
       </Tabs>
     </div>
+
+    <ListMembersDialog 
+      v-model:show="membersDialogState.show" 
+      :group-id="groupId" 
+      :list-id="membersDialogState.listId" 
+      :list-name="membersDialogState.listName" 
+    />
   </div>
 </template>

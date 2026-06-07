@@ -10,6 +10,7 @@ from sqlmodel import SQLModel
 class ModelBase(SQLModel):
     pass
 
+
 T = TypeVar("T")
 
 
@@ -23,9 +24,6 @@ class CustomResponse(JSONResponse):
     def __init__(self, content: Any, status_code: Any = 200, *args, **kwargs):
         # Support either int or enum/class with a .value attribute
         status_code_int = int(getattr(status_code, "value", status_code))
-
-        # Customize content and pass my new content...
-        from pydantic import BaseModel
 
         if isinstance(content, GenericResponse):
             payload = content.model_dump()
