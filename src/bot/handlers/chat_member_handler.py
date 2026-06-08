@@ -8,8 +8,10 @@ from models_all.group import GroupCreate
 from models_all.list_user import ListUser
 from models_all.tag_list import TagList
 from models_all.user import UserCreate
+from celery_workers.tasks.apply_tag_change import apply_tag_change
 from repositories.list_user_repository import ListUserRepository
 from services.group_service import GroupService
+from services.member_tag_service import MemberTagService
 from services.user_service import UserService
 from utils.logger_base import logger
 from utils.session_manager import Session, engine
@@ -128,6 +130,14 @@ async def chat_member_handler(update: Update, _context: ContextTypes.DEFAULT_TYP
                             f"Auto-added user {user.id} to list {list_to_add.id}"
                         )
 
+            await _handle_tag_change(
+                session=session,
+                update=update,
+                group_id=db_group.id,
+                chat_id=chat.id,
+                user_id=user.id,
+            )
+
         elif new_status in ["left", "kicked"]:
             query = (
                 select(ListUser)
@@ -161,3 +171,56 @@ async def chat_member_handler(update: Update, _context: ContextTypes.DEFAULT_TYP
         logger.error(f"[ERROR in chat_member_handler] {e}")
     finally:
         session.close()
+
+
+async def _handle_tag_change(
+    session: Session,
+    update: Update,
+    group_id,
+    chat_id: int,
+    user_id: int,
+) -> None:
+    """Invalidate cached tag data and enqueue auto-routing for a member.
+
+    Cache invalidation runs inline (cheap Redis ops, must finish before the
+    next mention) but the rule application is dispatched to Celery so the PTB
+    update queue keeps draining even when an admin tags many members in a
+    burst.
+
+    :param session: outer DB session, currently unused but kept for symmetry
+        with the rest of the handler.
+    :param update: PTB ``Update`` carrying the chat-member transition.
+    :param group_id: internal UUID of the affected group.
+    :param chat_id: Telegram chat ID, for cache invalidation.
+    :param user_id: Telegram user ID whose tag may have changed.
+    """
+    if not update.chat_member:
+        return
+
+    old_tag = MemberTagService._normalize(
+        getattr(update.chat_member.old_chat_member, "tag", None)
+    )
+    new_tag = MemberTagService._normalize(
+        getattr(update.chat_member.new_chat_member, "tag", None)
+    )
+
+    member_tag_service = MemberTagService()
+    await member_tag_service.invalidate(chat_id, user_id)
+    if new_tag:
+        await member_tag_service.record_observed_tag(chat_id, new_tag)
+
+    if old_tag == new_tag:
+        return
+
+    try:
+        apply_tag_change.delay(
+            group_id=str(group_id),
+            user_id=user_id,
+            old_tag=old_tag,
+            new_tag=new_tag,
+        )
+    except Exception as exc:
+        logger.warning(
+            f"Could not enqueue apply_tag_change for user={user_id} "
+            f"group={group_id}: {exc}"
+        )

@@ -57,7 +57,7 @@ class LogService:
                         )
                         if group:
                             real_group_id = group.id
-                    except ValueError, TypeError:
+                    except (ValueError, TypeError):
                         pass
 
         log_create = LogCreate(

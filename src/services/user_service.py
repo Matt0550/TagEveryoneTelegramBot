@@ -1,12 +1,27 @@
+
 from sqlmodel import Session
 
 from models_all.user import User, UserCreate, UserUpdate
 from repositories.user_repository import UserRepository
+from services.base_service import BaseService
+from services.cache_service import CacheService
+from services.log_service import LogService
 
 
-class UserService:
-    def __init__(self, session: Session, repository: UserRepository):
-        self.session = session
+class UserService(BaseService):
+    def __init__(
+        self,
+        session: Session,
+        repository: UserRepository,
+        log_service: LogService | None = None,
+        cache: CacheService | None = None,
+    ):
+        """:param session: SQLModel session.
+        :param repository: :class:`UserRepository` for user access.
+        :param log_service: optional audit log writer.
+        :param cache: optional cache service.
+        """
+        super().__init__(session=session, log_service=log_service, cache=cache)
         self.repository = repository
 
     def get_by_id(self, user_id: int) -> User | None:
@@ -48,3 +63,12 @@ class UserService:
                     session, user, user_update.model_dump(exclude_unset=True)
                 )
         return user
+
+    def get_users_by_ids(self, user_ids: set[int] | list[int]) -> list[User]:
+        """
+        Get multiple active users by their Telegram User IDs.
+
+        :param user_ids: An iterable of Telegram user IDs
+        :return: A list of User objects
+        """
+        return self.repository.get_users_by_ids(self.session, user_ids)

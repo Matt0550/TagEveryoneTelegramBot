@@ -1,7 +1,8 @@
 from collections.abc import Sequence
+from datetime import UTC, datetime
 from typing import Any, TypeVar
 
-from sqlmodel import Session, SQLModel, func, select
+from sqlmodel import Session, SQLModel, func, select, update
 
 from utils.pagination import PaginationParams
 
@@ -93,6 +94,30 @@ class BaseRepository[T: SQLModel]:
         db.commit()
         db.refresh(db_obj)
         return db_obj
+
+    def soft_delete_where(self, db: Session, *conditions: Any) -> int:
+        """Bulk soft-delete rows matching the given conditions in a single UPDATE.
+
+        Avoids loading rows into memory, which matters when clearing large
+        lists or cascading a parent soft-delete to thousands of children.
+
+        :param db: database session.
+        :param conditions: SQLAlchemy / SQLModel ``where`` clauses.
+        :returns: number of affected rows (or ``-1`` if the backend cannot
+            report rowcount).
+        """
+        if not hasattr(self.model, "active"):
+            raise ValueError(
+                f"{self.model.__name__} does not support soft delete"
+            )
+        statement = (
+            update(self.model)
+            .where(self.model.active == True, *conditions)
+            .values(active=False, deleted_at=datetime.now(UTC))
+        )
+        result = db.exec(statement)
+        db.commit()
+        return getattr(result, "rowcount", -1)
 
     def delete(self, db: Session, id: Any) -> bool:
         """

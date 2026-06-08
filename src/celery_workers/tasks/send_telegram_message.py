@@ -74,7 +74,7 @@ def send_telegram_message(
             )
             return response_data
 
-        # Rate limit — Celery will auto-retry with backoff
+        # Rate limit. Celery will auto-retry with backoff
         if response.status_code == 429:
             retry_after = response_data.get("parameters", {}).get("retry_after", 30)
             logger.warning(

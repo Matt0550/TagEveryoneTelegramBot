@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import ListMultiSelect from '@/components/ListMultiSelect.vue'
 import ListMembersDialog from '@/components/ListMembersDialog.vue'
+import ListRulesDialog from '@/components/ListRulesDialog.vue'
 
 import { groupService } from '@/services/groupService'
 import { listService } from '@/services/listService'
@@ -61,11 +62,18 @@ const loadGroup = async () => {
 const newListState = ref({ name: '', trigger_name: '', description: '', show: false })
 const groupSettingsState = ref({ auto_add_new_members: false, auto_add_list_ids: [] as string[], preloadedItems: [] as Array<{id: string, name: string}>, show: false, isLoading: false })
 const membersDialogState = ref({ show: false, listId: '', listName: '' })
+const rulesDialogState = ref({ show: false, listId: '', listName: '' })
 
 const openMembersDialog = (listId: string, listName: string) => {
   membersDialogState.value.listId = listId
   membersDialogState.value.listName = listName
   membersDialogState.value.show = true
+}
+
+const openRulesDialog = (listId: string, listName: string) => {
+  rulesDialogState.value.listId = listId
+  rulesDialogState.value.listName = listName
+  rulesDialogState.value.show = true
 }
 
 const toggleNewListForm = () => {
@@ -248,6 +256,9 @@ onMounted(() => {
                       <Button v-if="canManage" variant="outline" size="sm" @click="openMembersDialog(list.id, list.name)">
                         Members
                       </Button>
+                      <Button v-if="canManage" variant="outline" size="sm" @click="openRulesDialog(list.id, list.name)">
+                        {{ t('views.groupDetails.rules.buttonLabel') }}
+                      </Button>
                       <Button v-if="canManage" variant="outline" size="sm"
                         @click="clearList(list.id, list.name)">
                         {{ t('actions.clear') }}
@@ -293,17 +304,59 @@ onMounted(() => {
               </div>
               <Button class="w-full mt-2" @click="saveSettings"
                 :disabled="groupSettingsState.isLoading">{{ t('actions.save') }}</Button>
+
+              <div class="mt-4 rounded-lg border border-blue-200 bg-blue-50/60 dark:border-blue-900 dark:bg-blue-950/40 p-4 space-y-2">
+                <p class="text-sm font-medium">
+                  {{ t('views.groupDetails.settings.precedence.title') }}
+                </p>
+                <p class="text-xs text-muted-foreground">
+                  {{ t('views.groupDetails.settings.precedence.intro') }}
+                </p>
+                <ol class="text-xs text-muted-foreground list-decimal pl-4 space-y-0.5">
+                  <li>{{ t('views.groupDetails.settings.precedence.step1') }}</li>
+                  <li>{{ t('views.groupDetails.settings.precedence.step2') }}</li>
+                </ol>
+                <p class="text-xs text-muted-foreground italic">
+                  {{ t('views.groupDetails.settings.precedence.hint') }}
+                </p>
+                <details class="text-xs">
+                  <summary class="cursor-pointer text-muted-foreground hover:text-foreground">
+                    {{ t('views.groupDetails.settings.precedence.examplesLabel') }}
+                  </summary>
+                  <ul class="mt-2 space-y-2 pl-1">
+                    <li>
+                      <p class="font-medium">{{ t('views.groupDetails.settings.precedence.examples.ex1.title') }}</p>
+                      <p class="text-muted-foreground">{{ t('views.groupDetails.settings.precedence.examples.ex1.body') }}</p>
+                    </li>
+                    <li>
+                      <p class="font-medium">{{ t('views.groupDetails.settings.precedence.examples.ex2.title') }}</p>
+                      <p class="text-muted-foreground">{{ t('views.groupDetails.settings.precedence.examples.ex2.body') }}</p>
+                    </li>
+                    <li>
+                      <p class="font-medium">{{ t('views.groupDetails.settings.precedence.examples.ex3.title') }}</p>
+                      <p class="text-muted-foreground">{{ t('views.groupDetails.settings.precedence.examples.ex3.body') }}</p>
+                    </li>
+                  </ul>
+                </details>
+              </div>
             </div>
           </Card>
         </TabsContent>
       </Tabs>
     </div>
 
-    <ListMembersDialog 
-      v-model:show="membersDialogState.show" 
-      :group-id="groupId" 
-      :list-id="membersDialogState.listId" 
-      :list-name="membersDialogState.listName" 
+    <ListMembersDialog
+      v-model:show="membersDialogState.show"
+      :group-id="groupId"
+      :list-id="membersDialogState.listId"
+      :list-name="membersDialogState.listName"
+    />
+
+    <ListRulesDialog
+      v-model:show="rulesDialogState.show"
+      :group-id="groupId"
+      :list-id="rulesDialogState.listId"
+      :list-name="rulesDialogState.listName"
     />
   </div>
 </template>

@@ -6,6 +6,7 @@ from telegram.ext import ContextTypes
 
 from bot.decorators.cooldown import cooldown
 from bot.decorators.is_owner import is_owner
+from bot.utils.errors import reply_generic_error
 from celery_workers.tasks.send_announce_batch import send_announce_batch
 from models_all.announce_job_group import AnnounceJobGroup
 from models_all.async_job import AsyncJob, JobStatus, JobType
@@ -105,7 +106,7 @@ async def announce(update: Update, _context: ContextTypes.DEFAULT_TYPE):
 
     except Exception as e:
         logger.error(f"[ERROR] announce: {e}", exc_info=True)
-        await update.message.reply_text(f"Error:\n`{e}`", parse_mode="Markdown")
+        await reply_generic_error(update)
     finally:
         session.close()
 
@@ -166,7 +167,7 @@ async def announce_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     except Exception as e:
         logger.error(f"[ERROR] announce_status: {e}", exc_info=True)
-        await update.message.reply_text(f"Error:\n`{e}`", parse_mode="Markdown")
+        await reply_generic_error(update)
     finally:
         session.close()
 

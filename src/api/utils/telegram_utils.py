@@ -1,30 +1,67 @@
 import hashlib
 import hmac
 import json
-from urllib.parse import parse_qsl, unquote
+from urllib.parse import parse_qsl
 
 from telegram import Bot
 from telegram.error import TelegramError
 
+from bot.instance import get_bot
+from services.cache_service import get_cache
 from utils.config import settings
 
 
 async def check_telegram_admin(chat_id: int, user_id: int, bot: Bot | None = None) -> bool:
-    bot_instance = bot or Bot(token=settings.BOT_TOKEN)
+    """:param chat_id: Telegram chat id of the group.
+    :param user_id: Telegram user id to check.
+    :param bot: optional :class:`telegram.Bot`; falls back to the shared singleton.
+    :returns: True if ``user_id`` is admin/creator of ``chat_id``.
+
+    Result is cached in Redis for ``settings.CACHE_GROUP_ADMINS_TTL`` seconds to
+    avoid hammering ``get_chat_member`` on every admin-gated request.
+    """
+    cache = get_cache()
+    key = f"tg:admin:{chat_id}:{user_id}"
+    cached = await cache.get(key)
+    if cached is not None:
+        return bool(cached)
+
+    bot_instance = bot or get_bot()
     try:
         member = await bot_instance.get_chat_member(chat_id, user_id)
-        return member.status in ["administrator", "creator"]
+        is_admin = member.status in ["administrator", "creator"]
     except TelegramError:
         return False
+
+    await cache.set(key, is_admin, ttl=settings.CACHE_GROUP_ADMINS_TTL)
+    return is_admin
 
 
 async def check_telegram_member(chat_id: int, user_id: int, bot: Bot | None = None) -> bool:
-    bot_instance = bot or Bot(token=settings.BOT_TOKEN)
+    """:param chat_id: Telegram chat id.
+    :param user_id: Telegram user id.
+    :param bot: optional :class:`telegram.Bot`; falls back to the shared singleton.
+    :returns: True if ``user_id`` is currently a member of ``chat_id``.
+
+    Cached for ``settings.CACHE_GROUP_ADMINS_TTL`` seconds. Negative results
+    are NOT cached (membership flips often when a user just joined).
+    """
+    cache = get_cache()
+    key = f"tg:member:{chat_id}:{user_id}"
+    cached = await cache.get(key)
+    if cached is True:
+        return True
+
+    bot_instance = bot or get_bot()
     try:
         member = await bot_instance.get_chat_member(chat_id, user_id)
-        return member.status not in ["left", "kicked", "banned"]
+        is_member = member.status not in ["left", "kicked", "banned"]
     except TelegramError:
         return False
+
+    if is_member:
+        await cache.set(key, True, ttl=settings.CACHE_GROUP_ADMINS_TTL)
+    return is_member
 
 
 def validate_telegram_data(init_data: str, c_str: str = "WebAppData") -> bool:

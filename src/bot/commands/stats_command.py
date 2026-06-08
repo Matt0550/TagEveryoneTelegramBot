@@ -6,6 +6,7 @@ from telegram.ext import ContextTypes
 
 from bot.decorators.cooldown import cooldown
 from bot.decorators.is_owner import is_owner
+from bot.utils.errors import reply_generic_error
 from services.group_service import GroupService
 from services.log_service import LogService
 from utils.logger_base import logger
@@ -149,7 +150,7 @@ async def stats(update: Update, _context: ContextTypes.DEFAULT_TYPE):
             )
 
     except Exception as e:
-        logger.error(f"[ERROR] Error in stats command: {e}")
-        await update.message.reply_text(f"Error generating statistics: {e}")
+        logger.exception(f"[ERROR] stats: {e}")
+        await reply_generic_error(update)
     finally:
         session.close()

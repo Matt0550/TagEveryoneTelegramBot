@@ -27,7 +27,9 @@ class AsyncJobShared(ModelBase):
     completed_items: int = Field(default=0)
     failed_items: int = Field(default=0)
     metadata_json: str | None = Field(default=None, sa_column=Column(Text))
-    started_by: int = Field(sa_column=Column(BigInteger, nullable=False))  # Telegram user ID of whoever triggered the job
+    started_by: int = Field(
+        sa_column=Column(BigInteger, nullable=False)
+    )  # Telegram user ID of whoever triggered the job
     error_message: str | None = Field(default=None, sa_column=Column(Text))
 
 
@@ -63,7 +65,7 @@ class AsyncJobResponse(AsyncJobShared):
     completed_at: datetime | None
 
 
-# Avoid circular import — import at module level for type resolution
+# Avoid circular import. Import at module level for type resolution
 from models_all.announce_job_group import AnnounceJobGroup  # noqa: E402, F401
 
 AsyncJob.model_rebuild()

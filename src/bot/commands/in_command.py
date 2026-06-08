@@ -3,14 +3,15 @@ from telegram.ext import ContextTypes
 
 from bot.decorators.cooldown import cooldown
 from bot.decorators.is_group import is_group
+from bot.utils.errors import reply_generic_error
 from models_all.group import GroupCreate
-from models_all.list_user import ListUser
 from models_all.user import UserCreate
+from repositories.group_repository import GroupRepository
 from repositories.list_repository import ListRepository
 from repositories.list_user_repository import ListUserRepository
 from repositories.user_repository import UserRepository
 from services.group_service import GroupService
-from services.log_service import LogService
+from services.list_service import ListService
 from services.user_service import UserService
 from utils.logger_base import logger
 from utils.session_manager import Session, engine
@@ -19,6 +20,8 @@ from utils.session_manager import Session, engine
 @cooldown(15)
 @is_group
 async def join_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.message is None or update.message.from_user is None:
+        return
     session = Session(engine)
     try:
         user_id = update.message.from_user.id
@@ -141,26 +144,23 @@ async def join_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         list_repo = ListRepository()
         user_list_repo = ListUserRepository()
+        group_repo = GroupRepository()
+        list_service = ListService(session, list_repo, user_list_repo, group_repo)
 
-        target_list = list_repo.get_by_trigger_name(
-            session, group.id, target_list_trigger
-        )
+        target_list = list_service.get_list_by_trigger_name(group.id, target_list_trigger)
         if not target_list:
             await update.message.reply_text(f"List '{target_list_trigger}' not found.")
             return
 
-        existing = user_list_repo.get_subscription(
-            session, target_list.id, target_user_id
+        success = list_service.subscribe(
+            user_id=target_user_id, group_id=group.id, list_id=target_list.id
         )
-        if existing:
+
+        if not success:
             await update.message.reply_text(
                 f"User is already in the '{target_list.name}' list."
             )
             return
-
-        user_list_repo.create(
-            session, ListUser(list_id=target_list.id, user_id=target_user_id)
-        )
 
         if is_manual_modify:
             await update.message.reply_text(
@@ -171,15 +171,8 @@ async def join_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"You have been added to '{target_list.name}'. To remove yourself type /out {target_list_trigger}"
             )
 
-        LogService.add_log(
-            session,
-            user_id,
-            group.id,
-            "join_list",
-            f"Added user {target_user_id} to list {target_list.name}",
-        )
     except Exception as e:
-        logger.error(f"[ERROR] {e}")
-        await update.message.reply_text(f"Error:\n`{e}`", parse_mode="Markdown")
+        logger.exception(f"[ERROR] join_list: {e}")
+        await reply_generic_error(update)
     finally:
         session.close()

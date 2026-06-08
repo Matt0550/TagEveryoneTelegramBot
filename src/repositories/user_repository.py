@@ -32,3 +32,16 @@ class UserRepository(BaseRepository[User]):
             User.username.ilike(username), User.active == True
         )
         return db.exec(statement).first()
+
+    def get_users_by_ids(self, db: Session, user_ids: set[int] | list[int]) -> list[User]:
+        """
+        Get multiple active users by their Telegram User IDs.
+
+        :param db: The database session
+        :param user_ids: An iterable of Telegram user IDs
+        :return: A list of User objects
+        """
+        if not user_ids:
+            return []
+        statement = select(User).where(User.user_id.in_(user_ids), User.active == True)
+        return list(db.exec(statement).all())

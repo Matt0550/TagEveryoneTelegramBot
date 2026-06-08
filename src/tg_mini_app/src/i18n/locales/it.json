@@ -16,12 +16,16 @@
     "italian": "Italiano",
     "subscribe": "Iscriviti",
     "unsubscribe": "Disiscriviti",
-    "save": "Salva"
+    "save": "Salva",
+    "saveChanges": "Salva modifiche",
+    "add": "Aggiungi",
+    "remove": "Rimuovi"
   },
   "modules": {
     "list": "lista",
     "settings": "impostazioni",
-    "group": "gruppo"
+    "group": "gruppo",
+    "rules": "regole"
   },
   "messages": {
     "created": "{moduleName} creata con successo",
@@ -91,7 +95,55 @@
         "loading": "Caricamento impostazioni...",
         "autoAdd": "Aggiungi automaticamente nuovi membri",
         "autoAddDesc": "Abilita per iscrivere automaticamente i nuovi arrivati a una lista predefinita.",
-        "selectLists": "Seleziona liste..."
+        "selectLists": "Seleziona liste...",
+        "precedence": {
+          "title": "Come interagiscono aggiunta automatica e regole dei tag",
+          "intro": "Quando un membro entra o cambia il suo tag Telegram, le regole vengono valutate in quest'ordine:",
+          "step1": "Aggiunta automatica: i nuovi membri vengono iscritti alle liste selezionate qui sopra.",
+          "step2": "Regole dei tag: le regole AUTO_ADD e AUTO_REMOVE definite nel dialogo Regole di ogni lista vengono applicate in base al tag Telegram attuale dell'utente.",
+          "hint": "Le regole dei tag vengono sempre eseguite per ultime, quindi prevalgono sull'aggiunta automatica. Al primo ingresso l'utente di solito non ha ancora un tag, le regole dei tag si attivano solo quando un admin gliene assegna uno su Telegram.",
+          "examplesLabel": "Mostra esempi",
+          "examples": {
+            "ex1": {
+              "title": "Nuovo membro senza tag",
+              "body": "L'utente entra e viene iscritto alle liste predefinite (aggiunta automatica). Nessuna regola dei tag si applica per ora. Quando un admin gli assegnerà il tag \"verified\", una regola AUTO_REMOVE su \"verified\" lo disiscriverà dalle liste corrispondenti."
+            },
+            "ex2": {
+              "title": "Membro esistente con tag \"vip\"",
+              "body": "L'admin imposta il tag \"vip\". Ogni lista con regola AUTO_ADD = vip iscrive l'utente; ogni lista con regola AUTO_REMOVE = vip lo disiscrive. Le liste dell'aggiunta automatica non vengono ricalcolate."
+            },
+            "ex3": {
+              "title": "Tag rimosso",
+              "body": "L'admin rimuove il tag \"vip\". Le iscrizioni precedenti dovute ad AUTO_ADD su \"vip\" vengono annullate (utente disiscritto); gli effetti di AUTO_REMOVE vengono invertiti (utente re-iscritto). Lo stato finale è come se il tag non fosse mai stato impostato."
+            }
+          }
+        }
+      },
+      "rules": {
+        "buttonLabel": "Regole",
+        "dialogTitle": "Instradamento tag {listName}",
+        "dialogDesc": "Filtra e instrada i membri di questa lista in base al loro tag Telegram.",
+        "noTags": "Nessun tag",
+        "placeholder": "valore del tag",
+        "removeAria": "Rimuovi tag",
+        "modes": {
+          "EXCLUDE": {
+            "title": "Escludi utenti con tag…",
+            "desc": "I membri con uno qualsiasi di questi tag non verranno mai menzionati."
+          },
+          "INCLUDE_ONLY": {
+            "title": "Includi solo utenti con tag…",
+            "desc": "Se impostato, vengono menzionati solo i membri con almeno uno di questi tag."
+          },
+          "AUTO_ADD": {
+            "title": "Iscrivi automaticamente quando l'utente riceve il tag…",
+            "desc": "Quando un utente riceve uno di questi tag, viene aggiunto a questa lista."
+          },
+          "AUTO_REMOVE": {
+            "title": "Disiscrivi automaticamente quando l'utente riceve il tag…",
+            "desc": "Quando un utente riceve uno di questi tag, viene rimosso da questa lista."
+          }
+        }
       }
     }
   }

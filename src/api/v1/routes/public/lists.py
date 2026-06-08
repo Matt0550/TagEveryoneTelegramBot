@@ -3,11 +3,15 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
-from telegram import Bot
 
-from api.auth_deps import TelegramUser, get_current_user, require_group_admin
+from api.auth_deps import (
+    TelegramUser,
+    get_current_user,
+    require_group_admin,
+    require_list_in_group,
+)
 from api.decorators.set_sentry_context import set_sentry_context
-from api.dependencies import ListServiceDep
+from api.dependencies import BotDep, ListServiceDep
 from models_all.exceptions import BadRequestException, NotFoundException
 from models_all.tag_list import (
     TagListCreate,
@@ -16,7 +20,6 @@ from models_all.tag_list import (
     TagListUpdate,
 )
 from models_all.user import UserResponse
-from utils.config import settings
 from utils.pagination import PaginationParams
 
 router = APIRouter(prefix="/groups/{group_id}/lists", tags=["lists"])
@@ -81,6 +84,7 @@ def update_list(
     obj_in: TagListUpdate,
     list_service: ListServiceDep = None,
     admin: TelegramUser = Depends(require_group_admin),
+    _: None = Depends(require_list_in_group),
 ) -> TagListResponse:
     updated = list_service.update_list(admin.id, group_id, list_id, obj_in)
     if not updated:
@@ -99,6 +103,7 @@ def delete_list(
     list_id: uuid.UUID,
     list_service: ListServiceDep = None,
     admin: TelegramUser = Depends(require_group_admin),
+    _: None = Depends(require_list_in_group),
 ) -> str:
     try:
         success = list_service.delete_list(admin.id, group_id, list_id)
@@ -120,6 +125,7 @@ def clear_list(
     list_id: uuid.UUID,
     list_service: ListServiceDep = None,
     admin: TelegramUser = Depends(require_group_admin),
+    _: None = Depends(require_list_in_group),
 ) -> str:
     success = list_service.clear_list(admin.id, group_id, list_id)
     if not success:
@@ -184,6 +190,7 @@ def get_list_members(
     list_id: uuid.UUID,
     list_service: ListServiceDep = None,
     _admin: TelegramUser = Depends(require_group_admin),
+    _: None = Depends(require_list_in_group),
 ) -> list[UserResponse]:
     try:
         members = list_service.get_list_members(group_id, list_id)
@@ -202,11 +209,12 @@ async def add_list_member(
     group_id: uuid.UUID,
     list_id: uuid.UUID,
     payload: AddMemberPayload,
+    bot: BotDep,
     list_service: ListServiceDep = None,
     admin: TelegramUser = Depends(require_group_admin),
+    _: None = Depends(require_list_in_group),
 ) -> str:
     try:
-        bot = Bot(token=settings.BOT_TOKEN)
         success = await list_service.add_member_by_admin(
             admin.id, group_id, list_id, payload.identifier, bot
         )
@@ -229,6 +237,7 @@ def remove_list_member(
     user_id: int,
     list_service: ListServiceDep = None,
     admin: TelegramUser = Depends(require_group_admin),
+    _: None = Depends(require_list_in_group),
 ) -> str:
     try:
         success = list_service.remove_member_by_admin(
@@ -250,11 +259,12 @@ def remove_list_member(
 async def trigger_list_mention(
     group_id: uuid.UUID,
     list_id: uuid.UUID,
+    bot: BotDep,
     list_service: ListServiceDep = None,
     admin: TelegramUser = Depends(require_group_admin),
+    _: None = Depends(require_list_in_group),
 ) -> str:
     try:
-        bot = Bot(token=settings.BOT_TOKEN)
         await list_service.trigger_list_mention(admin.id, group_id, list_id, bot)
         return "Mention triggered successfully"
     except ValueError as e:

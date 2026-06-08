@@ -4,6 +4,8 @@ import sys
 # Add the src directory to the sys.path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from contextlib import asynccontextmanager
+
 import sentry_sdk
 import uvicorn
 from fastapi import FastAPI, Request, status
@@ -16,7 +18,9 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.cors import CORSMiddleware
 
 from api.v1.routes.public import router as public_router
+from bot.instance import get_bot
 from models import CustomResponse
+from services.cache_service import close_cache, get_cache
 from utils.config import settings
 from utils.logger_base import logger
 
@@ -40,11 +44,25 @@ def custom_generate_unique_id(route: APIRoute) -> str:
     return route.name
 
 
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    """FastAPI lifespan: warm up shared singletons, cleanly close on shutdown."""
+    get_bot()  # Initialize the shared Bot singleton eagerly
+    get_cache()  # Initialize the shared CacheService singleton eagerly
+    logger.info("API singletons initialized (Bot + Cache)")
+    try:
+        yield
+    finally:
+        await close_cache()
+        logger.info("API singletons closed")
+
+
 app = FastAPI(
     title="Tag Everyone Telegram Bot",
     default_response_class=CustomResponse,
     version=settings.API_VERSION,
     generate_unique_id_function=custom_generate_unique_id,
+    lifespan=lifespan,
 )
 
 cors_origins = (
@@ -70,10 +88,17 @@ app.add_middleware(
 
 # * Error handlers
 @app.exception_handler(Exception)
-async def generic_exception_handler(_request: Request, exc: Exception):
-    logger.error(f"Internal server error: {exc}")
+async def generic_exception_handler(request: Request, exc: Exception):
+    """Return a generic message to the caller, log full detail server-side.
+
+    The raw exception is never echoed to the client. Sentry (if configured)
+    still receives the full traceback.
+    """
+    logger.exception(
+        f"Internal server error on {request.method} {request.url.path}: {exc}"
+    )
     return CustomResponse(
-        "Internal server error. Please try again later.",
+        "An error has occurred. Please try again later.",
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
     )
 
@@ -129,8 +154,6 @@ if __name__ == "__main__":
     )
 
     if ssl_keyfile and ssl_certfile:
-        import os
-
         if not os.path.exists(ssl_keyfile) or not os.path.exists(ssl_certfile):
             logger.warning(
                 f"SSL enabled but certificates not found at {ssl_keyfile} or {ssl_certfile}. Disabling SSL."

@@ -185,6 +185,89 @@ export type HttpValidationError = {
 };
 
 /**
+ * KnownTagsResponse
+ */
+export type KnownTagsResponse = {
+    /**
+     * Tags
+     */
+    tags: Array<string>;
+};
+
+/**
+ * ListTagRuleItem
+ *
+ * Single rule entry used in bulk PUT payloads.
+ */
+export type ListTagRuleItem = {
+    /**
+     * Tag Value
+     */
+    tag_value: string;
+    mode: ListTagRuleMode;
+};
+
+/**
+ * ListTagRuleMode
+ */
+export type ListTagRuleMode = 'EXCLUDE' | 'INCLUDE_ONLY' | 'AUTO_ADD' | 'AUTO_REMOVE';
+
+/**
+ * ListTagRuleResponse
+ */
+export type ListTagRuleResponse = {
+    /**
+     * List Id
+     */
+    list_id: string;
+    /**
+     * Tag Value
+     */
+    tag_value: string;
+    mode: ListTagRuleMode;
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Updated At
+     */
+    updated_at: string | null;
+    /**
+     * Active
+     */
+    active: boolean;
+};
+
+/**
+ * ListTagRulesBulkUpdate
+ */
+export type ListTagRulesBulkUpdate = {
+    /**
+     * Rules
+     */
+    rules: Array<ListTagRuleItem>;
+};
+
+/**
+ * ListTagRulesResponse
+ */
+export type ListTagRulesResponse = {
+    /**
+     * Items
+     */
+    items: Array<ListTagRuleResponse>;
+    /**
+     * Count
+     */
+    count: number;
+};
+
+/**
  * LogResponse
  */
 export type LogResponse = {
@@ -392,6 +475,44 @@ export type TagListsWithSubscriptionResponse = {
      * Count
      */
     count: number;
+};
+
+/**
+ * UserResponse
+ */
+export type UserResponse = {
+    /**
+     * User Id
+     */
+    user_id: number;
+    /**
+     * First Name
+     */
+    first_name?: string | null;
+    /**
+     * Last Name
+     */
+    last_name?: string | null;
+    /**
+     * Username
+     */
+    username?: string | null;
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Updated At
+     */
+    updated_at: string | null;
+    /**
+     * Active
+     */
+    active: boolean;
 };
 
 /**
@@ -945,9 +1066,7 @@ export type PublicApiGetListMembersResponses = {
      *
      * Successful Response
      */
-    200: Array<{
-        [key: string]: unknown;
-    }>;
+    200: Array<UserResponse>;
 };
 
 export type PublicApiGetListMembersResponse = PublicApiGetListMembersResponses[keyof PublicApiGetListMembersResponses];
@@ -1063,6 +1182,144 @@ export type PublicApiTriggerListMentionResponses = {
 };
 
 export type PublicApiTriggerListMentionResponse = PublicApiTriggerListMentionResponses[keyof PublicApiTriggerListMentionResponses];
+
+export type PublicApiGetListRulesData = {
+    body?: never;
+    path: {
+        /**
+         * Group Id
+         */
+        group_id: string;
+        /**
+         * List Id
+         */
+        list_id: string;
+    };
+    query?: never;
+    url: '/api/v1/public/groups/{group_id}/lists/{list_id}/rules';
+};
+
+export type PublicApiGetListRulesErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type PublicApiGetListRulesError = PublicApiGetListRulesErrors[keyof PublicApiGetListRulesErrors];
+
+export type PublicApiGetListRulesResponses = {
+    /**
+     * Successful Response
+     */
+    200: ListTagRulesResponse;
+};
+
+export type PublicApiGetListRulesResponse = PublicApiGetListRulesResponses[keyof PublicApiGetListRulesResponses];
+
+export type PublicApiPutListRulesData = {
+    body: ListTagRulesBulkUpdate;
+    path: {
+        /**
+         * Group Id
+         */
+        group_id: string;
+        /**
+         * List Id
+         */
+        list_id: string;
+    };
+    query?: never;
+    url: '/api/v1/public/groups/{group_id}/lists/{list_id}/rules';
+};
+
+export type PublicApiPutListRulesErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type PublicApiPutListRulesError = PublicApiPutListRulesErrors[keyof PublicApiPutListRulesErrors];
+
+export type PublicApiPutListRulesResponses = {
+    /**
+     * Successful Response
+     */
+    200: ListTagRulesResponse;
+};
+
+export type PublicApiPutListRulesResponse = PublicApiPutListRulesResponses[keyof PublicApiPutListRulesResponses];
+
+export type PublicApiDeleteListRuleData = {
+    body?: never;
+    path: {
+        /**
+         * Group Id
+         */
+        group_id: string;
+        /**
+         * List Id
+         */
+        list_id: string;
+        /**
+         * Rule Id
+         */
+        rule_id: string;
+    };
+    query?: never;
+    url: '/api/v1/public/groups/{group_id}/lists/{list_id}/rules/{rule_id}';
+};
+
+export type PublicApiDeleteListRuleErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type PublicApiDeleteListRuleError = PublicApiDeleteListRuleErrors[keyof PublicApiDeleteListRuleErrors];
+
+export type PublicApiDeleteListRuleResponses = {
+    /**
+     * Response Public Api-Delete List Rule
+     *
+     * Successful Response
+     */
+    200: string;
+};
+
+export type PublicApiDeleteListRuleResponse = PublicApiDeleteListRuleResponses[keyof PublicApiDeleteListRuleResponses];
+
+export type PublicApiGetKnownTagsData = {
+    body?: never;
+    path: {
+        /**
+         * Group Id
+         */
+        group_id: string;
+    };
+    query?: never;
+    url: '/api/v1/public/groups/{group_id}/known-tags';
+};
+
+export type PublicApiGetKnownTagsErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type PublicApiGetKnownTagsError = PublicApiGetKnownTagsErrors[keyof PublicApiGetKnownTagsErrors];
+
+export type PublicApiGetKnownTagsResponses = {
+    /**
+     * Successful Response
+     */
+    200: KnownTagsResponse;
+};
+
+export type PublicApiGetKnownTagsResponse = PublicApiGetKnownTagsResponses[keyof PublicApiGetKnownTagsResponses];
 
 export type SystemSystemStatusData = {
     body?: never;

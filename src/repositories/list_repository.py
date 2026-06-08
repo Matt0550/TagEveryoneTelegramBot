@@ -32,6 +32,18 @@ class ListRepository(BaseRepository[TagList]):
         items = db.exec(statement).all()
         return items, total
 
+    def get_active_for_group(self, db: Session, group_id: uuid.UUID) -> Sequence[TagList]:
+        """Return every active list belonging to a group, no pagination.
+
+        :param db: database session.
+        :param group_id: internal UUID of the group.
+        :returns: sequence of active :class:`TagList` rows for the group.
+        """
+        statement = select(TagList).where(
+            TagList.group_id == group_id, TagList.active == True
+        )
+        return db.exec(statement).all()
+
     def get_by_trigger_name(self, db: Session, group_id: uuid.UUID, trigger_name: str) -> TagList | None:
         """
         Get an active list in a specific group by its trigger name.

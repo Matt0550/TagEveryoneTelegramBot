@@ -2,11 +2,10 @@ import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
-from telegram import Bot
 
 from api.auth_deps import is_group_admin, require_group_admin
 from api.decorators.set_sentry_context import set_sentry_context
-from api.dependencies import GroupServiceDep, get_group_service
+from api.dependencies import BotDep, GroupServiceDep, ListServiceDep, get_group_service
 from api.utils.telegram_auth import TelegramUser, verify_telegram_webapp
 from api.utils.telegram_utils import check_telegram_member
 from models_all.exceptions import (
@@ -19,11 +18,9 @@ from models_all.group_setting import (
     GroupSettingResponse,
     GroupSettingUpdate,
 )
-from utils.config import settings
 from utils.pagination import PaginationParams
 
 router = APIRouter()
-from api.dependencies import ListServiceDep
 
 
 @router.get(
@@ -59,13 +56,13 @@ async def get_group(
     group_id: uuid.UUID,
     group_service: Annotated[GroupServiceDep, Depends(get_group_service)],
     list_service: ListServiceDep,
+    bot: BotDep,
     user: TelegramUser = Depends(verify_telegram_webapp),
 ) -> GroupResponse:
     group = group_service.repository.get_by_id(group_service.session, group_id)
     if not group:
         raise NotFoundException("Group not found")
 
-    bot = Bot(token=settings.BOT_TOKEN)
     is_admin = await is_group_admin(group, user, group_service.session, bot=bot)
 
     # If not admin, check if user is a member of the group

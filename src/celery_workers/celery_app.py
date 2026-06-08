@@ -59,3 +59,4 @@ def handle_worker_shutdown(sender=None, **_):
 # Explicitly import the task modules to ensure they are registered
 import celery_workers.tasks.send_telegram_message  # noqa: E402, I001
 import celery_workers.tasks.send_announce_batch  # noqa: E402, F401, I001
+import celery_workers.tasks.apply_tag_change  # noqa: E402, F401, I001

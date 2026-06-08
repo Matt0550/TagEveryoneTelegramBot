@@ -4,9 +4,11 @@ from telegram.ext import ContextTypes
 from bot.decorators.cooldown import cooldown
 from bot.decorators.is_group import is_group
 from bot.decorators.require_admin import require_admin
+from bot.utils.errors import reply_generic_error
 from repositories.group_repository import GroupRepository
 from repositories.list_repository import ListRepository
-from services.log_service import LogService
+from repositories.list_user_repository import ListUserRepository
+from services.list_service import ListService
 from utils.logger_base import logger
 from utils.session_manager import Session, engine
 
@@ -30,37 +32,36 @@ async def deletelist(update: Update, context: ContextTypes.DEFAULT_TYPE):
             trigger_name = trigger_name[1:]
 
         group_repo = GroupRepository()
+        list_repo = ListRepository()
+        user_list_repo = ListUserRepository()
+        list_service = ListService(session, list_repo, user_list_repo, group_repo)
+
         group = group_repo.get_by_telegram_id(session, group_id)
         if not group:
             await update.message.reply_text("Group not registered.")
             return
 
-        list_repo = ListRepository()
         target_list = list_repo.get_by_trigger_name(session, group.id, trigger_name)
 
         if not target_list:
             await update.message.reply_text(f"List '{trigger_name}' not found.")
             return
 
-        if target_list.is_system:
-            await update.message.reply_text("You cannot delete a system list.")
-            return
-
-        list_repo.delete(session, target_list.id)
-
-        await update.message.reply_text(
-            f"List '{target_list.name}' deleted successfully!"
-        )
-        LogService.add_log(
-            session,
-            user_id,
-            group.id,
-            "delete_list",
-            f"Deleted list {target_list.name}",
-        )
+        try:
+            success = list_service.delete_list(user_id=user_id, group_id=group.id, list_id=target_list.id)
+            if success:
+                await update.message.reply_text(
+                    f"List '{target_list.name}' deleted successfully!"
+                )
+            else:
+                await update.message.reply_text(
+                    f"Could not delete list '{target_list.name}'."
+                )
+        except ValueError as e:
+            await update.message.reply_text(str(e))
 
     except Exception as e:
-        logger.error(f"[ERROR] {e}")
-        await update.message.reply_text(f"Error:\n`{e}`", parse_mode="Markdown")
+        logger.exception(f"[ERROR] deletelist: {e}")
+        await reply_generic_error(update)
     finally:
         session.close()

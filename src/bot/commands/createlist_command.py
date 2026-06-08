@@ -4,10 +4,13 @@ from telegram.ext import ContextTypes
 from bot.decorators.cooldown import cooldown
 from bot.decorators.is_group import is_group
 from bot.decorators.require_admin import require_admin
-from models_all.tag_list import TagList
+from bot.utils.args import parse_trigger_name
+from bot.utils.errors import reply_generic_error
+from models_all.tag_list import TagListCreate
 from repositories.group_repository import GroupRepository
 from repositories.list_repository import ListRepository
-from services.log_service import LogService
+from repositories.list_user_repository import ListUserRepository
+from services.list_service import ListService
 from utils.logger_base import logger
 from utils.session_manager import Session, engine
 
@@ -28,9 +31,7 @@ async def createlist(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
             return
 
-        trigger_name = args[0].lower()
-        if trigger_name.startswith("@") or trigger_name.startswith("/"):
-            trigger_name = trigger_name[1:]
+        trigger_name = parse_trigger_name(args)
 
         banned_words = [
             "start",
@@ -53,6 +54,9 @@ async def createlist(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         list_repo = ListRepository()
         group_repo = GroupRepository()
+        user_list_repo = ListUserRepository()
+        list_service = ListService(session, list_repo, user_list_repo, group_repo)
+
         group = group_repo.get_by_telegram_id(session, group_id)
         if not group:
             await update.message.reply_text(
@@ -67,19 +71,16 @@ async def createlist(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
             return
 
-        new_list = TagList(group_id=group.id, name=name, trigger_name=trigger_name)
-        list_repo.create(session, new_list)
+        tag_list_create = TagListCreate(group_id=group.id, name=name, trigger_name=trigger_name)
+        list_service.create_list(user_id=user_id, obj_in=tag_list_create)
 
         await update.message.reply_text(
             f"List '{name}' created successfully! Users can now type `/in {trigger_name}` to join.",
             parse_mode="Markdown",
         )
-        LogService.add_log(
-            session, user_id, group.id, "create_list", f"Created list {name}"
-        )
 
     except Exception as e:
-        logger.error(f"[ERROR] {e}")
-        await update.message.reply_text(f"Error:\n`{e}`", parse_mode="Markdown")
+        logger.exception(f"[ERROR] createlist: {e}")
+        await reply_generic_error(update)
     finally:
         session.close()

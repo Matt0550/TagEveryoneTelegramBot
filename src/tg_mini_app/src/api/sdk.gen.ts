@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { PublicApiAddListMemberData, PublicApiAddListMemberErrors, PublicApiAddListMemberResponses, PublicApiClearListData, PublicApiClearListErrors, PublicApiClearListResponses, PublicApiCreateListData, PublicApiCreateListErrors, PublicApiCreateListResponses, PublicApiDeleteListData, PublicApiDeleteListErrors, PublicApiDeleteListResponses, PublicApiGetAdminLogsData, PublicApiGetAdminLogsErrors, PublicApiGetAdminLogsResponses, PublicApiGetGroupData, PublicApiGetGroupErrors, PublicApiGetGroupResponses, PublicApiGetGroupsData, PublicApiGetGroupsErrors, PublicApiGetGroupSettingsData, PublicApiGetGroupSettingsErrors, PublicApiGetGroupSettingsResponses, PublicApiGetGroupsResponses, PublicApiGetListMembersData, PublicApiGetListMembersErrors, PublicApiGetListMembersResponses, PublicApiGetListsData, PublicApiGetListsErrors, PublicApiGetListsResponses, PublicApiLoginTglData, PublicApiLoginTglErrors, PublicApiLoginTglResponses, PublicApiLoginTmaData, PublicApiLoginTmaErrors, PublicApiLoginTmaResponses, PublicApiRemoveListMemberData, PublicApiRemoveListMemberErrors, PublicApiRemoveListMemberResponses, PublicApiSubscribeToListData, PublicApiSubscribeToListErrors, PublicApiSubscribeToListResponses, PublicApiTriggerListMentionData, PublicApiTriggerListMentionErrors, PublicApiTriggerListMentionResponses, PublicApiUnsubscribeFromListData, PublicApiUnsubscribeFromListErrors, PublicApiUnsubscribeFromListResponses, PublicApiUpdateGroupSettingsData, PublicApiUpdateGroupSettingsErrors, PublicApiUpdateGroupSettingsResponses, PublicApiUpdateListData, PublicApiUpdateListErrors, PublicApiUpdateListResponses, SystemSystemStatusData, SystemSystemStatusResponses } from './types.gen';
+import type { PublicApiAddListMemberData, PublicApiAddListMemberErrors, PublicApiAddListMemberResponses, PublicApiClearListData, PublicApiClearListErrors, PublicApiClearListResponses, PublicApiCreateListData, PublicApiCreateListErrors, PublicApiCreateListResponses, PublicApiDeleteListData, PublicApiDeleteListErrors, PublicApiDeleteListResponses, PublicApiDeleteListRuleData, PublicApiDeleteListRuleErrors, PublicApiDeleteListRuleResponses, PublicApiGetAdminLogsData, PublicApiGetAdminLogsErrors, PublicApiGetAdminLogsResponses, PublicApiGetGroupData, PublicApiGetGroupErrors, PublicApiGetGroupResponses, PublicApiGetGroupsData, PublicApiGetGroupsErrors, PublicApiGetGroupSettingsData, PublicApiGetGroupSettingsErrors, PublicApiGetGroupSettingsResponses, PublicApiGetGroupsResponses, PublicApiGetKnownTagsData, PublicApiGetKnownTagsErrors, PublicApiGetKnownTagsResponses, PublicApiGetListMembersData, PublicApiGetListMembersErrors, PublicApiGetListMembersResponses, PublicApiGetListRulesData, PublicApiGetListRulesErrors, PublicApiGetListRulesResponses, PublicApiGetListsData, PublicApiGetListsErrors, PublicApiGetListsResponses, PublicApiLoginTglData, PublicApiLoginTglErrors, PublicApiLoginTglResponses, PublicApiLoginTmaData, PublicApiLoginTmaErrors, PublicApiLoginTmaResponses, PublicApiPutListRulesData, PublicApiPutListRulesErrors, PublicApiPutListRulesResponses, PublicApiRemoveListMemberData, PublicApiRemoveListMemberErrors, PublicApiRemoveListMemberResponses, PublicApiSubscribeToListData, PublicApiSubscribeToListErrors, PublicApiSubscribeToListResponses, PublicApiTriggerListMentionData, PublicApiTriggerListMentionErrors, PublicApiTriggerListMentionResponses, PublicApiUnsubscribeFromListData, PublicApiUnsubscribeFromListErrors, PublicApiUnsubscribeFromListResponses, PublicApiUpdateGroupSettingsData, PublicApiUpdateGroupSettingsErrors, PublicApiUpdateGroupSettingsResponses, PublicApiUpdateListData, PublicApiUpdateListErrors, PublicApiUpdateListResponses, SystemSystemStatusData, SystemSystemStatusResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -199,6 +199,46 @@ export const publicApiRemoveListMember = <ThrowOnError extends boolean = false>(
 export const publicApiTriggerListMention = <ThrowOnError extends boolean = false>(options: Options<PublicApiTriggerListMentionData, ThrowOnError>) => (options.client ?? client).post<PublicApiTriggerListMentionResponses, PublicApiTriggerListMentionErrors, ThrowOnError>({
     security: [{ name: 'Authorization', type: 'apiKey' }],
     url: '/api/v1/public/groups/{group_id}/lists/{list_id}/trigger',
+    ...options
+});
+
+/**
+ * Get tag rules for a list
+ */
+export const publicApiGetListRules = <ThrowOnError extends boolean = false>(options: Options<PublicApiGetListRulesData, ThrowOnError>) => (options.client ?? client).get<PublicApiGetListRulesResponses, PublicApiGetListRulesErrors, ThrowOnError>({
+    security: [{ name: 'Authorization', type: 'apiKey' }],
+    url: '/api/v1/public/groups/{group_id}/lists/{list_id}/rules',
+    ...options
+});
+
+/**
+ * Replace tag rules for a list
+ */
+export const publicApiPutListRules = <ThrowOnError extends boolean = false>(options: Options<PublicApiPutListRulesData, ThrowOnError>) => (options.client ?? client).put<PublicApiPutListRulesResponses, PublicApiPutListRulesErrors, ThrowOnError>({
+    security: [{ name: 'Authorization', type: 'apiKey' }],
+    url: '/api/v1/public/groups/{group_id}/lists/{list_id}/rules',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Delete a single tag rule
+ */
+export const publicApiDeleteListRule = <ThrowOnError extends boolean = false>(options: Options<PublicApiDeleteListRuleData, ThrowOnError>) => (options.client ?? client).delete<PublicApiDeleteListRuleResponses, PublicApiDeleteListRuleErrors, ThrowOnError>({
+    security: [{ name: 'Authorization', type: 'apiKey' }],
+    url: '/api/v1/public/groups/{group_id}/lists/{list_id}/rules/{rule_id}',
+    ...options
+});
+
+/**
+ * List Telegram tag values observed in this group
+ */
+export const publicApiGetKnownTags = <ThrowOnError extends boolean = false>(options: Options<PublicApiGetKnownTagsData, ThrowOnError>) => (options.client ?? client).get<PublicApiGetKnownTagsResponses, PublicApiGetKnownTagsErrors, ThrowOnError>({
+    security: [{ name: 'Authorization', type: 'apiKey' }],
+    url: '/api/v1/public/groups/{group_id}/known-tags',
     ...options
 });
 

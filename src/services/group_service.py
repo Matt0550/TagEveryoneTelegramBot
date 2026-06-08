@@ -1,19 +1,36 @@
+import asyncio
 import uuid
 from collections.abc import Sequence
+from datetime import UTC, datetime
 
 from sqlmodel import Session, select
 
 from models_all.group import Group, GroupCreate, GroupUpdate
 from models_all.group_setting import GroupSetting
+from models_all.group_setting_tag_list_link import GroupSettingTagListLink
 from models_all.tag_list import TagList
 from repositories.group_repository import GroupRepository
 from repositories.list_repository import ListRepository
+from services.base_service import BaseService
+from services.cache_service import CacheService
+from services.log_service import LogService
 from utils.pagination import PaginationParams
 
 
-class GroupService:
-    def __init__(self, session: Session, repository: GroupRepository):
-        self.session = session
+class GroupService(BaseService):
+    def __init__(
+        self,
+        session: Session,
+        repository: GroupRepository,
+        log_service: LogService | None = None,
+        cache: CacheService | None = None,
+    ):
+        """:param session: SQLModel session.
+        :param repository: :class:`GroupRepository` for group access.
+        :param log_service: optional audit log writer.
+        :param cache: optional cache service.
+        """
+        super().__init__(session=session, log_service=log_service, cache=cache)
         self.repository = repository
 
     def get_groups_of_user(
@@ -36,9 +53,8 @@ class GroupService:
         :param user: The TelegramUser object representing the current user
         :return: A list of boolean values indicating admin status in the respective groups
         """
-        import asyncio
+        from api.auth_deps import is_group_admin  # local import: breaks circular dep
 
-        from api.auth_deps import is_group_admin
         admin_tasks = [is_group_admin(g, user, self.session) for g in groups]
         return await asyncio.gather(*admin_tasks)
 
@@ -61,12 +77,12 @@ class GroupService:
 
         settings = self.repository.get_settings(self.session, group_id)
         if not settings:
-            # Return default unsaved settings
-            from models_all.group_setting import GroupSetting
             settings = GroupSetting(group_id=group_id)
         return settings
 
-    def update_group_settings(self, group_id: uuid.UUID, update_data: dict) -> GroupSetting:
+    def update_group_settings(
+        self, group_id: uuid.UUID, update_data: dict
+    ) -> GroupSetting:
         """
         Update settings for a specific group with validation.
         """
@@ -81,11 +97,6 @@ class GroupService:
         if "auto_add_list_ids" in update_data:
             list_ids = update_data.pop("auto_add_list_ids")
             if list_ids is not None:
-                from datetime import UTC, datetime
-
-                from models_all.group_setting_tag_list_link import (
-                    GroupSettingTagListLink,
-                )
                 list_repo = ListRepository()
 
                 valid_lids = []
@@ -95,7 +106,9 @@ class GroupService:
                         raise ValueError(f"Invalid list ID {lid} for this group")
                     valid_lids.append(uuid.UUID(str(lid)))
 
-                statement = select(GroupSettingTagListLink).where(GroupSettingTagListLink.group_setting_id == settings.id)
+                statement = select(GroupSettingTagListLink).where(
+                    GroupSettingTagListLink.group_setting_id == settings.id
+                )
                 existing_links = self.session.exec(statement).all()
 
                 existing_lids = {link.tag_list_id for link in existing_links}
@@ -113,8 +126,7 @@ class GroupService:
 
                 for lid in new_lids - existing_lids:
                     new_link = GroupSettingTagListLink(
-                        group_setting_id=settings.id,
-                        tag_list_id=lid
+                        group_setting_id=settings.id, tag_list_id=lid
                     )
                     self.session.add(new_link)
 
@@ -132,6 +144,7 @@ class GroupService:
                 name="Everyone",
                 trigger_name="everyone",
                 description="Default list for everyone in the group",
+                aliases=["all"],
                 is_system=True,
             )
             list_repo.create(session, new_list)

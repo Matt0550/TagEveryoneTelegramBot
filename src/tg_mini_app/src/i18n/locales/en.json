@@ -16,12 +16,16 @@
     "italian": "Italian",
     "subscribe": "Subscribe",
     "unsubscribe": "Unsubscribe",
-    "save": "Save"
+    "save": "Save",
+    "saveChanges": "Save changes",
+    "add": "Add",
+    "remove": "Remove"
   },
   "modules": {
     "list": "List",
     "settings": "Settings",
-    "group": "Group"
+    "group": "Group",
+    "rules": "Rules"
   },
   "messages": {
     "created": "{moduleName} created successfully",
@@ -91,7 +95,55 @@
         "loading": "Loading settings...",
         "autoAdd": "Automatically add new members",
         "autoAddDesc": "Enable to automatically subscribe newcomers to a default list.",
-        "selectLists": "Select lists..."
+        "selectLists": "Select lists...",
+        "precedence": {
+          "title": "How auto-add and tag rules interact",
+          "intro": "When a member joins or their Telegram tag changes, rules are evaluated in this order:",
+          "step1": "Auto-add: newcomers are subscribed to the lists you selected above.",
+          "step2": "Tag rules: AUTO_ADD and AUTO_REMOVE rules from each list's Routing dialog are applied based on the user's current Telegram tag.",
+          "hint": "Tag rules always run last, so they take precedence over auto-add. On first join the user usually has no tag yet, tag rules only kick in once an admin assigns one in Telegram.",
+          "examplesLabel": "Show examples",
+          "examples": {
+            "ex1": {
+              "title": "Newcomer with no tag",
+              "body": "User joins, gets subscribed to your default lists (auto-add). No tag rules apply yet. When an admin later tags them \"verified\", any AUTO_REMOVE rule for \"verified\" will unsubscribe them from the matching lists."
+            },
+            "ex2": {
+              "title": "Existing member tagged as \"vip\"",
+              "body": "Admin sets tag \"vip\". Every list whose Routing has AUTO_ADD = vip subscribes the user; every list whose Routing has AUTO_REMOVE = vip unsubscribes them. The legacy auto-add list is not re-applied."
+            },
+            "ex3": {
+              "title": "Tag removed",
+              "body": "Admin clears the tag \"vip\". The previous AUTO_ADD subscriptions tied to \"vip\" are undone (user is unsubscribed); AUTO_REMOVE side effects are reversed (user is re-subscribed). The final state is as if the tag had never been set."
+            }
+          }
+        }
+      },
+      "rules": {
+        "buttonLabel": "Rules",
+        "dialogTitle": "Tag routing {listName}",
+        "dialogDesc": "Filter and route members of this list based on their Telegram tag.",
+        "noTags": "No tags",
+        "placeholder": "tag value",
+        "removeAria": "Remove tag",
+        "modes": {
+          "EXCLUDE": {
+            "title": "Exclude users tagged…",
+            "desc": "Members with any of these tags will never be mentioned."
+          },
+          "INCLUDE_ONLY": {
+            "title": "Include only users tagged…",
+            "desc": "When set, only members with at least one of these tags get mentioned."
+          },
+          "AUTO_ADD": {
+            "title": "Auto-subscribe when user gets tag…",
+            "desc": "When a user receives one of these tags, they are added to this list."
+          },
+          "AUTO_REMOVE": {
+            "title": "Auto-unsubscribe when user gets tag…",
+            "desc": "When a user receives one of these tags, they are removed from this list."
+          }
+        }
       }
     }
   }

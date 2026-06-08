@@ -9,6 +9,7 @@ from utils.db_types import UTCDateTime
 
 if TYPE_CHECKING:
     from models_all.group import Group
+    from models_all.list_tag_rule import ListTagRule
     from models_all.list_user import ListUser
 
 
@@ -43,6 +44,12 @@ class TagList(TagListShared, table=True):
 
     group: Group = Relationship(back_populates="tag_lists")
     list_users: list[ListUser] = Relationship(back_populates="tag_list", cascade_delete=True)
+    tag_rules: list["ListTagRule"] = Relationship(
+        back_populates="tag_list",
+        sa_relationship_kwargs={
+            "primaryjoin": "and_(TagList.id==ListTagRule.list_id, ListTagRule.active==True)",
+        },
+    )
 
 
 class TagListCreate(TagListShared):

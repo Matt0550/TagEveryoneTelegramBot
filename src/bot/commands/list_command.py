@@ -1,37 +1,38 @@
-from sqlmodel import select
 from telegram import Update
 from telegram.ext import ContextTypes
 
 from bot.decorators.cooldown import cooldown
-from models_all.tag_list import TagList
+from bot.decorators.is_group import is_group
+from bot.utils.errors import reply_generic_error
 from repositories.group_repository import GroupRepository
 from repositories.list_repository import ListRepository
 from repositories.list_user_repository import ListUserRepository
-from services.log_service import LogService
+from services.list_service import ListService
 from services.mention_service import MentionService
 from utils.logger_base import logger
 from utils.session_manager import Session, engine
 
 
 @cooldown(15)
+@is_group
 async def getList(update: Update, context: ContextTypes.DEFAULT_TYPE):
     session = Session(engine)
     try:
         group_id = update.message.chat.id
         args = context.args
-        list_repo = ListRepository()
 
+        list_repo = ListRepository()
+        user_list_repo = ListUserRepository()
         group_repo = GroupRepository()
+        list_service = ListService(session, list_repo, user_list_repo, group_repo)
+
         group = group_repo.get_by_telegram_id(session, group_id)
         if not group:
             await update.message.reply_text("Group not registered.")
             return
 
         if not args:
-            statement = select(TagList).where(
-                TagList.group_id == group.id, TagList.active == True
-            )
-            all_lists = session.exec(statement).all()
+            all_lists = list_service.get_active_lists(group.id)
             if not all_lists:
                 await update.message.reply_text(
                     "There are no active lists in this group."
@@ -49,17 +50,14 @@ async def getList(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if target_list_trigger.startswith("@"):
             target_list_trigger = target_list_trigger[1:]
 
-        target_list = list_repo.get_by_trigger_name(
-            session, group.id, target_list_trigger
-        )
+        target_list = list_service.get_list_by_trigger_name(group.id, target_list_trigger)
         if not target_list:
             await update.message.reply_text(
                 f"List <b>{target_list_trigger}</b> not found.", parse_mode="HTML"
             )
             return
 
-        user_list_repo = ListUserRepository()
-        data = user_list_repo.get_users_in_list(session, target_list.id)
+        data = list_service.get_list_members(group.id, target_list.id)
 
         if not data:
             await update.message.reply_text(
@@ -85,21 +83,11 @@ async def getList(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     parse_mode="HTML",
                 )
 
-                LogService.add_log(
-                    session,
-                    update.message.from_user.id,
-                    group.id,
-                    "list",
-                    f"List {target_list.name} members sent",
-                )
             except Exception as e:
-                logger.error(f"[ERROR] {e}")
-                await update.message.reply_text(f"Error:\n`{e}`", parse_mode="Markdown")
-                LogService.add_log(
-                    session, update.message.from_user.id, group.id, "error", str(e)
-                )
+                logger.exception(f"[ERROR] list inner: {e}")
+                await reply_generic_error(update)
     except Exception as e:
-        logger.error(f"[ERROR] {e}")
-        await update.message.reply_text(f"Error:\n`{e}`", parse_mode="Markdown")
+        logger.exception(f"[ERROR] list outer: {e}")
+        await reply_generic_error(update)
     finally:
         session.close()

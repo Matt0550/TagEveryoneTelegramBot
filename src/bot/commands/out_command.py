@@ -3,11 +3,12 @@ from telegram.ext import ContextTypes
 
 from bot.decorators.cooldown import cooldown
 from bot.decorators.is_group import is_group
+from bot.utils.errors import reply_generic_error
 from repositories.group_repository import GroupRepository
 from repositories.list_repository import ListRepository
 from repositories.list_user_repository import ListUserRepository
 from repositories.user_repository import UserRepository
-from services.log_service import LogService
+from services.list_service import ListService
 from utils.logger_base import logger
 from utils.session_manager import Session, engine
 
@@ -81,29 +82,27 @@ async def leave_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
         list_repo = ListRepository()
         user_list_repo = ListUserRepository()
         group_repo = GroupRepository()
+        list_service = ListService(session, list_repo, user_list_repo, group_repo)
 
         group = group_repo.get_by_telegram_id(session, group_id)
         if not group:
             await update.message.reply_text("Group not registered.")
             return
 
-        target_list = list_repo.get_by_trigger_name(
-            session, group.id, target_list_trigger
-        )
+        target_list = list_service.get_list_by_trigger_name(group.id, target_list_trigger)
         if not target_list:
             await update.message.reply_text(f"List '{target_list_trigger}' not found.")
             return
 
-        existing = user_list_repo.get_subscription(
-            session, target_list.id, target_user_id
+        success = list_service.unsubscribe(
+            user_id=target_user_id, group_id=group.id, list_id=target_list.id
         )
-        if not existing:
+
+        if not success:
             await update.message.reply_text(
                 f"User is not in the '{target_list.name}' list."
             )
             return
-
-        user_list_repo.delete(session, existing.id)
 
         if is_manual_modify:
             await update.message.reply_text(
@@ -114,26 +113,8 @@ async def leave_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"You have been removed from '{target_list.name}'. To add yourself type /in {target_list_trigger}"
             )
 
-        LogService.add_log(
-            session,
-            user_id,
-            group.id,
-            "leave_list",
-            f"Removed user {target_user_id} from list {target_list.name}",
-        )
-
     except Exception as e:
-        logger.error(f"[ERROR] {e}")
-        await update.message.reply_text(f"Error:\n`{e}`", parse_mode="Markdown")
-        try:
-            LogService.add_log(
-                session,
-                update.message.from_user.id,
-                str(update.message.chat.id),
-                "error",
-                str(e),
-            )
-        except Exception:
-            pass
+        logger.exception(f"[ERROR] leave_list: {e}")
+        await reply_generic_error(update)
     finally:
         session.close()

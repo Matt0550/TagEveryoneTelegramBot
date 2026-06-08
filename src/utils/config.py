@@ -83,10 +83,27 @@ class Settings(BaseSettings):
     def CELERY_RESULT_BACKEND(self) -> str:
         return f"redis://{self._redis_auth_prefix}{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_CELERY_DB}"
 
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def REDIS_CACHE_URL(self) -> str:
+        return f"redis://{self._redis_auth_prefix}{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_CACHE_DB}"
+
+    # * MARK: CACHE CONFIG
+    CACHE_ENABLED: bool = False
+    CACHE_KEY_PREFIX: str = "tetb"
+    CACHE_DEFAULT_TTL: int = 3600
+    CACHE_USERNAME_TTL: int = 86400
+    CACHE_GROUP_ADMINS_TTL: int = 300
+    CACHE_LIST_MEMBERS_TTL: int = 300
+    CACHE_MEMBER_TAG_TTL: int = 300
+    CACHE_LIST_RULES_TTL: int = 300
+    CACHE_KNOWN_TAGS_TTL: int = 86400
+
     # * MARK: TELEGRAM BOT CONFIG
     BOT_TOKEN: str = ""
     OWNER_ID: str = ""
     REPORT_ERRORS_OWNER: bool = True
+    SEND_DETAILED_ERRORS_TO_OWNER: bool = False
     WEBAPP_SHORTNAME: str = "app"
 
     # * MARK: FASTAPI SERVER CONFIG

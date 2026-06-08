@@ -4,10 +4,12 @@ from telegram.ext import ContextTypes
 from bot.decorators.cooldown import cooldown
 from bot.decorators.is_group import is_group
 from bot.decorators.require_admin import require_admin
+from bot.utils.args import parse_trigger_name
+from bot.utils.errors import reply_generic_error
 from repositories.group_repository import GroupRepository
 from repositories.list_repository import ListRepository
 from repositories.list_user_repository import ListUserRepository
-from services.log_service import LogService
+from services.list_service import ListService
 from utils.logger_base import logger
 from utils.session_manager import Session, engine
 
@@ -28,13 +30,12 @@ async def clearlist(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
             return
 
-        trigger_name = args[0].lower()
-        if trigger_name.startswith("@") or trigger_name.startswith("/"):
-            trigger_name = trigger_name[1:]
+        trigger_name = parse_trigger_name(args)
 
         list_repo = ListRepository()
         user_list_repo = ListUserRepository()
         group_repo = GroupRepository()
+        list_service = ListService(session, list_repo, user_list_repo, group_repo)
 
         group = group_repo.get_by_telegram_id(session, group_id)
         if not group:
@@ -50,19 +51,21 @@ async def clearlist(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
             return
 
-        cleared_count = user_list_repo.clear_list_subscriptions(session, existing.id)
-        session.commit()
+        cleared_count = list_service.clear_list(user_id=user_id, group_id=group.id, list_id=existing.id)
 
-        await update.message.reply_text(
-            f"List <b>{existing.name}</b> cleared successfully. Removed {cleared_count} users.",
-            parse_mode="HTML",
-        )
-        LogService.add_log(
-            session, user_id, group.id, "clear_list", f"Cleared {cleared_count} users from list {existing.name}"
-        )
+        if cleared_count != -1:
+            await update.message.reply_text(
+                f"List <b>{existing.name}</b> cleared successfully. Removed {cleared_count} users.",
+                parse_mode="HTML",
+            )
+        else:
+            await update.message.reply_text(
+                f"Could not clear list <b>{existing.name}</b>.",
+                parse_mode="HTML",
+            )
 
     except Exception as e:
-        logger.error(f"[ERROR] {e}")
-        await update.message.reply_text(f"Error:\n`{e}`", parse_mode="Markdown")
+        logger.exception(f"[ERROR] clearlist: {e}")
+        await reply_generic_error(update)
     finally:
         session.close()

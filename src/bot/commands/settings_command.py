@@ -20,7 +20,7 @@ async def settings_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.message.from_user.id
 
     try:
-        # Check if user is admin
+        # Check if user is admin.
         is_admin = await check_telegram_admin(chat_id, user_id, context.bot)
         if not is_admin:
             return
