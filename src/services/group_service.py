@@ -14,6 +14,7 @@ from repositories.list_repository import ListRepository
 from services.base_service import BaseService
 from services.cache_service import CacheService
 from services.log_service import LogService
+from utils.languages import SUPPORTED_LANGUAGES, is_supported
 from utils.pagination import PaginationParams
 
 
@@ -94,6 +95,12 @@ class GroupService(BaseService):
         if not settings:
             settings = self.repository.create_settings(self.session, group_id)
 
+        if "language" in update_data and update_data["language"] is not None:
+            if not is_supported(update_data["language"]):
+                raise ValueError(
+                    f"Unsupported language. Choose one of: {', '.join(SUPPORTED_LANGUAGES)}"
+                )
+
         if "auto_add_list_ids" in update_data:
             list_ids = update_data.pop("auto_add_list_ids")
             if list_ids is not None:
@@ -132,7 +139,20 @@ class GroupService(BaseService):
 
                 self.session.commit()
 
-        return self.repository.update_settings(self.session, settings, update_data)
+        new_language = update_data.get("language")
+        old_language = settings.language
+        telegram_id = group.telegram_id
+
+        updated = self.repository.update_settings(self.session, settings, update_data)
+
+        # If the reply language changed, refresh this group's localized
+        # slash-command menu (chat scope). Best-effort; never blocks the update.
+        if new_language and new_language != old_language:
+            from bot.utils.commands_sync import set_chat_commands
+
+            set_chat_commands(telegram_id, new_language)
+
+        return updated
 
     @staticmethod
     def _ensure_everyone_list(session: Session, group: Group) -> None:

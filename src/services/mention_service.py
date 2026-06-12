@@ -1,4 +1,5 @@
 import asyncio
+import html
 import uuid
 
 from sqlmodel import Session
@@ -147,21 +148,30 @@ class MentionService:
             if username == "SKIP":
                 continue
 
+            # Best available display name from the DB record (no @username).
+            display_name = None
+            if db_user and db_user.first_name:
+                display_name = db_user.first_name
+                if db_user.last_name:
+                    display_name += f" {db_user.last_name}"
+
             if plain_text:
                 if username:
                     mentions.append(f"@{username}")
+                elif display_name:
+                    mentions.append(display_name)
                 else:
-                    if db_user and db_user.first_name:
-                        name = db_user.first_name
-                        if db_user.last_name:
-                            name += f" {db_user.last_name}"
-                        mentions.append(name)
-                    else:
-                        mentions.append(f"ID: {uid}")
+                    mentions.append(f"ID: {uid}")
             else:
                 if username:
-                    mentions.append(f"<a href='tg://user?id={uid}'>@{username}</a>")
+                    label = f"@{username}"
+                elif display_name:
+                    # Escape: first/last names are user-controlled and the
+                    # message is sent with parse_mode=HTML.
+                    label = html.escape(display_name)
                 else:
-                    mentions.append(f"<a href='tg://user?id={uid}'>👤</a>")
+                    label = "👤"
+                # tg://user?id=... pings the member even without a @username.
+                mentions.append(f"<a href='tg://user?id={uid}'>{label}</a>")
 
         return mentions

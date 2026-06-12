@@ -14,6 +14,7 @@
     "language": "Lingua",
     "english": "Inglese",
     "italian": "Italiano",
+    "spanish": "Spagnolo",
     "subscribe": "Iscriviti",
     "unsubscribe": "Disiscriviti",
     "save": "Salva",
@@ -96,6 +97,8 @@
         "autoAdd": "Aggiungi automaticamente nuovi membri",
         "autoAddDesc": "Abilita per iscrivere automaticamente i nuovi arrivati a una lista predefinita.",
         "selectLists": "Seleziona liste...",
+        "groupLanguage": "Lingua del bot",
+        "groupLanguageDesc": "La lingua che il bot usa per rispondere in questo gruppo.",
         "precedence": {
           "title": "Come interagiscono aggiunta automatica e regole dei tag",
           "intro": "Quando un membro entra o cambia il suo tag Telegram, le regole vengono valutate in quest'ordine:",

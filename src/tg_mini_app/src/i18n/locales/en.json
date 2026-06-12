@@ -14,6 +14,7 @@
     "language": "Language",
     "english": "English",
     "italian": "Italian",
+    "spanish": "Spanish",
     "subscribe": "Subscribe",
     "unsubscribe": "Unsubscribe",
     "save": "Save",
@@ -96,6 +97,8 @@
         "autoAdd": "Automatically add new members",
         "autoAddDesc": "Enable to automatically subscribe newcomers to a default list.",
         "selectLists": "Select lists...",
+        "groupLanguage": "Bot language",
+        "groupLanguageDesc": "The language the bot uses when replying in this group.",
         "precedence": {
           "title": "How auto-add and tag rules interact",
           "intro": "When a member joins or their Telegram tag changes, rules are evaluated in this order:",

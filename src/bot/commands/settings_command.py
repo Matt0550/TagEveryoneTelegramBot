@@ -4,6 +4,7 @@ from telegram.ext import ContextTypes
 from api.utils.telegram_utils import check_telegram_admin
 from bot.decorators.cooldown import cooldown
 from bot.decorators.is_group import is_group
+from bot.i18n import get_locale, t
 from repositories.group_repository import GroupRepository
 from utils.config import settings
 from utils.logger_base import logger
@@ -18,6 +19,7 @@ async def settings_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     chat_id = update.message.chat.id
     user_id = update.message.from_user.id
+    locale = get_locale(update, context)
 
     try:
         # Check if user is admin.
@@ -37,9 +39,9 @@ async def settings_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             deeplink = f"https://t.me/{bot_username}/{settings.WEBAPP_SHORTNAME}?startapp={group.id}"
 
             keyboard = InlineKeyboardMarkup(
-                [[InlineKeyboardButton("⚙️ Group Settings", url=deeplink)]]
+                [[InlineKeyboardButton(t("settings.button", locale), url=deeplink)]]
             )
-            text = f"Manage settings for group <b>{update.message.chat.title}</b>:"
+            text = t("settings.manage", locale, group=update.message.chat.title)
 
             sent_in_private = False
             try:
@@ -60,7 +62,7 @@ async def settings_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     logger.warning(f"Could not delete message in group {chat_id}: {e}")
             else:
                 await update.message.reply_text(
-                    text="I couldn't send you a private message. Please start me in private first or use this link:",
+                    text=t("settings.cant_dm", locale),
                     reply_markup=keyboard,
                     parse_mode="HTML",
                 )

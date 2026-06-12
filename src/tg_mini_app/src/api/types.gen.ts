@@ -83,6 +83,10 @@ export type GroupSettingResponse = {
      */
     auto_add_new_members?: boolean;
     /**
+     * Language
+     */
+    language?: string;
+    /**
      * Id
      */
     id: string;
@@ -120,6 +124,10 @@ export type GroupSettingUpdate = {
      * Auto Add List Ids
      */
     auto_add_list_ids?: Array<string> | null;
+    /**
+     * Language
+     */
+    language?: string | null;
 };
 
 /**

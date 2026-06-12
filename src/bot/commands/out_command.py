@@ -3,6 +3,7 @@ from telegram.ext import ContextTypes
 
 from bot.decorators.cooldown import cooldown
 from bot.decorators.is_group import is_group
+from bot.i18n import get_locale, t
 from bot.utils.errors import reply_generic_error
 from repositories.group_repository import GroupRepository
 from repositories.list_repository import ListRepository
@@ -21,6 +22,7 @@ async def leave_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user_id = update.message.from_user.id
         group_id = update.message.chat.id
         args = context.args
+        locale = get_locale(update, context)
 
         target_list_trigger = "everyone"
 
@@ -51,7 +53,7 @@ async def leave_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     is_manual_modify = True
                 else:
                     await update.message.reply_text(
-                        f"User @{mentioned_username} not found in bot database."
+                        t("users.not_found", locale, username=mentioned_username)
                     )
                     return
             elif args[0].isdigit():
@@ -70,7 +72,7 @@ async def leave_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     admin_member.OWNER,
                 ]:
                     await update.message.reply_text(
-                        "You must be a group admin or owner to remove others."
+                        t("out.must_be_admin_modify", locale)
                     )
                     return
             else:
@@ -86,12 +88,12 @@ async def leave_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         group = group_repo.get_by_telegram_id(session, group_id)
         if not group:
-            await update.message.reply_text("Group not registered.")
+            await update.message.reply_text(t("groups.not_registered", locale))
             return
 
         target_list = list_service.get_list_by_trigger_name(group.id, target_list_trigger)
         if not target_list:
-            await update.message.reply_text(f"List '{target_list_trigger}' not found.")
+            await update.message.reply_text(t("lists.not_found", locale, trigger=target_list_trigger))
             return
 
         success = list_service.unsubscribe(
@@ -100,21 +102,21 @@ async def leave_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         if not success:
             await update.message.reply_text(
-                f"User is not in the '{target_list.name}' list."
+                t("out.not_in_list", locale, list=target_list.name)
             )
             return
 
         if is_manual_modify:
             await update.message.reply_text(
-                f"User manually removed from '{target_list.name}'."
+                t("out.manual_removed", locale, list=target_list.name)
             )
         else:
             await update.message.reply_text(
-                f"You have been removed from '{target_list.name}'. To add yourself type /in {target_list_trigger}"
+                t("out.removed_self", locale, list=target_list.name, trigger=target_list_trigger)
             )
 
     except Exception as e:
         logger.exception(f"[ERROR] leave_list: {e}")
-        await reply_generic_error(update)
+        await reply_generic_error(update, context)
     finally:
         session.close()

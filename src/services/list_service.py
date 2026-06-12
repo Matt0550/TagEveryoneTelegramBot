@@ -7,11 +7,10 @@ from telegram import Bot, Update
 
 from api.utils.telegram_utils import check_telegram_member
 from bot.instance import get_bot
-from celery_workers.tasks.send_telegram_message import send_telegram_message
 from models_all import ListUser, TagList, TagListCreate, TagListUpdate
+from models_all.list_tag_rule import ListTagRuleMode
 from models_all.tag_list import TagListWithSubscriptionResponse
 from models_all.user import User
-from models_all.list_tag_rule import ListTagRuleMode
 from repositories.group_repository import GroupRepository
 from repositories.list_repository import ListRepository
 from repositories.list_tag_rule_repository import ListTagRuleRepository
@@ -454,6 +453,11 @@ class ListService(BaseService):
         if not mentions:
             raise ValueError("Could not resolve any members")
 
+        # local import: breaks a module-load circular dependency with celery
+        # (list_service -> send_telegram_message -> celery_app -> apply_tag_change
+        # -> list_service). Importing at call time keeps list_service celery-free.
+        from celery_workers.tasks.send_telegram_message import send_telegram_message
+
         batch_size = 50
         for i in range(0, len(mentions), batch_size):
             batch = mentions[i : i + batch_size]
@@ -529,6 +533,10 @@ class ListService(BaseService):
             if random_number == 5
             else ""
         )
+
+        # local import: breaks a module-load circular dependency with celery
+        # (see trigger_list_by_command above for the full cycle).
+        from celery_workers.tasks.send_telegram_message import send_telegram_message
 
         batch_size = 50
         for i in range(0, len(mentions), batch_size):

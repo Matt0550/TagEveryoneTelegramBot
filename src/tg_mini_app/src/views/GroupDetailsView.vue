@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import ListMultiSelect from '@/components/ListMultiSelect.vue'
 import ListMembersDialog from '@/components/ListMembersDialog.vue'
 import ListRulesDialog from '@/components/ListRulesDialog.vue'
@@ -60,7 +61,7 @@ const loadGroup = async () => {
 }
 
 const newListState = ref({ name: '', trigger_name: '', description: '', show: false })
-const groupSettingsState = ref({ auto_add_new_members: false, auto_add_list_ids: [] as string[], preloadedItems: [] as Array<{id: string, name: string}>, show: false, isLoading: false })
+const groupSettingsState = ref({ auto_add_new_members: false, auto_add_list_ids: [] as string[], language: 'en', preloadedItems: [] as Array<{id: string, name: string}>, show: false, isLoading: false })
 const membersDialogState = ref({ show: false, listId: '', listName: '' })
 const rulesDialogState = ref({ show: false, listId: '', listName: '' })
 
@@ -87,6 +88,7 @@ const loadSettings = async () => {
       const settings = await groupService.getGroupSettings(groupId) as any
       groupSettingsState.value.auto_add_new_members = settings.auto_add_new_members
       groupSettingsState.value.auto_add_list_ids = settings.auto_add_lists?.map((l: any) => l.id) || []
+      groupSettingsState.value.language = settings.language || 'en'
       groupSettingsState.value.preloadedItems = settings.auto_add_lists?.map((l: any) => ({ id: l.id, name: l.name })) || []
     } catch (e: any) {
       toast.error(t('messages.loadFailed', { moduleName: t('modules.settings') }))
@@ -101,7 +103,8 @@ const saveSettings = async () => {
     groupSettingsState.value.isLoading = true
     await groupService.updateGroupSettings(groupId, {
       auto_add_new_members: groupSettingsState.value.auto_add_new_members,
-      auto_add_list_ids: groupSettingsState.value.auto_add_list_ids
+      auto_add_list_ids: groupSettingsState.value.auto_add_list_ids,
+      language: groupSettingsState.value.language
     })
     toast.success(t('messages.saved', { moduleName: t('modules.settings') }))
     notificationOccurred('success')
@@ -302,6 +305,26 @@ onMounted(() => {
                   :preloaded-items="groupSettingsState.preloadedItems" :placeholder="t('views.groupDetails.settings.selectLists')"
                   :label="t('views.groupDetails.lists.available')" />
               </div>
+
+              <div class="rounded-lg border p-4 space-y-2">
+                <p class="text-sm leading-none font-medium">
+                  {{ t('views.groupDetails.settings.groupLanguage') }}
+                </p>
+                <p class="text-muted-foreground text-sm">
+                  {{ t('views.groupDetails.settings.groupLanguageDesc') }}
+                </p>
+                <Select :model-value="groupSettingsState.language"
+                  @update:model-value="(val) => { if (val) groupSettingsState.language = String(val) }">
+                  <SelectTrigger class="w-full mt-1">
+                    <SelectValue :placeholder="t('actions.language')" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="en">{{ t('actions.english') }}</SelectItem>
+                    <SelectItem value="es">{{ t('actions.spanish') }}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               <Button class="w-full mt-2" @click="saveSettings"
                 :disabled="groupSettingsState.isLoading">{{ t('actions.save') }}</Button>
 

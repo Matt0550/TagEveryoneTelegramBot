@@ -2,6 +2,7 @@ from telegram import Chat, Update
 from telegram.ext import ContextTypes
 
 from api.utils.telegram_utils import check_telegram_admin
+from bot.i18n import get_locale, t
 
 
 def is_group(func):
@@ -9,7 +10,7 @@ def is_group(func):
         # Check if bot is in a group
         if not update.effective_chat or update.effective_chat.type not in [Chat.GROUP, Chat.SUPERGROUP]:
             if update.message:
-                await update.message.reply_text("❌ This command can only be used in a group.")
+                await update.message.reply_text(t("decorators.group_only", get_locale(update, context)))
             return
 
         # Check if bot is admin in the group
@@ -19,5 +20,5 @@ def is_group(func):
             await func(update, context)
         else:
             if update.message:
-                await update.message.reply_text("The bot must be admin to use this command in a group")
+                await update.message.reply_text(t("errors.bot_must_be_admin", get_locale(update, context)))
     return wrapper

@@ -3,6 +3,7 @@ from telegram.ext import ContextTypes
 
 from api.utils.telegram_utils import check_telegram_admin
 from bot.decorators.cooldown import cooldown
+from bot.i18n import get_locale, t
 from models_all.user import UserCreate
 from services.log_service import LogService
 from services.user_service import UserService
@@ -30,26 +31,28 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             ),
         )
 
+        locale = get_locale(update, context)
+
         if update.message.chat.type not in ["group", "supergroup"]:
             await update.message.reply_text(
-                "Welcome to Tag Everyone Bot\n\nFor more information type /help\n\nTo get started add this bot as ADMIN to a group and type /in to get started."
+                t("start.welcome_private", locale)
             )
         else:
             is_bot_admin = await check_telegram_admin(chat_id, context.application.bot.id, context.application.bot)
             if is_bot_admin:
                 await update.message.reply_text(
-                    "Bot is now ready to use.\nFor more information type /help"
+                    t("start.ready", locale)
                 )
             else:
                 try:
                     await update.message.reply_text(
-                        "The bot must be admin to use this command in a group"
+                        t("errors.bot_must_be_admin", locale)
                     )
                 except Exception:
                     try:
                         await context.application.bot.send_message(
                             chat_id=user_id,
-                            text="The bot must be admin to use this command in a group. Please add the bot as admin and try again.",
+                            text=t("start.must_be_admin_dm", locale),
                         )
                     except Exception as e:
                         logger.error(f"[ERROR] {e}")

@@ -1,0 +1,92 @@
+{
+  "errors": {
+    "generic": "Se ha producido un error. Por favor, inténtalo de nuevo más tarde.",
+    "bot_must_be_admin": "El bot debe ser administrador para usar este comando en un grupo"
+  },
+  "groups": {
+    "not_registered": "Grupo no registrado.",
+    "not_registered_init": "Grupo no registrado. Escribe /in everyone para inicializarlo primero."
+  },
+  "users": {
+    "not_found": "El usuario @{username} no se encuentra en la base de datos del bot."
+  },
+  "lists": {
+    "not_found": "La lista '{trigger}' no existe.",
+    "cannot_delete_system": "No puedes eliminar una lista del sistema."
+  },
+  "common": {
+    "thanks_footer": "\n\nGracias por usar este bot. Invítame a un café: https://buymeacoffee.com/Matt0550\nCódigo fuente: https://github.com/Matt0550/TagEveryoneTelegramBot"
+  },
+  "start": {
+    "welcome_private": "Bienvenido a Tag Everyone Bot\n\nPara más información escribe /help\n\nPara empezar, añade este bot como ADMINISTRADOR a un grupo y escribe /in.",
+    "ready": "El bot ya está listo para usarse.\nPara más información escribe /help",
+    "must_be_admin_dm": "El bot debe ser administrador para usar este comando en un grupo. Por favor, añádelo como administrador e inténtalo de nuevo."
+  },
+  "help": {
+    "text": "Tag Everyone Telegram Bot\n\nComandos:\n/in - Únete a una lista\n/out - Sal de una lista\n/everyone - Menciona a todos en la lista\n/all - Menciona a todos en la lista\n/list - Muestra los miembros de una lista (sin mencionar)\n/createlist - Crea una nueva lista (admin)\n/deletelist - Elimina una lista (admin)\n/clearlist - Quita a todos los miembros de una lista (admin)\n/help - Muestra este mensaje\n/status - Muestra el estado del bot\n\nDisparadores:\n@everyone - Menciona a todos en la lista\n@all - Menciona a todos en la lista\n\nEste proyecto es de código abierto y de uso gratuito.\nSigue las novedades en el canal: @tageveryone_news\n\nDesarrollado por @Non_Sono_Matteo\nhttps://matteosillitti.it\n\nCódigo fuente: https://github.com/Matt0550/TagEveryoneTelegramBot\nInvítame a un café: https://buymeacoffee.com/Matt0550"
+  },
+  "in": {
+    "must_be_admin_modify": "Debes ser administrador o propietario del grupo para modificar a otros.",
+    "already_in_list": "El usuario ya está en la lista '{list}'.",
+    "manual_added": "Usuario añadido manualmente a '{list}'.",
+    "added_self": "Has sido añadido a '{list}'. Para quitarte escribe /out {trigger}"
+  },
+  "out": {
+    "must_be_admin_modify": "Debes ser administrador o propietario del grupo para quitar a otros.",
+    "not_in_list": "El usuario no está en la lista '{list}'.",
+    "manual_removed": "Usuario quitado manualmente de '{list}'.",
+    "removed_self": "Has sido quitado de '{list}'. Para añadirte escribe /in {trigger}"
+  },
+  "list": {
+    "no_active_lists": "No hay listas activas en este grupo.",
+    "available_header": "Listas disponibles en este grupo:\n",
+    "footer_hint": "\nPara ver los miembros de una lista, escribe `/list <trigger_name>`",
+    "list_not_found": "La lista <b>{trigger}</b> no existe.",
+    "empty_list": "No hay nadie en la lista <b>{list}</b>",
+    "members_header": "Miembros de <b>{list}</b>:"
+  },
+  "createlist": {
+    "usage": "Uso: /createlist <trigger_name> <Nombre de la lista>\nEjemplo: /createlist devs Lista de Desarrolladores",
+    "banned_word": "Este nombre de disparador no está permitido porque entra en conflicto con los comandos del bot.",
+    "already_exists": "Ya existe una lista con el disparador '{trigger}'.",
+    "created": "¡Lista '{name}' creada con éxito! Los usuarios ya pueden escribir `/in {trigger}` para unirse."
+  },
+  "deletelist": {
+    "usage": "Uso: /deletelist <trigger_name>",
+    "deleted": "¡Lista '{list}' eliminada con éxito!",
+    "delete_failed": "No se pudo eliminar la lista '{list}'."
+  },
+  "clearlist": {
+    "usage": "Uso: /clearlist <trigger_name>\nEjemplo: /clearlist devs",
+    "cleared": "Lista <b>{list}</b> vaciada con éxito. Se quitaron {count} usuarios.",
+    "clear_failed": "No se pudo vaciar la lista <b>{list}</b>."
+  },
+  "settings": {
+    "button": "⚙️ Ajustes del grupo",
+    "manage": "Gestiona los ajustes del grupo <b>{group}</b>:",
+    "cant_dm": "No pude enviarte un mensaje privado. Por favor, iníciame en privado primero o usa este enlace:"
+  },
+  "status": {
+    "text": "✅ Si ves este mensaje, el bot está funcionando\n⏰ Tiempo activo: {uptime}\n\nGracias por usar este bot.\nInvítame a un café: https://buymeacoffee.com/Matt0550\nCódigo fuente: https://github.com/Matt0550/TagEveryoneTelegramBot"
+  },
+  "decorators": {
+    "group_only": "❌ Este comando solo se puede usar en un grupo.",
+    "private_only": "Este comando solo se puede usar en un chat privado",
+    "not_authorized": "❌ No estás autorizado para usar este comando.",
+    "admin_only": "Debes ser administrador o propietario del grupo para usar este comando.",
+    "admin_check_failed": "No se pudo verificar tu estado de administrador.",
+    "cooldown": "Podrás usar este comando de nuevo en {seconds} segundos"
+  },
+  "commands": {
+    "in": { "description": "Únete a una lista" },
+    "out": { "description": "Sal de una lista" },
+    "list": { "description": "Muestra los miembros de una lista" },
+    "everyone": { "description": "Menciona a todos en la lista" },
+    "createlist": { "description": "Crea una nueva lista (admin)" },
+    "deletelist": { "description": "Elimina una lista (admin)" },
+    "clearlist": { "description": "Quita a todos de una lista (admin)" },
+    "settings": { "description": "Abre los ajustes del grupo" },
+    "help": { "description": "Mostrar ayuda" },
+    "status": { "description": "Estado del bot" }
+  }
+}

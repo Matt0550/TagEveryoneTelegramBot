@@ -1,6 +1,7 @@
 from telegram import Chat, Update
 from telegram.ext import ContextTypes
 
+from bot.i18n import get_locale, t
 from utils.config import settings
 
 
@@ -14,7 +15,7 @@ def is_owner(func):
                 await func(update, context)
             else:
                 await update.message.reply_text(
-                    "This command can only be used in a private chat")
+                    t("decorators.private_only", get_locale(update, context)))
         else:
-            await update.message.reply_text("❌ You are not authorized to use this command.")
+            await update.message.reply_text(t("decorators.not_authorized", get_locale(update, context)))
     return wrapper

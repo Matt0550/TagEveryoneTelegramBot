@@ -13,21 +13,24 @@ import traceback
 
 from telegram import Bot, Update
 
+from bot.i18n import get_locale, t
 from utils.config import settings
 from utils.logger_base import logger
 
-GENERIC_ERROR_MESSAGE = "An error has occurred. Please try again later."
 
-
-async def reply_generic_error(update: Update | None) -> None:
+async def reply_generic_error(update: Update | None, context=None) -> None:
     """Reply to the user with a generic, non-sensitive error message.
 
     :param update: the incoming :class:`telegram.Update`; safely handles ``None``.
+    :param context: optional telegram-ext context, used to localize the reply to
+        the group's configured language (falls back to English).
     """
     try:
         if update is None or update.effective_message is None:
             return
-        await update.effective_message.reply_text(GENERIC_ERROR_MESSAGE)
+        await update.effective_message.reply_text(
+            t("errors.generic", get_locale(update, context))
+        )
     except Exception as exc:
         logger.warning(f"Failed to send generic error reply: {exc}")
 

@@ -1,6 +1,8 @@
 from telegram import Chat, Update
 from telegram.ext import ContextTypes
 
+from bot.i18n import get_locale, t
+
 
 def isPrivateChat(func):
     async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -10,5 +12,5 @@ def isPrivateChat(func):
             await func(update, context)
         else:
             await update.message.reply_text(
-                "This command can only be used in a private chat")
+                t("decorators.private_only", get_locale(update, context)))
     return wrapper

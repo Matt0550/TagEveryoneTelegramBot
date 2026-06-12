@@ -1,0 +1,92 @@
+{
+  "errors": {
+    "generic": "An error has occurred. Please try again later.",
+    "bot_must_be_admin": "The bot must be admin to use this command in a group"
+  },
+  "groups": {
+    "not_registered": "Group not registered.",
+    "not_registered_init": "Group not registered. Type /in everyone to initialize it first."
+  },
+  "users": {
+    "not_found": "User @{username} not found in bot database."
+  },
+  "lists": {
+    "not_found": "List '{trigger}' not found.",
+    "cannot_delete_system": "You cannot delete a system list."
+  },
+  "common": {
+    "thanks_footer": "\n\nThanks for using this bot. Buy me a coffee: https://buymeacoffee.com/Matt0550\nSource code: https://github.com/Matt0550/TagEveryoneTelegramBot"
+  },
+  "start": {
+    "welcome_private": "Welcome to Tag Everyone Bot\n\nFor more information type /help\n\nTo get started add this bot as ADMIN to a group and type /in to get started.",
+    "ready": "Bot is now ready to use.\nFor more information type /help",
+    "must_be_admin_dm": "The bot must be admin to use this command in a group. Please add the bot as admin and try again."
+  },
+  "help": {
+    "text": "Tag Everyone Telegram Bot\n\nCommands:\n/in - Add yourself to a list\n/out - Remove yourself from a list\n/everyone - Mention everyone in the list\n/all - Mention everyone in the list\n/list - Show a list's members (without mention)\n/createlist - Create a new list (admin)\n/deletelist - Delete a list (admin)\n/clearlist - Remove all members from a list (admin)\n/help - Show this message\n/status - Show the status of the bot\n\nTriggers:\n@everyone - Mention everyone in the list\n@all - Mention everyone in the list\n\nThis project is open source and free to use.\nFollow updates on News channel: @tageveryone_news\n\nDeveloped by @Non_Sono_Matteo\nhttps://matteosillitti.it\n\nSource code: https://github.com/Matt0550/TagEveryoneTelegramBot\nBuy me a coffee: https://buymeacoffee.com/Matt0550"
+  },
+  "in": {
+    "must_be_admin_modify": "You must be a group admin or owner to modify others.",
+    "already_in_list": "User is already in the '{list}' list.",
+    "manual_added": "User manually added to '{list}'.",
+    "added_self": "You have been added to '{list}'. To remove yourself type /out {trigger}"
+  },
+  "out": {
+    "must_be_admin_modify": "You must be a group admin or owner to remove others.",
+    "not_in_list": "User is not in the '{list}' list.",
+    "manual_removed": "User manually removed from '{list}'.",
+    "removed_self": "You have been removed from '{list}'. To add yourself type /in {trigger}"
+  },
+  "list": {
+    "no_active_lists": "There are no active lists in this group.",
+    "available_header": "Available lists in this group:\n",
+    "footer_hint": "\nTo see members of a list, type `/list <trigger_name>`",
+    "list_not_found": "List <b>{trigger}</b> not found.",
+    "empty_list": "No one is in the <b>{list}</b> list",
+    "members_header": "Members of <b>{list}</b>:"
+  },
+  "createlist": {
+    "usage": "Usage: /createlist <trigger_name> <List Name>\nExample: /createlist devs Developers List",
+    "banned_word": "This trigger name is not allowed as it conflicts with bot commands.",
+    "already_exists": "A list with the trigger '{trigger}' already exists.",
+    "created": "List '{name}' created successfully! Users can now type `/in {trigger}` to join."
+  },
+  "deletelist": {
+    "usage": "Usage: /deletelist <trigger_name>",
+    "deleted": "List '{list}' deleted successfully!",
+    "delete_failed": "Could not delete list '{list}'."
+  },
+  "clearlist": {
+    "usage": "Usage: /clearlist <trigger_name>\nExample: /clearlist devs",
+    "cleared": "List <b>{list}</b> cleared successfully. Removed {count} users.",
+    "clear_failed": "Could not clear list <b>{list}</b>."
+  },
+  "settings": {
+    "button": "⚙️ Group Settings",
+    "manage": "Manage settings for group <b>{group}</b>:",
+    "cant_dm": "I couldn't send you a private message. Please start me in private first or use this link:"
+  },
+  "status": {
+    "text": "✅ If you see this message, the bot is working\n⏰ Uptime: {uptime}\n\nThanks for using this bot.\nBuy me a coffee: https://buymeacoffee.com/Matt0550\nSource code: https://github.com/Matt0550/TagEveryoneTelegramBot"
+  },
+  "decorators": {
+    "group_only": "❌ This command can only be used in a group.",
+    "private_only": "This command can only be used in a private chat",
+    "not_authorized": "❌ You are not authorized to use this command.",
+    "admin_only": "You must be a group admin or owner to use this command.",
+    "admin_check_failed": "Could not verify your admin status.",
+    "cooldown": "You can use this command again in {seconds} seconds"
+  },
+  "commands": {
+    "in": { "description": "Add yourself to a list" },
+    "out": { "description": "Remove yourself from a list" },
+    "list": { "description": "Show a list's members" },
+    "everyone": { "description": "Mention everyone in the list" },
+    "createlist": { "description": "Create a new list (admin)" },
+    "deletelist": { "description": "Delete a list (admin)" },
+    "clearlist": { "description": "Remove all members from a list (admin)" },
+    "settings": { "description": "Open group settings" },
+    "help": { "description": "Show help" },
+    "status": { "description": "Show bot status" }
+  }
+}

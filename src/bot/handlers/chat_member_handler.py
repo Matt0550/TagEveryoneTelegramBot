@@ -4,11 +4,11 @@ from sqlmodel import select
 from telegram import Update
 from telegram.ext import ContextTypes
 
+from celery_workers.tasks.apply_tag_change import apply_tag_change
 from models_all.group import GroupCreate
 from models_all.list_user import ListUser
 from models_all.tag_list import TagList
 from models_all.user import UserCreate
-from celery_workers.tasks.apply_tag_change import apply_tag_change
 from repositories.list_user_repository import ListUserRepository
 from services.group_service import GroupService
 from services.member_tag_service import MemberTagService

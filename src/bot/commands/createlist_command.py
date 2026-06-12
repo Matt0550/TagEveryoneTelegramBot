@@ -4,6 +4,7 @@ from telegram.ext import ContextTypes
 from bot.decorators.cooldown import cooldown
 from bot.decorators.is_group import is_group
 from bot.decorators.require_admin import require_admin
+from bot.i18n import get_locale, t
 from bot.utils.args import parse_trigger_name
 from bot.utils.errors import reply_generic_error
 from models_all.tag_list import TagListCreate
@@ -24,10 +25,11 @@ async def createlist(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user_id = update.message.from_user.id
         group_id = update.message.chat.id
         args = context.args
+        locale = get_locale(update, context)
 
         if not args or len(args) < 2:
             await update.message.reply_text(
-                "Usage: /createlist <trigger_name> <List Name>\nExample: /createlist devs Developers List"
+                t("createlist.usage", locale)
             )
             return
 
@@ -46,7 +48,7 @@ async def createlist(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ]
         if trigger_name in banned_words:
             await update.message.reply_text(
-                "This trigger name is not allowed as it conflicts with bot commands."
+                t("createlist.banned_word", locale)
             )
             return
 
@@ -60,14 +62,14 @@ async def createlist(update: Update, context: ContextTypes.DEFAULT_TYPE):
         group = group_repo.get_by_telegram_id(session, group_id)
         if not group:
             await update.message.reply_text(
-                "Group not registered. Type /in everyone to initialize it first."
+                t("groups.not_registered_init", locale)
             )
             return
 
         existing = list_repo.get_by_trigger_name(session, group.id, trigger_name)
         if existing:
             await update.message.reply_text(
-                f"A list with the trigger '{trigger_name}' already exists."
+                t("createlist.already_exists", locale, trigger=trigger_name)
             )
             return
 
@@ -75,12 +77,12 @@ async def createlist(update: Update, context: ContextTypes.DEFAULT_TYPE):
         list_service.create_list(user_id=user_id, obj_in=tag_list_create)
 
         await update.message.reply_text(
-            f"List '{name}' created successfully! Users can now type `/in {trigger_name}` to join.",
+            t("createlist.created", locale, name=name, trigger=trigger_name),
             parse_mode="Markdown",
         )
 
     except Exception as e:
         logger.exception(f"[ERROR] createlist: {e}")
-        await reply_generic_error(update)
+        await reply_generic_error(update, context)
     finally:
         session.close()

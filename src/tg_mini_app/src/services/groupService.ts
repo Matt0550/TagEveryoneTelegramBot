@@ -10,11 +10,13 @@ export interface GroupSettings {
   id: string;
   auto_add_new_members: boolean;
   auto_add_list_ids: string[];
+  language: string;
 }
 
 export interface GroupSettingsUpdate {
   auto_add_new_members?: boolean;
   auto_add_list_ids?: string[];
+  language?: string;
 }
 
 export const groupService = {

@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from telegram import Update
 from telegram.ext import ContextTypes
 
+from bot.i18n import get_locale, t
 from utils.config import settings
 
 
@@ -35,8 +36,9 @@ def cooldown(seconds):
                 # Check if the user has used the command in the last seconds
                 if now - last_time[tg_user_id] < timedelta(seconds=seconds):
                     # If the user has used the command in the last seconds, send a message to the user
+                    remaining = seconds - (now - last_time[tg_user_id]).seconds
                     await update.message.reply_text(
-                        f"You can use this command again in {seconds - (now - last_time[tg_user_id]).seconds} seconds"
+                        t("decorators.cooldown", get_locale(update, context), seconds=remaining)
                     )
                     # Return to avoid the function to be executed
                     return

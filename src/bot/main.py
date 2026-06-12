@@ -59,7 +59,7 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
     """
     logger.error("Exception while handling an update:", exc_info=context.error)
     tg_update = update if isinstance(update, Update) else None
-    await reply_generic_error(tg_update)
+    await reply_generic_error(tg_update, context)
     if context.error is not None:
         await notify_owner_of_error(
             bot=context.bot,

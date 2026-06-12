@@ -58,7 +58,7 @@ async def triggerMessage(
 
         except Exception as e:
             logger.exception(f"[ERROR] triggerMessage inner: {e}")
-            await reply_generic_error(update)
+            await reply_generic_error(update, _context)
             LogService.add_log(
                 session, update.message.from_user.id, group.id, "error", str(e)
             )

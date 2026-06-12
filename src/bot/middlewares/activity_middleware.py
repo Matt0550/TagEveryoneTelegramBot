@@ -3,24 +3,31 @@ from datetime import UTC, datetime, timedelta
 from telegram import Update
 from telegram.ext import ContextTypes
 
+from bot.i18n import resolve_group_locale
 from models_all.group import GroupCreate
 from models_all.user import UserCreate
 from services.group_service import GroupService
 from services.user_service import UserService
+from utils.languages import normalize_language
 from utils.logger_base import logger
 from utils.session_manager import Session, engine
 
 
-async def activity_middleware(update: Update, _context: ContextTypes.DEFAULT_TYPE):
+async def activity_middleware(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     Middleware to check and update user/group last activity.
     If updated_at is older than 24h, updates the basic information.
     Reactivates inactive users upon new activity.
+
+    Also caches the per-update reply locale in ``context.chat_data["locale"]``
+    so command handlers and decorators can translate responses without an extra
+    settings query. Refreshed every update, so a language change applies at once.
     """
     if not update:
         return
 
     session = Session(engine)
+    db_group = None
     try:
         user = update.effective_user
         chat = update.effective_chat
@@ -95,6 +102,17 @@ async def activity_middleware(update: Update, _context: ContextTypes.DEFAULT_TYP
 
             if needs_update:
                 session.add(db_group)
+
+        # Cache the reply locale for this update (resolved while the session is
+        # open so group.settings can lazy-load). Group setting wins; otherwise
+        # fall back to the Telegram user's client language.
+        chat_data = getattr(context, "chat_data", None)
+        if isinstance(chat_data, dict):
+            if db_group is not None:
+                chat_data["locale"] = resolve_group_locale(db_group)
+            else:
+                lang = getattr(user, "language_code", None) if user else None
+                chat_data["locale"] = normalize_language(lang)
 
         session.commit()
     except Exception as e:

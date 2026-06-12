@@ -4,6 +4,7 @@ from telegram.ext import ContextTypes
 from bot.decorators.cooldown import cooldown
 from bot.decorators.is_group import is_group
 from bot.decorators.require_admin import require_admin
+from bot.i18n import get_locale, t
 from bot.utils.args import parse_trigger_name
 from bot.utils.errors import reply_generic_error
 from repositories.group_repository import GroupRepository
@@ -23,10 +24,11 @@ async def clearlist(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user_id = update.message.from_user.id
         group_id = update.message.chat.id
         args = context.args
+        locale = get_locale(update, context)
 
         if not args:
             await update.message.reply_text(
-                "Usage: /clearlist <trigger_name>\nExample: /clearlist devs"
+                t("clearlist.usage", locale)
             )
             return
 
@@ -40,14 +42,14 @@ async def clearlist(update: Update, context: ContextTypes.DEFAULT_TYPE):
         group = group_repo.get_by_telegram_id(session, group_id)
         if not group:
             await update.message.reply_text(
-                "Group not registered. Type /in everyone to initialize it first."
+                t("groups.not_registered_init", locale)
             )
             return
 
         existing = list_repo.get_by_trigger_name(session, group.id, trigger_name)
         if not existing:
             await update.message.reply_text(
-                f"List '{trigger_name}' not found."
+                t("lists.not_found", locale, trigger=trigger_name)
             )
             return
 
@@ -55,17 +57,17 @@ async def clearlist(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         if cleared_count != -1:
             await update.message.reply_text(
-                f"List <b>{existing.name}</b> cleared successfully. Removed {cleared_count} users.",
+                t("clearlist.cleared", locale, list=existing.name, count=cleared_count),
                 parse_mode="HTML",
             )
         else:
             await update.message.reply_text(
-                f"Could not clear list <b>{existing.name}</b>.",
+                t("clearlist.clear_failed", locale, list=existing.name),
                 parse_mode="HTML",
             )
 
     except Exception as e:
         logger.exception(f"[ERROR] clearlist: {e}")
-        await reply_generic_error(update)
+        await reply_generic_error(update, context)
     finally:
         session.close()

@@ -3,8 +3,8 @@ from datetime import UTC, datetime
 from enum import Enum
 from typing import TYPE_CHECKING
 
-from sqlmodel import Column, Field, Relationship, func
 from sqlalchemy import Enum as SAEnum
+from sqlmodel import Column, Field, Relationship, func
 
 from models import ModelBase
 from utils.db_types import UTCDateTime

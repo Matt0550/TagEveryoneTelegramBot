@@ -3,6 +3,7 @@ from telegram.ext import ContextTypes
 
 from bot.decorators.cooldown import cooldown
 from bot.decorators.is_group import is_group
+from bot.i18n import get_locale, t
 from bot.utils.errors import reply_generic_error
 from models_all.group import GroupCreate
 from models_all.user import UserCreate
@@ -37,6 +38,7 @@ async def join_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
         group_members = await update.message.chat.get_member_count()
 
         args = context.args
+        locale = get_locale(update, context)
 
         target_list_trigger = "everyone"
 
@@ -76,7 +78,7 @@ async def join_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     is_manual_modify = True
                 else:
                     await update.message.reply_text(
-                        f"User @{mentioned_username} not found in bot database."
+                        t("users.not_found", locale, username=mentioned_username)
                     )
                     return
             elif args[0].isdigit():
@@ -101,7 +103,7 @@ async def join_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     admin_member.OWNER,
                 ]:
                     await update.message.reply_text(
-                        "You must be a group admin or owner to modify others."
+                        t("in.must_be_admin_modify", locale)
                     )
                     return
             else:
@@ -149,7 +151,7 @@ async def join_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         target_list = list_service.get_list_by_trigger_name(group.id, target_list_trigger)
         if not target_list:
-            await update.message.reply_text(f"List '{target_list_trigger}' not found.")
+            await update.message.reply_text(t("lists.not_found", locale, trigger=target_list_trigger))
             return
 
         success = list_service.subscribe(
@@ -158,21 +160,21 @@ async def join_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         if not success:
             await update.message.reply_text(
-                f"User is already in the '{target_list.name}' list."
+                t("in.already_in_list", locale, list=target_list.name)
             )
             return
 
         if is_manual_modify:
             await update.message.reply_text(
-                f"User manually added to '{target_list.name}'."
+                t("in.manual_added", locale, list=target_list.name)
             )
         else:
             await update.message.reply_text(
-                f"You have been added to '{target_list.name}'. To remove yourself type /out {target_list_trigger}"
+                t("in.added_self", locale, list=target_list.name, trigger=target_list_trigger)
             )
 
     except Exception as e:
         logger.exception(f"[ERROR] join_list: {e}")
-        await reply_generic_error(update)
+        await reply_generic_error(update, context)
     finally:
         session.close()

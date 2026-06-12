@@ -16,6 +16,8 @@ if TYPE_CHECKING:
 class GroupSettingShared(ModelBase):
     group_id: uuid.UUID = Field(foreign_key="groups.id", unique=True)
     auto_add_new_members: bool = Field(default=False)
+    # Language the bot replies in for this group (ISO 639-1). English default.
+    language: str = Field(default="en", max_length=8)
 
 
 class GroupSetting(GroupSettingShared, table=True):
@@ -57,6 +59,7 @@ class GroupSettingCreate(GroupSettingShared):
 class GroupSettingUpdate(ModelBase):
     auto_add_new_members: bool | None = None
     auto_add_list_ids: list[uuid.UUID] | None = None
+    language: str | None = None
 
 
 from models_all.tag_list import TagListResponse
