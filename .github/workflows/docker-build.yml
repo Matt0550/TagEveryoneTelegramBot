@@ -9,7 +9,9 @@ env:
   REGISTRY: docker.io
   BOT_IMAGE_NAME: matt0550/tageveryone_telegrambot
   WEBAPP_IMAGE_NAME: matt0550/tageveryone_webapp
-  PLATFORMS: linux/amd64,linux/arm64,linux/arm/v7
+  # linux/arm/v7 dropped: ghcr.io/astral-sh/uv has no arm/v7 manifest, and
+  # rolldown (Vite's bundler) ships no linux-arm-musleabihf native binding.
+  PLATFORMS: linux/amd64,linux/arm64
 
 jobs:
   build_and_push_bot:
@@ -112,19 +114,3 @@ jobs:
           subject-name: ${{ env.REGISTRY }}/${{ env.WEBAPP_IMAGE_NAME }}
           subject-digest: ${{ steps.build-push.outputs.digest }}
           push-to-registry: true
-
-  deploy_webapp_vercel:
-    name: Deploy Webapp to Vercel
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out the repo
-        uses: actions/checkout@v4
-
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: src/tg_mini_app
-          scope: ${{ secrets.VERCEL_ORG_ID }}
