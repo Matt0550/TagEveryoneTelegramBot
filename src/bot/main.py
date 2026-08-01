@@ -110,14 +110,32 @@ def main():
     application.add_handler(MessageHandler(filters.COMMAND, everyone))
 
     logger.info("Bot started successfully!")
-    application.run_polling(
-        allowed_updates=[
-            Update.MESSAGE,
-            Update.CALLBACK_QUERY,
-            Update.MY_CHAT_MEMBER,
-            Update.CHAT_MEMBER,
-        ]
-    )
+    allowed_updates = [
+        Update.MESSAGE,
+        Update.CALLBACK_QUERY,
+        Update.MY_CHAT_MEMBER,
+        Update.CHAT_MEMBER,
+    ]
+
+    if settings.WEBHOOK_MODE:
+        logger.info("Bot is running in webhook mode...")
+        logger.info(
+            f"Listening on {settings.WEBHOOK_LISTEN_ADDRESS}:{settings.WEBHOOK_PORT} "
+            f"with URL path '{settings.WEBHOOK_URL_PATH}'"
+        )
+        application.run_webhook(
+            listen=settings.WEBHOOK_LISTEN_ADDRESS,
+            port=settings.WEBHOOK_PORT,
+            url_path=settings.WEBHOOK_URL_PATH,
+            webhook_url=settings.WEBHOOK_URL,
+            cert=settings.WEBHOOK_SSL_CERT_PATH,
+            key=settings.WEBHOOK_SSL_KEY_PATH,
+            secret_token=settings.WEBHOOK_SECRET_TOKEN,
+            allowed_updates=allowed_updates,
+        )
+    else:
+        logger.info("Bot is running in polling mode...")
+        application.run_polling(allowed_updates=allowed_updates)
 
 
 if __name__ == "__main__":

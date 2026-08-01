@@ -116,6 +116,16 @@ class Settings(BaseSettings):
     API_IS_BEHIND_PROXY: bool = False
     API_USE_SSL: bool = False
 
+    # * MARK: TELEGRAM BOT WEBHOOK CONFIG
+    WEBHOOK_MODE: bool = False
+    WEBHOOK_LISTEN_ADDRESS: str = "0.0.0.0"
+    WEBHOOK_PORT: int = 8443
+    WEBHOOK_URL_PATH: str = ""
+    WEBHOOK_URL: str = ""
+    WEBHOOK_SSL_CERT_PATH: str | None = None
+    WEBHOOK_SSL_KEY_PATH: str | None = None
+    WEBHOOK_SECRET_TOKEN: str | None = None
+
 
 settings = Settings()  # type: ignore
 

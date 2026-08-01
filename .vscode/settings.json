@@ -1,0 +1,8 @@
+{
+    "i18n-ally.localesPaths": [
+        "src/bot/i18n",
+        "src/bot/i18n/locales",
+        "src/tg_mini_app/src/i18n",
+        "src/tg_mini_app/src/i18n/locales"
+    ]
+}
